@@ -22,6 +22,7 @@ func initLogger(srv *echo.Echo) {
 
 func initHTTPServer(app *App) *echo.Echo {
 	srv := echo.New()
+	game := NewGame()
 
 	srv.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
 		Skipper: func(c echo.Context) bool {
@@ -41,6 +42,6 @@ func initHTTPServer(app *App) *echo.Echo {
 		}
 	})
 
-	initHandler(srv, app)
+	initHandler(srv, app, game)
 	return srv
 }

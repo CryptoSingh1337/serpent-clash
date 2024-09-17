@@ -1,31 +1,25 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/CryptoSingh1337/multiplayer-snake-game/server/internal/services"
 	"github.com/google/uuid"
-	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
-	"net/http"
+	"github.com/lesismal/nbio/nbhttp/websocket"
+	"log"
 )
 
-var (
-	upgrader = websocket.Upgrader{
-		CheckOrigin: func(r *http.Request) bool {
-			return true
-		},
-	}
-)
+func initHandler(e *echo.Echo, app *App, game *services.Game) {
+	e.File("/", app.Config.indexFile)
+	e.Static("/assets", app.Config.assetDir)
+	e.Static("/", app.Config.distDir)
 
-func initHandler(srv *echo.Echo, app *App, game *Game) {
-	srv.File("/", app.Config.indexFile)
-	srv.Static("/assets", app.Config.assetDir)
-	srv.Static("/", app.Config.distDir)
-
-	srv.GET("/ws", func(c echo.Context) error {
+	e.GET("/ws", func(c echo.Context) error {
 		return handleWebsocket(c, game)
 	})
-	srv.GET("/*", handleCatchAll)
+	e.GET("/*", handleCatchAll)
 }
 
 func handleCatchAll(c echo.Context) error {
@@ -33,30 +27,41 @@ func handleCatchAll(c echo.Context) error {
 	return c.File(app.Config.indexFile)
 }
 
-func handleWebsocket(c echo.Context, game *Game) error {
-	conn, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
+func handleWebsocket(c echo.Context, game *services.Game) error {
+	w := c.Response()
+	r := c.Request()
+	upgrader := websocket.NewUpgrader()
+	upgrader.OnMessage(func(c *websocket.Conn, messageType websocket.MessageType, data []byte) {
+		log.Println("Message received:", string(data))
+	})
+	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		return err
 	}
-
-	client := &Client{id: uuid.NewString(), session: nil, conn: conn, send: make(chan []string)}
-	err = game.addClient(client)
+	client := &services.Client{Id: uuid.NewString(), Conn: conn, Send: make(chan []string)}
+	err = game.AddClient(client)
 	if err != nil {
 		c.Logger().Error(err)
-		return err
+		conn.CloseWithError(err)
 	}
-	if client.session == nil {
+	if client.Session == nil {
 		err = errors.New("no session assigned to the client")
 		c.Logger().Error(err)
-		return err
+		conn.CloseWithError(err)
 	}
-
-	body := fmt.Sprintf("{\"clientId\":%q, \"sessionId\":%q}", client.id, client.session.id)
-	err = conn.WriteJSON(Payload{"initialize", body})
+	body := fmt.Sprintf("{\"clientId\":%q, \"sessionId\":%q}", client.Id, client.Session.Id)
+	payload, err := json.Marshal(services.Payload{Type: "initialize", Body: []byte(body)})
+	err = conn.WriteMessage(websocket.TextMessage, payload)
 	if err != nil {
-		c.Logger().Error(err)
+		conn.CloseWithError(err)
 	}
-	go client.read()
-	go client.write()
+	conn.OnClose(func(c *websocket.Conn, err error) {
+		log.Println("OnClose:", c.RemoteAddr().String(), err)
+		err = game.RemoveClient(client)
+		if err != nil {
+			log.Println("Error removing client:", err)
+		}
+	})
+	log.Println("OnOpen:", conn.RemoteAddr().String())
 	return nil
 }

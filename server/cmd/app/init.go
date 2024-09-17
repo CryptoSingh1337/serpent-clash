@@ -1,11 +1,14 @@
 package main
 
 import (
+	"github.com/CryptoSingh1337/multiplayer-snake-game/server/internal/services"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/lesismal/nbio/nbhttp"
 )
 
 type Config struct {
+	addr      string
 	port      string
 	distDir   string
 	assetDir  string
@@ -16,15 +19,15 @@ type App struct {
 	Config Config
 }
 
-func initLogger(srv *echo.Echo) {
-	srv.Logger.SetLevel(2)
+func initLogger(e *echo.Echo) {
+	e.Logger.SetLevel(2)
 }
 
-func initHTTPServer(app *App) *echo.Echo {
-	srv := echo.New()
-	game := NewGame()
+func initHTTPServer(app *App) *nbhttp.Engine {
+	e := echo.New()
+	game := services.NewGame()
 
-	srv.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
 		Skipper: func(c echo.Context) bool {
 			if c.Request().RequestURI == "/ws" {
 				return false
@@ -32,16 +35,23 @@ func initHTTPServer(app *App) *echo.Echo {
 			return true
 		},
 	}))
-	srv.Use(middleware.Recover())
+	e.Use(middleware.Recover())
 
 	// Register app (*App) to be injected into all HTTP handlers.
-	srv.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			c.Set("app", app)
 			return next(c)
 		}
 	})
 
-	initHandler(srv, app, game)
-	return srv
+	initLogger(e)
+
+	initHandler(e, app, game)
+
+	return nbhttp.NewEngine(nbhttp.Config{
+		Network: "tcp",
+		Addrs:   []string{app.Config.addr + ":" + app.Config.port},
+		Handler: e,
+	})
 }

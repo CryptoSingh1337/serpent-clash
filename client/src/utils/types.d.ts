@@ -3,7 +3,7 @@ type Payload = {
   body: string
 }
 
-type Player = {
-  clientId: string,
-  sessionId: string
+type Position = {
+  x: number,
+  y: number
 }

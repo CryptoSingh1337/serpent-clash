@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/CryptoSingh1337/multiplayer-snake-game/server/internal/services"
 	"log"
 	"os"
 	"os/signal"
@@ -18,7 +19,8 @@ func main() {
 			indexFile: "../client/dist/index.html",
 		},
 	}
-	srv := initHTTPServer(app)
+	game := services.NewGame()
+	srv := initHTTPServer(app, game)
 
 	err := srv.Start()
 	if err != nil {
@@ -33,6 +35,7 @@ func main() {
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 	defer cancel()
+	game.Close()
 	err = srv.Shutdown(ctx)
 	if err != nil {
 		log.Fatalf("Shutdown failed: %v\n", err)

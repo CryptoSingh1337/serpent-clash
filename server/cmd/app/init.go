@@ -23,9 +23,8 @@ func initLogger(e *echo.Echo) {
 	e.Logger.SetLevel(2)
 }
 
-func initHTTPServer(app *App) *nbhttp.Engine {
+func initHTTPServer(app *App, game *services.Game) *nbhttp.Engine {
 	e := echo.New()
-	game := services.NewGame()
 
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
 		Skipper: func(c echo.Context) bool {

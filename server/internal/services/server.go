@@ -32,9 +32,9 @@ func NewGame() *Game {
 	game := &Game{
 		Players:    make(map[*Player]bool),
 		Broadcast:  make(chan string),
-		JoinQueue:  make(chan *Player),
-		LeaveQueue: make(chan *Player),
-		PingQueue:  make(chan *Player),
+		JoinQueue:  make(chan *Player, maxPlayerAllowed),
+		LeaveQueue: make(chan *Player, maxPlayerAllowed),
+		PingQueue:  make(chan *Player, maxPlayerAllowed),
 		Done:       make(chan bool),
 	}
 	game.init()

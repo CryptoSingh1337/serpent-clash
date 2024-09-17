@@ -31,7 +31,9 @@ func handleWebsocket(c echo.Context, game *services.Game) error {
 	w := c.Response()
 	r := c.Request()
 	upgrader := websocket.NewUpgrader()
+	// TODO: add readDeadline and writeDeadline in ws connection
 	upgrader.OnMessage(func(c *websocket.Conn, messageType websocket.MessageType, data []byte) {
+		// TODO: add dispatcher
 		log.Println("Message received:", string(data))
 	})
 	conn, err := upgrader.Upgrade(w, r, nil)

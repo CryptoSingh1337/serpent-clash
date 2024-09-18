@@ -12,6 +12,7 @@ export type Position = {
 
 export type BackendPlayer = {
   id: string,
+  color: string
   positions: Position[]
   direction: number
 }

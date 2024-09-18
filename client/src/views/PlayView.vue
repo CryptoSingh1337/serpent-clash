@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, useTemplateRef } from 'vue'
 import { Player } from '../classes/entity'
+import type { BackendPlayer, Players, Position } from '../utils/types'
 
 let socket: WebSocket | null = null
 let positions: Position[] = [{
   x: innerWidth / 2, y: innerHeight / 2
 }]
-let player: Player = new Player('1', '2', '#fff', positions)
+let currentPlayer: Player = new Player({ id: '1', color: '#fff', positions: positions, direction: 0 })
+const players: Players = {}
 
 const canvasRef = useTemplateRef<HTMLCanvasElement>('canvasRef')
 onMounted(() => {
@@ -21,9 +23,28 @@ onMounted(() => {
     data = JSON.parse(data.data)
     switch (data.type) {
       case "initialize": {
-        player.clientId = data.clientId
-        player.sessionId = data.sessionId
-        console.log("Player", player)
+        currentPlayer.id = data.id
+        console.log("Player", currentPlayer)
+        break;
+      }
+      case "game_state": {
+        const backendPlayers = data.body.playerStates as {[id: string]: BackendPlayer}
+        for (const id in backendPlayers) {
+          const backendPlayer = backendPlayers[id]
+          if (!players[id]) {
+            players[id] = new Player({id: id, color: '#fff', positions: backendPlayer.positions, direction: backendPlayer.direction})
+          } else {
+            if (currentPlayer.id === backendPlayer.id) {
+              currentPlayer.positions = backendPlayer.positions
+              currentPlayer.direction = backendPlayer.direction
+            }
+          }
+        }
+        for (const id in players) {
+          if (!backendPlayers[id]) {
+            delete players[id]
+          }
+        }
         break;
       }
       default: {
@@ -33,8 +54,7 @@ onMounted(() => {
     setInterval(() => {
       if (socket && socket.readyState === WebSocket.OPEN) {
         const payload = {
-          clientId: player.clientId,
-          sessionId: player.sessionId,
+          id: currentPlayer.id,
           body: JSON.stringify({
             message: "Hello, server"
           })
@@ -66,7 +86,10 @@ onMounted(() => {
     }
     c.fillStyle = 'rgba(0, 0, 0, 0.1)'
     c.fillRect(0, 0, innerWidth, innerHeight)
-    player.draw(c)
+    for (const id in players) {
+      const player = players[id]
+      player.draw(c)
+    }
   }
   animate()
 })

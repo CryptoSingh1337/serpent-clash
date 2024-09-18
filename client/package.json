@@ -10,11 +10,12 @@
     "build-only": "vite build",
     "type-check": "vue-tsc --build --force",
     "lint": "eslint multiplayer-snake-game --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
-    "format": "prettier --write src"
+    "format": "prettier --write src",
+    "reset": "rm -rf .nuxt node_modules .output && npm install"
   },
   "dependencies": {
-    "vue": "^3.4.29",
-    "vue-router": "^4.3.3"
+    "vue": "^3.5.6",
+    "vue-router": "^4.4.5"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.8.0",

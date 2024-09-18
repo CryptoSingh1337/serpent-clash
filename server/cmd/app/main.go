@@ -27,8 +27,6 @@ func main() {
 		log.Fatalf("nbio.Start failed: %v\n", err)
 	}
 
-	log.Println("serving [labstack/echo] on [nbio]")
-
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
 	<-interrupt

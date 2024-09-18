@@ -1,22 +1,14 @@
 package services
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
+	"github.com/CryptoSingh1337/multiplayer-snake-game/server/internal/utils"
 	"github.com/lesismal/nbio/nbhttp/websocket"
 	"log"
 	"strconv"
 	"time"
-)
-
-const (
-	tickRate            = 1
-	playerSpeed         = 10
-	defaultSnakeLength  = 10
-	defaultGrowthFactor = 2
-	maxPlayerAllowed    = 10
-	worldFactor         = 120
-	worldHeight         = 9 * worldFactor
-	worldWidth          = 16 * worldFactor
 )
 
 type Game struct {
@@ -32,9 +24,9 @@ func NewGame() *Game {
 	game := &Game{
 		Players:    make(map[*Player]bool),
 		Broadcast:  make(chan string),
-		JoinQueue:  make(chan *Player, maxPlayerAllowed),
-		LeaveQueue: make(chan *Player, maxPlayerAllowed),
-		PingQueue:  make(chan *Player, maxPlayerAllowed),
+		JoinQueue:  make(chan *Player, utils.MaxPlayerAllowed),
+		LeaveQueue: make(chan *Player, utils.MaxPlayerAllowed),
+		PingQueue:  make(chan *Player, utils.MaxPlayerAllowed),
 		Done:       make(chan bool),
 	}
 	game.init()
@@ -42,7 +34,7 @@ func NewGame() *Game {
 }
 
 func (game *Game) init() {
-	ticker := time.NewTicker(1000 / tickRate * time.Millisecond)
+	ticker := time.NewTicker(1000 / utils.TickRate * time.Millisecond)
 	go func() {
 		for {
 			select {
@@ -68,16 +60,18 @@ func (game *Game) Close() {
 		}
 	}
 
+	time.Sleep(2 * time.Second)
+
 	// Close all channels
-	close(game.Broadcast)
+	close(game.Done)
 	close(game.JoinQueue)
 	close(game.LeaveQueue)
 	close(game.PingQueue)
-	close(game.Done)
+	close(game.Broadcast)
 }
 
 func (game *Game) AddPlayer(player *Player) error {
-	if maxPlayerAllowed <= len(game.Players) {
+	if utils.MaxPlayerAllowed <= len(game.Players) {
 		return errors.New("max players reached")
 	}
 	if game.Players[player] {
@@ -85,7 +79,10 @@ func (game *Game) AddPlayer(player *Player) error {
 	}
 	log.Println("Server::AddPlayer - player Id - " + player.Id + " joined")
 	game.Players[player] = true
-	return nil
+	player.generateRandomPosition()
+	body := fmt.Sprintf("{\"id\":%q}", player.Id)
+	payload, _ := json.Marshal(utils.Payload{Type: utils.InitializeMessage, Body: []byte(body)})
+	return player.Conn.WriteMessage(websocket.TextMessage, payload)
 }
 
 func (game *Game) RemovePlayer(player *Player) error {
@@ -94,10 +91,25 @@ func (game *Game) RemovePlayer(player *Player) error {
 	}
 	if _, ok := game.Players[player]; ok {
 		log.Println("Server::RemovePlayer - player Id - " + player.Id + " left")
+		if err := player.Conn.Close(); err != nil {
+			log.Printf("Error closing connection for player %s: %v", player.Id, err)
+		}
 		delete(game.Players, player)
 		return nil
 	}
 	return errors.New("player not exists")
+}
+
+func (game *Game) Dispatch(messageType websocket.MessageType, data []byte) {
+	switch messageType {
+	case websocket.TextMessage:
+		payload := utils.Payload{}
+		err := json.Unmarshal(data, &payload)
+		if err != nil {
+			return
+		}
+		//log.Println("Server::Dispatch - TextMessage", payload.String())
+	}
 }
 
 func (game *Game) processTick() {
@@ -128,9 +140,6 @@ ProcessLeaveQueue:
 			if err := game.RemovePlayer(player); err != nil {
 				log.Printf("Error removing player %s: %v", player.Id, err)
 			}
-			if err := player.Conn.Close(); err != nil {
-				log.Printf("Error closing connection for player %s: %v", player.Id, err)
-			}
 		default:
 			// Exit the loop when LeaveQueue is empty
 			goto ProcessPingQueue
@@ -147,7 +156,35 @@ ProcessPingQueue:
 				log.Printf("Error pinging player %s: %v", player.Id, err)
 			}
 		default:
-			return
+			goto BroadcastGameState
+		}
+	}
+
+BroadcastGameState:
+	// form players data in json
+	gameState := utils.GameState{
+		PlayerStates: make(map[string]utils.PlayerState),
+	}
+	for player, flag := range game.Players {
+		if flag {
+			playerState := utils.PlayerState{
+				Positions: player.Positions,
+				Direction: player.Direction,
+			}
+			gameState.PlayerStates[player.Id] = playerState
+		}
+	}
+	// Send game state to every player
+	body, _ := json.Marshal(gameState)
+	payload, _ := json.Marshal(utils.Payload{Type: utils.GameStateMessage, Body: body})
+	for player, flag := range game.Players {
+		if flag {
+			err := player.Conn.WriteMessage(websocket.TextMessage, payload)
+			if err != nil {
+				if err := player.Conn.Close(); err != nil {
+					log.Printf("Error closing connection for player %s: %v", player.Id, err)
+				}
+			}
 		}
 	}
 }

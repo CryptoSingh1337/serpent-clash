@@ -4,7 +4,6 @@ import (
 	"github.com/CryptoSingh1337/multiplayer-snake-game/server/internal/services"
 	"github.com/labstack/echo/v4"
 	"github.com/lesismal/nbio/nbhttp/websocket"
-	"log"
 )
 
 func initHandler(e *echo.Echo, app *App, game *services.Game) {
@@ -28,8 +27,8 @@ func handleWebsocket(c echo.Context, game *services.Game) error {
 	r := c.Request()
 	upgrader := websocket.NewUpgrader()
 	upgrader.OnMessage(func(c *websocket.Conn, messageType websocket.MessageType, data []byte) {
-		// TODO: add dispatcher
-		log.Println("Message received:", string(data))
+		game.Dispatch(messageType, data)
+		//log.Println("Message received:", string(data))
 	})
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {

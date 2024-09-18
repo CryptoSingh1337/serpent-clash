@@ -1,7 +1,6 @@
 package services
 
 import (
-	"encoding/json"
 	"github.com/CryptoSingh1337/multiplayer-snake-game/server/internal/utils"
 	"github.com/google/uuid"
 	"github.com/lesismal/nbio/nbhttp/websocket"
@@ -12,11 +11,7 @@ type Player struct {
 	Id        string
 	Conn      *websocket.Conn
 	Positions []utils.Position
-}
-
-type Payload struct {
-	Type string          `json:"type"`
-	Body json.RawMessage `json:"body"`
+	Direction byte
 }
 
 func NewPlayer(conn *websocket.Conn) *Player {
@@ -29,14 +24,14 @@ func NewPlayer(conn *websocket.Conn) *Player {
 }
 
 func (player *Player) generateRandomPosition() {
-	x := 100 + rand.Intn(worldWidth-100)
-	y := 100 + rand.Intn(worldHeight-100)
+	x := 100 + rand.Intn(utils.WorldWidth-100)
+	y := 100 + rand.Intn(utils.WorldHeight-100)
 
-	positions := make([]utils.Position, defaultSnakeLength)
+	positions := make([]utils.Position, utils.DefaultSnakeLength)
 	positions[0] = utils.Position{X: x, Y: y}
 	for i := 1; i < len(positions); i++ {
-		positions[i].X = x + defaultGrowthFactor
-		positions[i].Y = y + defaultGrowthFactor
+		positions[i].X = x + utils.DefaultGrowthFactor
+		positions[i].Y = y + utils.DefaultGrowthFactor
 	}
 	player.Positions = positions
 }

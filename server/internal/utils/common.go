@@ -25,10 +25,10 @@ const (
 )
 
 const (
-	PingMessage       = "ping"
-	PongMessage       = "pong"
-	GameStateMessage  = "game_state"
-	InitializeMessage = "initialize"
+	HelloMessage     = "hello"
+	PingMessage      = "ping"
+	PongMessage      = "pong"
+	GameStateMessage = "game_state"
 )
 
 type Position struct {
@@ -42,6 +42,7 @@ type Payload struct {
 }
 
 type PlayerState struct {
+	Color     string     `json:"color"`
 	Positions []Position `json:"positions"`
 	Direction byte       `json:"direction"`
 }

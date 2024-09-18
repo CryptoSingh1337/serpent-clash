@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	"github.com/CryptoSingh1337/multiplayer-snake-game/server/internal/utils"
 	"github.com/google/uuid"
 	"github.com/lesismal/nbio/nbhttp/websocket"
@@ -12,12 +13,15 @@ type Player struct {
 	Conn      *websocket.Conn
 	Positions []utils.Position
 	Direction byte
+	Color     string
 }
 
 func NewPlayer(conn *websocket.Conn) *Player {
 	player := &Player{
-		Id:   uuid.NewString(),
-		Conn: conn,
+		Id:        uuid.NewString(),
+		Conn:      conn,
+		Color:     fmt.Sprintf("hsl(%v, 100%%, 50%%)", rand.Intn(360)),
+		Direction: 0,
 	}
 	player.generateRandomPosition()
 	return player

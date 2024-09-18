@@ -80,8 +80,8 @@ func (game *Game) AddPlayer(player *Player) error {
 	log.Println("Server::AddPlayer - player Id - " + player.Id + " joined")
 	game.Players[player] = true
 	player.generateRandomPosition()
-	body := fmt.Sprintf("{\"id\":%q}", player.Id)
-	payload, _ := json.Marshal(utils.Payload{Type: utils.InitializeMessage, Body: []byte(body)})
+	body := fmt.Sprintf(`{"id":%q}`, player.Id)
+	payload, _ := json.Marshal(utils.Payload{Type: utils.HelloMessage, Body: []byte(body)})
 	return player.Conn.WriteMessage(websocket.TextMessage, payload)
 }
 
@@ -113,7 +113,6 @@ func (game *Game) Dispatch(messageType websocket.MessageType, data []byte) {
 }
 
 func (game *Game) processTick() {
-	log.Println("Server::processTick")
 	timestamp := time.Now().Unix()
 
 	// Process all players in JoinQueue
@@ -168,6 +167,7 @@ BroadcastGameState:
 	for player, flag := range game.Players {
 		if flag {
 			playerState := utils.PlayerState{
+				Color:     player.Color,
 				Positions: player.Positions,
 				Direction: player.Direction,
 			}

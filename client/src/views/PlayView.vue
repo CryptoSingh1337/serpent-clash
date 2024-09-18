@@ -103,7 +103,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <h1>Game View</h1>
+  <h1 class="text-lg">Game View</h1>
   <canvas ref="canvas-ref"></canvas>
 </template>
 

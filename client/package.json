@@ -11,7 +11,7 @@
     "type-check": "vue-tsc --build --force",
     "lint": "eslint multiplayer-snake-game --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
     "format": "prettier --write src",
-    "reset": "rm -rf .nuxt node_modules .output && npm install"
+    "reset": "rm -rf dist node_modules && npm install"
   },
   "dependencies": {
     "vue": "^3.5.6",

@@ -54,7 +54,7 @@ func (game *Game) Close() {
 	game.Done <- true
 
 	// Close all ws connections
-	for player, _ := range game.Players {
+	for player := range game.Players {
 		if err := player.Conn.Close(); err != nil {
 			return
 		}

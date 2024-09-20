@@ -1,22 +1,18 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, useTemplateRef } from "vue"
 import { Player } from "../classes/entity"
-import type { BackendPlayer, Players, Position } from "../utils/types"
+import type { BackendPlayer, Players } from "../utils/types"
+import { Stats } from "../classes/stats"
+import { Constants } from '../utils/constants'
 
 const devicePixelRatio = window.devicePixelRatio || 1
 const canvasRef = useTemplateRef<HTMLCanvasElement>('canvas-ref')
 let socket: WebSocket | null = null
-let positions: Position[] = [{
-  x: innerWidth / 2, y: innerHeight / 2
-}]
-let currentPlayer: Player = new Player({
-  id: '1',
-  color: '#fff',
-  radius: 10,
-  positions: positions,
-  direction: 0
-})
+let stats = new Stats()
+let currentPlayerId: string = ""
+const mouseCoordinate = { x: innerWidth / 2, y: innerHeight / 2 }
 const frontendPlayers: Players = {}
+
 onMounted(() => {
   // canvas setup
   const canvas = canvasRef.value
@@ -29,20 +25,38 @@ onMounted(() => {
   }
   canvas.width = innerWidth * devicePixelRatio
   canvas.height = innerHeight * devicePixelRatio
+  window.addEventListener('resize', () => {
+    canvas.width = innerWidth
+    canvas.height = innerHeight
+  })
 
+  canvas.addEventListener("mousemove", (event) => {
+    mouseCoordinate.x = event.clientX - canvas.offsetLeft
+    mouseCoordinate.y = event.clientY - canvas.offsetTop
+    stats.updateMouseCoordinate(mouseCoordinate.x, mouseCoordinate.y)
+  })
+
+  // socket setup
   socket = new WebSocket("ws://localhost:8080/ws")
   socket.onopen = () => {
     console.log("Socket opened")
+    stats.updateStatus("online")
   }
   socket.onclose = () => {
     console.log("Socket closed")
+    stats.updateStatus("offline")
+    stats.updateHeadCoordinate(0, 0)
+    for (const id in frontendPlayers) {
+      delete frontendPlayers[id]
+    }
   }
   socket.onmessage = (data: any) => {
     data = JSON.parse(data.data)
     const body = data.body
     switch (data.type) {
       case "hello": {
-        currentPlayer.id = body.id
+        currentPlayerId = body.id
+        stats.updatePlayerId(currentPlayerId)
         break;
       }
       case "game_state": {
@@ -54,12 +68,14 @@ onMounted(() => {
               id: id,
               color: backendPlayer.color,
               radius: 10,
-              positions: backendPlayer.positions,
-              direction: backendPlayer.direction})
+              positions: backendPlayer.positions
+            })
           } else {
-            if (currentPlayer.id === backendPlayer.id) {
-              currentPlayer.positions = backendPlayer.positions
-              currentPlayer.direction = backendPlayer.direction
+            const frontendPlayer = frontendPlayers[id]
+            frontendPlayer.positions = backendPlayer.positions
+            if (currentPlayerId === id) {
+              stats.updateHeadCoordinate(frontendPlayer.positions[0].x,
+                frontendPlayer.positions[0].y)
             }
           }
         }
@@ -79,19 +95,41 @@ onMounted(() => {
     console.error(err)
   }
 
-  let animationId
-  function animate() {
-    animationId = requestAnimationFrame(animate)
-    if (!c) {
-      throw new Error("Can't find canvas element")
+  setInterval(() => {
+    if (socket && socket.readyState === WebSocket.OPEN) {
+      socket.send(JSON.stringify({
+        type: "movement",
+        body: {
+          coordinate: mouseCoordinate
+        }
+      }))
     }
-    c.fillStyle = 'rgba(0, 0, 0, 0.1)'
-    c.fillRect(0, 0, innerWidth, innerHeight)
+  }, 1000 / Constants.tickRate)
+
+  function renderPlayers(): void {
     for (const id in frontendPlayers) {
       const player = frontendPlayers[id]
       player.draw(c)
     }
   }
+
+  function animate() {
+    if (!c) {
+      throw new Error("Can't find canvas element")
+    }
+    if (!canvas) {
+      throw new Error("Can't find canvas element")
+    }
+    c.clearRect(0, 0, canvas.width, canvas.height)
+    for (const id in frontendPlayers) {
+      const player = frontendPlayers[id]
+      player.draw(c)
+    }
+    stats.renderStats(c)
+    renderPlayers()
+    requestAnimationFrame(animate)
+  }
+  stats.calculateFps()
   animate()
 })
 
@@ -103,13 +141,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <h1 class="text-lg">Game View</h1>
-  <canvas ref="canvas-ref"></canvas>
+  <div class="h-full w-full">
+    <canvas ref="canvas-ref"></canvas>
+  </div>
 </template>
-
-<style>
-canvas {
-  width: 100%;
-  height: 100%;
-}
-</style>

@@ -1,11 +1,6 @@
 import type { Player } from '@/classes/entity'
 
-export type Payload = {
-  eventType: string,
-  body: string
-}
-
-export type Position = {
+export type Coordinate = {
   x: number,
   y: number
 }
@@ -13,8 +8,7 @@ export type Position = {
 export type BackendPlayer = {
   id: string,
   color: string
-  positions: Position[]
-  direction: number
+  positions: Coordinate[]
 }
 
 export type Players = {

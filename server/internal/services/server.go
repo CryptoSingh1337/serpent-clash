@@ -100,15 +100,20 @@ func (game *Game) RemovePlayer(player *Player) error {
 	return errors.New("player not exists")
 }
 
-func (game *Game) Dispatch(messageType websocket.MessageType, data []byte) {
+func (game *Game) ProcessEvent(player *Player, messageType websocket.MessageType, data []byte) {
 	switch messageType {
 	case websocket.TextMessage:
 		payload := utils.Payload{}
-		err := json.Unmarshal(data, &payload)
-		if err != nil {
+		if err := json.Unmarshal(data, &payload); err != nil {
 			return
 		}
-		//log.Println("Server::Dispatch - TextMessage", payload.String())
+		//log.Println("Body", string(payload.Body))
+		mouseEvent := utils.MouseEvent{}
+		if err := json.Unmarshal(payload.Body, &mouseEvent); err != nil {
+			return
+		}
+		//log.Println("Mouse coordinate", mouseEvent.Coordinate)
+		player.Move(&mouseEvent.Coordinate)
 	}
 }
 
@@ -167,9 +172,8 @@ BroadcastGameState:
 	for player, flag := range game.Players {
 		if flag {
 			playerState := utils.PlayerState{
-				Color:     player.Color,
-				Positions: player.Positions,
-				Direction: player.Direction,
+				Color:    player.Color,
+				Segments: player.Segments,
 			}
 			gameState.PlayerStates[player.Id] = playerState
 		}

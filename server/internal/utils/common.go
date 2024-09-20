@@ -3,18 +3,22 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 )
 
 const (
-	PlayerMoving        = iota
-	TickRate            = 1
-	PlayerSpeed         = 10
-	DefaultSnakeLength  = 1
-	DefaultGrowthFactor = 2
-	MaxPlayerAllowed    = 10
-	WorldFactor         = 200
-	WorldHeight         = 3 * WorldFactor
-	WorldWidth          = 4 * WorldFactor
+	PlayerMoving         = iota
+	TickRate             = 60
+	PlayerSpeed          = 3
+	MaxTurnRate          = 0.05
+	DefaultSnakeLength   = 10
+	DefaultGrowthFactor  = 2
+	SnakeSegmentDistance = 25
+	SnakeSegmentRadius   = 100
+	MaxPlayerAllowed     = 10
+	WorldFactor          = 200
+	WorldHeight          = 3 * WorldFactor
+	WorldWidth           = 4 * WorldFactor
 )
 
 const (
@@ -31,9 +35,9 @@ const (
 	GameStateMessage = "game_state"
 )
 
-type Position struct {
-	X int `json:"x"`
-	Y int `json:"y"`
+type Coordinate struct {
+	X float64 `json:"x"`
+	Y float64 `json:"y"`
 }
 
 type Payload struct {
@@ -41,16 +45,31 @@ type Payload struct {
 	Body json.RawMessage `json:"body"`
 }
 
+func (p Payload) String() string {
+	return fmt.Sprintf("{type=%v, body=%v}", p.Type, string(p.Body))
+}
+
+type MouseEvent struct {
+	Coordinate Coordinate `json:"coordinate"`
+}
+
 type PlayerState struct {
-	Color     string     `json:"color"`
-	Positions []Position `json:"positions"`
-	Direction byte       `json:"direction"`
+	Color    string       `json:"color"`
+	Segments []Coordinate `json:"positions"`
 }
 
 type GameState struct {
 	PlayerStates map[string]PlayerState `json:"playerStates"`
 }
 
-func (p Payload) String() string {
-	return fmt.Sprintf("{type=%v, body=%v}", p.Type, string(p.Body))
+func LerpAngle(a, b, t float64) float64 {
+	diff := b - a
+	// Handle wrapping from -π to π
+	for diff < -math.Pi {
+		diff += 2 * math.Pi
+	}
+	for diff > math.Pi {
+		diff -= 2 * math.Pi
+	}
+	return a + diff*math.Min(t, 1.0)
 }

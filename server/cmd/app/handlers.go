@@ -26,15 +26,14 @@ func handleWebsocket(c echo.Context, game *services.Game) error {
 	w := c.Response()
 	r := c.Request()
 	upgrader := websocket.NewUpgrader()
-	upgrader.OnMessage(func(c *websocket.Conn, messageType websocket.MessageType, data []byte) {
-		game.Dispatch(messageType, data)
-		//log.Println("Message received:", string(data))
-	})
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		return err
 	}
 	player := services.NewPlayer(conn)
+	upgrader.OnMessage(func(c *websocket.Conn, messageType websocket.MessageType, data []byte) {
+		game.ProcessEvent(player, messageType, data)
+	})
 	game.JoinQueue <- player
 	conn.OnClose(func(c *websocket.Conn, err error) {
 		game.LeaveQueue <- player

@@ -31,8 +31,8 @@ const (
 const (
 	HelloMessage     = "hello"
 	PingMessage      = "ping"
-	PongMessage      = "pong"
 	GameStateMessage = "game_state"
+	Movement         = "movement"
 )
 
 type Coordinate struct {

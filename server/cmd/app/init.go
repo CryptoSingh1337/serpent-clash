@@ -2,9 +2,12 @@ package main
 
 import (
 	"github.com/CryptoSingh1337/multiplayer-snake-game/server/internal/services"
+	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/lesismal/nbio/nbhttp"
+	"os"
+	"path/filepath"
 )
 
 type Config struct {
@@ -21,6 +24,31 @@ type App struct {
 
 func initLogger(e *echo.Echo) {
 	e.Logger.SetLevel(2)
+}
+
+func LoadConfig() *Config {
+	// Load .env file if it exists
+	_ = godotenv.Load()
+
+	// Set default values
+	config := Config{
+		addr: "0.0.0.0",
+		port: "8080",
+	}
+
+	// Override with environment variables if they exist
+	if env := os.Getenv("SERVER_ADDR"); env != "" {
+		config.addr = env
+	}
+	if env := os.Getenv("SERVER_PORT"); env != "" {
+		config.port = env
+	}
+	if env := os.Getenv("DIST_DIR"); env != "" {
+		config.distDir = env
+		config.assetDir = filepath.Join(env, "assets")
+		config.indexFile = filepath.Join(env, "index.html")
+	}
+	return &config
 }
 
 func initHTTPServer(app *App, game *services.Game) *nbhttp.Engine {

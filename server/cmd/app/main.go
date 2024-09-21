@@ -10,15 +10,11 @@ import (
 )
 
 func main() {
+	config := LoadConfig()
 	app := &App{
-		Config: Config{
-			addr:      "localhost",
-			port:      "8080",
-			distDir:   "../client/dist",
-			assetDir:  "../client/dist/assets",
-			indexFile: "../client/dist/index.html",
-		},
+		Config: *config,
 	}
+	log.Println("Loaded config", app.Config)
 	game := services.NewGame()
 	srv := initHTTPServer(app, game)
 

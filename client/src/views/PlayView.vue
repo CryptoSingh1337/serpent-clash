@@ -1,20 +1,23 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, useTemplateRef } from "vue"
-import { Player } from "../classes/entity"
-import type { BackendPlayer, Players } from "../utils/types"
-import { Stats } from "../classes/stats"
-import { Constants } from '../utils/constants'
+import { onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
+import { Game } from '@/classes/game'
 
 const devicePixelRatio = window.devicePixelRatio || 1
 const canvasRef = useTemplateRef<HTMLCanvasElement>('canvas-ref')
-let socket: WebSocket | null = null
-let stats = new Stats()
-let currentPlayerId: string = ""
-const mouseCoordinate = { x: innerWidth / 2, y: innerHeight / 2 }
-const frontendPlayers: Players = {}
+let game: Game | null = null
+const status = ref<string>("connect")
+
+function connectOrDisconnect(): void {
+  if (game && status.value === "connect") {
+    game.connect()
+    status.value = "disconnect"
+  } else if (game && status.value === "disconnect") {
+    game.disconnect()
+    status.value = "connect"
+  }
+}
 
 onMounted(() => {
-  // canvas setup
   const canvas = canvasRef.value
   if (!canvas) {
     throw new Error("Can't find canvas element")
@@ -31,111 +34,41 @@ onMounted(() => {
   })
 
   canvas.addEventListener("mousemove", (event) => {
-    mouseCoordinate.x = event.clientX - canvas.offsetLeft
-    mouseCoordinate.y = event.clientY - canvas.offsetTop
-    stats.updateMouseCoordinate(mouseCoordinate.x, mouseCoordinate.y)
+    const x = event.clientX - canvas.offsetLeft
+    const y = event.clientY - canvas.offsetTop
+    if (game) {
+      game.updateMouseCoordinate(x, y)
+    }
   })
 
-  // socket setup
-  socket = new WebSocket("ws://localhost:8080/ws")
-  socket.onopen = () => {
-    console.log("Socket opened")
-    stats.updateStatus("online")
+  game = new Game(c)
+  if (!game) {
+    throw new Error("Cannot initialize game object")
   }
-  socket.onclose = () => {
-    console.log("Socket closed")
-    stats.updateStatus("offline")
-    stats.updateHeadCoordinate(0, 0)
-    for (const id in frontendPlayers) {
-      delete frontendPlayers[id]
-    }
-  }
-  socket.onmessage = (data: any) => {
-    data = JSON.parse(data.data)
-    const body = data.body
-    switch (data.type) {
-      case "hello": {
-        currentPlayerId = body.id
-        stats.updatePlayerId(currentPlayerId)
-        break;
-      }
-      case "game_state": {
-        const backendPlayers = body.playerStates as {[id: string]: BackendPlayer}
-        for (const id in backendPlayers) {
-          const backendPlayer = backendPlayers[id]
-          if (!frontendPlayers[id]) {
-            frontendPlayers[id] = new Player({
-              id: id,
-              color: backendPlayer.color,
-              radius: 10,
-              positions: backendPlayer.positions
-            })
-          } else {
-            const frontendPlayer = frontendPlayers[id]
-            frontendPlayer.positions = backendPlayer.positions
-            if (currentPlayerId === id) {
-              stats.updateHeadCoordinate(frontendPlayer.positions[0].x,
-                frontendPlayer.positions[0].y)
-            }
-          }
-        }
-        for (const id in frontendPlayers) {
-          if (!backendPlayers[id]) {
-            delete frontendPlayers[id]
-          }
-        }
-        break;
-      }
-      default: {
-        console.log("invalid message type", data.type)
-      }
-    }
-  }
-  socket.onerror = (err: any) => {
-    console.error(err)
-  }
-
-  setInterval(() => {
-    if (socket && socket.readyState === WebSocket.OPEN) {
-      socket.send(JSON.stringify({
-        type: "movement",
-        body: {
-          coordinate: mouseCoordinate
-        }
-      }))
-    }
-  }, 1000 / Constants.tickRate)
-
-  function renderPlayers(): void {
-    for (const id in frontendPlayers) {
-      const player = frontendPlayers[id]
-      player.draw(c)
-    }
-  }
+  status.value = "disconnect"
 
   function animate() {
-    if (!c) {
-      throw new Error("Can't find canvas element")
-    }
     if (!canvas) {
       throw new Error("Can't find canvas element")
     }
-    c.clearRect(0, 0, canvas.width, canvas.height)
-    for (const id in frontendPlayers) {
-      const player = frontendPlayers[id]
-      player.draw(c)
+    if (!c) {
+      throw new Error("Can't find canvas element")
     }
-    stats.renderStats(c)
-    renderPlayers()
+    if (!game) {
+      throw new Error("game object is not initialized")
+    }
+    c.clearRect(0, 0, canvas.width, canvas.height)
+    game.renderStats()
+    game.renderPlayers()
     requestAnimationFrame(animate)
   }
-  stats.calculateFps()
+  game.calculateFps()
   animate()
 })
 
 onBeforeUnmount(() => {
-  if (socket && socket.readyState === WebSocket.OPEN) {
-    socket.close()
+  if (game) {
+    game.disconnect()
   }
 })
 </script>
@@ -143,5 +76,9 @@ onBeforeUnmount(() => {
 <template>
   <div class="h-full w-full">
     <canvas ref="canvas-ref"></canvas>
+    <button class="absolute top-5 right-5 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full"
+            @click="connectOrDisconnect">
+      {{ status }}
+    </button>
   </div>
 </template>

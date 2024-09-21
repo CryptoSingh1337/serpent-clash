@@ -85,7 +85,6 @@ ProcessPingQueue:
 		case player := <-game.PingQueue:
 			val, ok := game.Players[player]
 			if ok && val {
-				log.Println("ping timestamp", player.pingTimestamp)
 				body, _ := json.Marshal(utils.PingEvent{Timestamp: player.pingTimestamp})
 				payload, _ := json.Marshal(utils.Payload{Type: utils.PongMessage, Body: body})
 				err := player.Conn.WriteMessage(websocket.TextMessage, payload)

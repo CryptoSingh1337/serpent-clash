@@ -1,3 +1,5 @@
+import { Constants } from "@/utils/constants"
+
 export class Stats {
   fps: number = 0
   ping: number = 0
@@ -8,7 +10,7 @@ export class Stats {
 
   // internal
   times: number[] = []
-  pingStart: number = 0
+  pingCooldown: number = Constants.pingCooldown
 
   renderStats(c: CanvasRenderingContext2D): void {
     if (!c) {
@@ -26,46 +28,44 @@ export class Stats {
 
   calculateFps(): void {
     window.requestAnimationFrame((): void => {
-      const now = performance.now();
+      const now = performance.now()
       while (this.times.length > 0 && this.times[0] <= now - 1000) {
-        this.times.shift();
+        this.times.shift()
       }
-      this.times.push(now);
-      this.fps = this.times.length;
-      this.calculateFps();
+      this.times.push(now)
+      this.fps = this.times.length
+      this.calculateFps()
     });
   }
 
-  updatePingStart(): void {
-    this.pingStart = Date.now();
-  }
-
-  updatePing(): void {
-    this.ping = Date.now() - this.pingStart;
+  updatePing(ping: number): void {
+    this.ping = ping
   }
 
   updatePlayerId(playerId: string): void {
-    this.playerId = playerId;
+    this.playerId = playerId
   }
 
   updateStatus(status: string): void {
-    this.status = status;
+    this.status = status
   }
 
   updateMouseCoordinate(x: number, y: number): void {
-    this.mouseCoordinate.x = x;
-    this.mouseCoordinate.y = y;
+    this.mouseCoordinate.x = x
+    this.mouseCoordinate.y = y
   }
 
   updateHeadCoordinate(x: number, y: number): void {
-    this.headCoordinate.x = x;
-    this.headCoordinate.y = y;
+    this.headCoordinate.x = x
+    this.headCoordinate.y = y
   }
 
   reset(): void {
-    this.playerId = "";
+    this.playerId = ""
     this.status = "offline"
-    this.headCoordinate.x = 0;
-    this.headCoordinate.y = 0;
+    this.headCoordinate.x = 0
+    this.headCoordinate.y = 0
+    this.ping = 0
+    this.pingCooldown = Constants.pingCooldown
   }
 }

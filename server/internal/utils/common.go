@@ -31,6 +31,7 @@ const (
 const (
 	HelloMessage     = "hello"
 	PingMessage      = "ping"
+	PongMessage      = "pong"
 	GameStateMessage = "game_state"
 	Movement         = "movement"
 )
@@ -51,6 +52,10 @@ func (p Payload) String() string {
 
 type MouseEvent struct {
 	Coordinate Coordinate `json:"coordinate"`
+}
+
+type PingEvent struct {
+	Timestamp uint32 `json:"timestamp"`
 }
 
 type PlayerState struct {

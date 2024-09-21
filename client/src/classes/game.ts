@@ -27,10 +27,6 @@ export class Game {
             coordinate: this.mouseCoordinate
           }
         }))
-        this.socket.send(JSON.stringify({
-          type: "ping"
-        }))
-        this.stats.updatePingStart()
       }
     }, 1000 / Constants.tickRate)
   }
@@ -65,7 +61,7 @@ export class Game {
           break;
         }
         case "pong": {
-          this.stats.updatePing()
+          this.stats.updatePing(performance.now() - body.timestamp)
           break;
         }
         case "game_state": {
@@ -99,6 +95,18 @@ export class Game {
           console.log("invalid message type", data.type)
         }
       }
+    }
+  }
+
+  sendPingPayload(): void {
+    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+      this.socket.send(JSON.stringify({
+        type: "ping",
+        body: {
+          timestamp: performance.now()
+        }
+      }))
+      this.stats.pingCooldown = Constants.pingCooldown
     }
   }
 

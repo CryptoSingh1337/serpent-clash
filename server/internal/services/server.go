@@ -85,7 +85,10 @@ ProcessPingQueue:
 		case player := <-game.PingQueue:
 			val, ok := game.Players[player]
 			if ok && val {
-				err := player.Conn.WriteMessage(websocket.PongMessage, []byte{})
+				log.Println("ping timestamp", player.pingTimestamp)
+				body, _ := json.Marshal(utils.PingEvent{Timestamp: player.pingTimestamp})
+				payload, _ := json.Marshal(utils.Payload{Type: utils.PongMessage, Body: body})
+				err := player.Conn.WriteMessage(websocket.TextMessage, payload)
 				if err != nil {
 					log.Printf("Error pinging player %s: %v", player.Id, err)
 				}
@@ -139,6 +142,11 @@ func (game *Game) ProcessEvent(player *Player, messageType websocket.MessageType
 			}
 			player.Move(&mouseEvent.Coordinate)
 		case utils.PingMessage:
+			pingEvent := utils.PingEvent{}
+			if err := json.Unmarshal(payload.Body, &pingEvent); err != nil {
+				return
+			}
+			player.pingTimestamp = pingEvent.Timestamp
 			game.PingQueue <- player
 		}
 	}

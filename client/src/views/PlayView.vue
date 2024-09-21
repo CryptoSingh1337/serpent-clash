@@ -3,7 +3,7 @@ import { onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
 import { Game } from '@/classes/game'
 
 const devicePixelRatio = window.devicePixelRatio || 1
-const canvasRef = useTemplateRef<HTMLCanvasElement>('canvas-ref')
+const canvasRef = useTemplateRef<HTMLCanvasElement>("canvas-ref")
 let game: Game | null = null
 const status = ref<string>("connect")
 
@@ -56,6 +56,10 @@ onMounted(() => {
     }
     if (!game) {
       throw new Error("game object is not initialized")
+    }
+    game.stats.pingCooldown -= 1
+    if (game.stats.pingCooldown <= 0) {
+      game.sendPingPayload()
     }
     c.clearRect(0, 0, canvas.width, canvas.height)
     game.renderStats()

@@ -10,19 +10,21 @@ import (
 )
 
 type Player struct {
-	Id       string
-	Conn     *websocket.Conn
-	Segments []utils.Coordinate
-	Color    string
-	angle    float64
+	Id            string
+	Conn          *websocket.Conn
+	Segments      []utils.Coordinate
+	Color         string
+	angle         float64
+	pingTimestamp uint32
 }
 
 func NewPlayer(conn *websocket.Conn) *Player {
 	player := &Player{
-		Id:    uuid.NewString(),
-		Conn:  conn,
-		Color: fmt.Sprintf("hsl(%v, 100%%, 50%%)", rand.Intn(360)),
-		angle: 0,
+		Id:            uuid.NewString(),
+		Conn:          conn,
+		Color:         fmt.Sprintf("hsl(%v, 100%%, 50%%)", rand.Intn(360)),
+		angle:         0,
+		pingTimestamp: 0,
 	}
 	player.generateRandomPosition()
 	return player

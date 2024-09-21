@@ -7,7 +7,6 @@ import (
 	"github.com/CryptoSingh1337/multiplayer-snake-game/server/internal/utils"
 	"github.com/lesismal/nbio/nbhttp/websocket"
 	"log"
-	"strconv"
 	"time"
 )
 
@@ -48,78 +47,7 @@ func (game *Game) init() {
 	}()
 }
 
-func (game *Game) Close() {
-	log.Println("Clearing off resources...")
-	// Stop ticker
-	game.Done <- true
-
-	// Close all ws connections
-	for player := range game.Players {
-		if err := player.Conn.Close(); err != nil {
-			return
-		}
-	}
-
-	time.Sleep(2 * time.Second)
-
-	// Close all channels
-	close(game.Done)
-	close(game.JoinQueue)
-	close(game.LeaveQueue)
-	close(game.PingQueue)
-	close(game.Broadcast)
-}
-
-func (game *Game) AddPlayer(player *Player) error {
-	if utils.MaxPlayerAllowed <= len(game.Players) {
-		return errors.New("max players reached")
-	}
-	if game.Players[player] {
-		return errors.New("player already exists")
-	}
-	log.Println("Server::AddPlayer - player Id - " + player.Id + " joined")
-	game.Players[player] = true
-	player.generateRandomPosition()
-	body := fmt.Sprintf(`{"id":%q}`, player.Id)
-	payload, _ := json.Marshal(utils.Payload{Type: utils.HelloMessage, Body: []byte(body)})
-	return player.Conn.WriteMessage(websocket.TextMessage, payload)
-}
-
-func (game *Game) RemovePlayer(player *Player) error {
-	if len(game.Players) == 0 {
-		return errors.New("no players left")
-	}
-	if _, ok := game.Players[player]; ok {
-		log.Println("Server::RemovePlayer - player Id - " + player.Id + " left")
-		if err := player.Conn.Close(); err != nil {
-			log.Printf("Error closing connection for player %s: %v", player.Id, err)
-		}
-		delete(game.Players, player)
-		return nil
-	}
-	return errors.New("player not exists")
-}
-
-func (game *Game) ProcessEvent(player *Player, messageType websocket.MessageType, data []byte) {
-	switch messageType {
-	case websocket.TextMessage:
-		payload := utils.Payload{}
-		if err := json.Unmarshal(data, &payload); err != nil {
-			return
-		}
-		//log.Println("Body", string(payload.Body))
-		mouseEvent := utils.MouseEvent{}
-		if err := json.Unmarshal(payload.Body, &mouseEvent); err != nil {
-			return
-		}
-		//log.Println("Mouse coordinate", mouseEvent.Coordinate)
-		player.Move(&mouseEvent.Coordinate)
-	}
-}
-
 func (game *Game) processTick() {
-	timestamp := time.Now().Unix()
-
 	// Process all players in JoinQueue
 	for {
 		select {
@@ -155,9 +83,12 @@ ProcessPingQueue:
 	for {
 		select {
 		case player := <-game.PingQueue:
-			err := player.Conn.WriteMessage(websocket.PongMessage, []byte(strconv.FormatInt(timestamp, 10)))
-			if err != nil {
-				log.Printf("Error pinging player %s: %v", player.Id, err)
+			val, ok := game.Players[player]
+			if ok && val {
+				err := player.Conn.WriteMessage(websocket.PongMessage, []byte{})
+				if err != nil {
+					log.Printf("Error pinging player %s: %v", player.Id, err)
+				}
 			}
 		default:
 			goto BroadcastGameState
@@ -191,4 +122,76 @@ BroadcastGameState:
 			}
 		}
 	}
+}
+
+func (game *Game) ProcessEvent(player *Player, messageType websocket.MessageType, data []byte) {
+	switch messageType {
+	case websocket.TextMessage:
+		payload := utils.Payload{}
+		if err := json.Unmarshal(data, &payload); err != nil {
+			return
+		}
+		switch payload.Type {
+		case utils.Movement:
+			mouseEvent := utils.MouseEvent{}
+			if err := json.Unmarshal(payload.Body, &mouseEvent); err != nil {
+				return
+			}
+			player.Move(&mouseEvent.Coordinate)
+		case utils.PingMessage:
+			game.PingQueue <- player
+		}
+	}
+}
+
+func (game *Game) AddPlayer(player *Player) error {
+	if utils.MaxPlayerAllowed <= len(game.Players) {
+		return errors.New("max players reached")
+	}
+	if game.Players[player] {
+		return errors.New("player already exists")
+	}
+	log.Println("Server::AddPlayer - player Id - " + player.Id + " joined")
+	game.Players[player] = true
+	player.generateRandomPosition()
+	body := fmt.Sprintf(`{"id":%q}`, player.Id)
+	payload, _ := json.Marshal(utils.Payload{Type: utils.HelloMessage, Body: []byte(body)})
+	return player.Conn.WriteMessage(websocket.TextMessage, payload)
+}
+
+func (game *Game) RemovePlayer(player *Player) error {
+	if len(game.Players) == 0 {
+		return errors.New("no players left")
+	}
+	if _, ok := game.Players[player]; ok {
+		log.Println("Server::RemovePlayer - player Id - " + player.Id + " left")
+		if err := player.Conn.Close(); err != nil {
+			log.Printf("Error closing connection for player %s: %v", player.Id, err)
+		}
+		delete(game.Players, player)
+		return nil
+	}
+	return errors.New("player not exists")
+}
+
+func (game *Game) Close() {
+	log.Println("Clearing off resources...")
+	// Stop ticker
+	game.Done <- true
+
+	// Close all ws connections
+	for player := range game.Players {
+		if err := player.Conn.Close(); err != nil {
+			return
+		}
+	}
+
+	time.Sleep(2 * time.Second)
+
+	// Close all channels
+	close(game.Done)
+	close(game.JoinQueue)
+	close(game.LeaveQueue)
+	close(game.PingQueue)
+	close(game.Broadcast)
 }

@@ -1,12 +1,12 @@
-import type { Player } from '@/classes/entity'
+import type { Player } from "@/classes/entity"
 
 export type Coordinate = {
-  x: number,
+  x: number
   y: number
 }
 
 export type BackendPlayer = {
-  id: string,
+  id: string
   color: string
   positions: Coordinate[]
 }

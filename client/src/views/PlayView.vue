@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
-import { Game } from '@/classes/game'
+import { onBeforeUnmount, onMounted, ref, useTemplateRef } from "vue"
+import { Game } from "@/classes/game"
 
 const devicePixelRatio = window.devicePixelRatio || 1
 const canvasRef = useTemplateRef<HTMLCanvasElement>("canvas-ref")
@@ -22,13 +22,13 @@ onMounted(() => {
   if (!canvas) {
     throw new Error("Can't find canvas element")
   }
-  const c = canvas.getContext('2d')
+  const c = canvas.getContext("2d")
   if (!c) {
     throw new Error("Can't find canvas element")
   }
   canvas.width = innerWidth * devicePixelRatio
   canvas.height = innerHeight * devicePixelRatio
-  window.addEventListener('resize', () => {
+  window.addEventListener("resize", () => {
     canvas.width = innerWidth
     canvas.height = innerHeight
   })
@@ -80,8 +80,10 @@ onBeforeUnmount(() => {
 <template>
   <div class="h-full w-full">
     <canvas ref="canvas-ref"></canvas>
-    <button class="absolute top-5 right-5 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full"
-            @click="connectOrDisconnect">
+    <button
+      class="absolute top-5 right-5 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full"
+      @click="connectOrDisconnect"
+    >
       {{ status }}
     </button>
   </div>

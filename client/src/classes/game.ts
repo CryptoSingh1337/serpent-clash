@@ -1,7 +1,7 @@
 import { Stats } from "@/classes/stats"
 import { Constants } from "@/utils/constants"
-import type { BackendPlayer, Players } from '@/utils/types'
-import { Player } from '@/classes/entity'
+import type { BackendPlayer, Players } from "@/utils/types"
+import { Player } from "@/classes/entity"
 
 export class Game {
   ctx: CanvasRenderingContext2D
@@ -21,21 +21,23 @@ export class Game {
     this.initSocket()
     setInterval(() => {
       if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-        this.socket.send(JSON.stringify({
-          type: "movement",
-          body: {
-            coordinate: this.mouseCoordinate
-          }
-        }))
+        this.socket.send(
+          JSON.stringify({
+            type: "movement",
+            body: {
+              coordinate: this.mouseCoordinate
+            }
+          })
+        )
       }
     }, 1000 / Constants.tickRate)
   }
 
   initSocket() {
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:"
-    const url = window.location.hostname.includes("localhost") ?
-      `${protocol}//${window.location.hostname}:${Constants.serverPort}/ws` :
-      `${protocol}//${window.location.hostname}/ws`
+    const url = window.location.hostname.includes("localhost")
+      ? `${protocol}//${window.location.hostname}:${Constants.serverPort}/ws`
+      : `${protocol}//${window.location.hostname}/ws`
     this.socket = new WebSocket(url)
     this.socket.onopen = () => {
       console.log("Socket opened")
@@ -58,14 +60,16 @@ export class Game {
         case "hello": {
           this.playerId = body.id
           this.stats.updatePlayerId(this.playerId)
-          break;
+          break
         }
         case "pong": {
           this.stats.updatePing(performance.now() - body.timestamp)
-          break;
+          break
         }
         case "game_state": {
-          const backendPlayers = body.playerStates as {[id: string]: BackendPlayer}
+          const backendPlayers = body.playerStates as {
+            [id: string]: BackendPlayer
+          }
           for (const id in backendPlayers) {
             const backendPlayer = backendPlayers[id]
             if (!this.frontendPlayers[id]) {
@@ -79,8 +83,10 @@ export class Game {
               const frontendPlayer = this.frontendPlayers[id]
               frontendPlayer.positions = backendPlayer.positions
               if (this.playerId === id) {
-                this.stats.updateHeadCoordinate(frontendPlayer.positions[0].x,
-                  frontendPlayer.positions[0].y)
+                this.stats.updateHeadCoordinate(
+                  frontendPlayer.positions[0].x,
+                  frontendPlayer.positions[0].y
+                )
               }
             }
           }
@@ -89,7 +95,7 @@ export class Game {
               delete this.frontendPlayers[id]
             }
           }
-          break;
+          break
         }
         default: {
           console.log("invalid message type", data.type)
@@ -100,12 +106,14 @@ export class Game {
 
   sendPingPayload(): void {
     if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-      this.socket.send(JSON.stringify({
-        type: "ping",
-        body: {
-          timestamp: performance.now()
-        }
-      }))
+      this.socket.send(
+        JSON.stringify({
+          type: "ping",
+          body: {
+            timestamp: performance.now()
+          }
+        })
+      )
       this.stats.pingCooldown = Constants.pingCooldown
     }
   }

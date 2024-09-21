@@ -1,5 +1,5 @@
 export const Constants = {
-  serverUrl: import.meta.env.VITE_SERVER_URL,
+  serverPort: 8080,
   tickRate: 60,
   snakeSegmentRadius: 50
 }

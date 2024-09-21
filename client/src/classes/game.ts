@@ -36,7 +36,11 @@ export class Game {
   }
 
   initSocket() {
-    this.socket = new WebSocket(Constants.serverUrl)
+    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:"
+    const url = window.location.hostname.includes("localhost") ?
+      `${protocol}//${window.location.hostname}:${Constants.serverPort}/ws` :
+      `${protocol}//${window.location.hostname}/ws`
+    this.socket = new WebSocket(url)
     this.socket.onopen = () => {
       console.log("Socket opened")
       this.stats.updateStatus("online")

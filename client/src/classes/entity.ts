@@ -1,5 +1,5 @@
-import type { Coordinate } from "../utils/types"
-import { Constants } from "../utils/constants"
+import type { Coordinate } from "@/utils/types"
+import { Constants } from "@/utils/constants"
 
 export class Player {
   id: string

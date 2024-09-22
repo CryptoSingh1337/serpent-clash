@@ -10,6 +10,7 @@ export class Game {
   playerId: string = ""
   mouseCoordinate: { x: number; y: number }
   frontendPlayers: Players = {}
+  currentPlayer: Player | null = null
 
   constructor(ctx: CanvasRenderingContext2D) {
     if (!ctx) {
@@ -46,6 +47,7 @@ export class Game {
     this.socket.onclose = () => {
       console.log("Socket closed")
       this.stats.reset()
+      this.currentPlayer = null
       for (const id in this.frontendPlayers) {
         delete this.frontendPlayers[id]
       }
@@ -79,6 +81,9 @@ export class Game {
                 radius: 10,
                 positions: backendPlayer.positions
               })
+              if (this.playerId === id) {
+                this.currentPlayer = this.frontendPlayers[id]
+              }
             } else {
               const frontendPlayer = this.frontendPlayers[id]
               frontendPlayer.positions = backendPlayer.positions

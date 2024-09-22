@@ -46,6 +46,7 @@ COPY --from=backend-builder /app/server ./server
 # Copy the Vue dist folder
 COPY --from=backend-builder /app/client/dist ./client/dist
 
+ENV GO_ENV=PROD
 ENV SERVER_ADDR=0.0.0.0
 ENV SERVER_PORT=8080
 ENV DIST_DIR=/app/client/dist

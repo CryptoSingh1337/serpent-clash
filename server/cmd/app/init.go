@@ -2,12 +2,13 @@ package main
 
 import (
 	"github.com/CryptoSingh1337/multiplayer-snake-game/server/internal/services"
-	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/lesismal/nbio/nbhttp"
+	"log"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 type Config struct {
@@ -27,26 +28,41 @@ func initLogger(e *echo.Echo) {
 }
 
 func LoadConfig() *Config {
-	// Load .env file if it exists
-	_ = godotenv.Load()
+	env := os.Getenv("GO_ENV")
 
 	// Set default values
 	config := Config{
 		addr: "0.0.0.0",
 		port: "8080",
 	}
-
-	// Override with environment variables if they exist
-	if env := os.Getenv("SERVER_ADDR"); env != "" {
-		config.addr = env
-	}
-	if env := os.Getenv("SERVER_PORT"); env != "" {
-		config.port = env
-	}
-	if env := os.Getenv("DIST_DIR"); env != "" {
-		config.distDir = env
-		config.assetDir = filepath.Join(env, "assets")
-		config.indexFile = filepath.Join(env, "index.html")
+	if env == "PROD" {
+		// Read from environment variables
+		if env := os.Getenv("SERVER_ADDR"); env != "" {
+			config.addr = env
+		}
+		if env := os.Getenv("SERVER_PORT"); env != "" {
+			config.port = env
+		}
+		if env := os.Getenv("DIST_DIR"); env != "" {
+			config.distDir = env
+			config.assetDir = filepath.Join(config.distDir, "assets")
+			config.indexFile = filepath.Join(config.distDir, "index.html")
+		}
+	} else {
+		data, err := os.ReadFile(".env")
+		if err != nil {
+			log.Fatal(err)
+		}
+		content := string(data)
+		lines := strings.Split(content, "\n")
+		for _, line := range lines {
+			env := strings.Split(line, "=")
+			if env[0] == "DIST_DIR" {
+				config.distDir = strings.TrimSuffix(env[1], "\r")
+				config.assetDir = filepath.Join(config.distDir, "assets")
+				config.indexFile = filepath.Join(config.distDir, "index.html")
+			}
+		}
 	}
 	return &config
 }

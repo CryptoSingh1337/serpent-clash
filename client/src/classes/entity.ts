@@ -8,6 +8,7 @@ export class Player {
   radius: number
   color: string
   angle: number = 0
+  lastUpdatedTime: number = 0
 
   constructor({
     id,
@@ -27,6 +28,10 @@ export class Player {
   }
 
   move(x: number, y: number): void {
+    const currentTime = performance.now()
+    if (currentTime - this.lastUpdatedTime <= 1000 / Constants.tickRate) {
+      return
+    }
     const head = this.positions[0]
     const targetAngle = Math.atan2(y - head.y, x - head.x)
     this.angle = lerpAngle(this.angle, targetAngle, Constants.maxTurnRate)
@@ -45,6 +50,7 @@ export class Player {
       currentSegment.x = prevSegment.x - Math.cos(angleToPrev) * Constants.snakeSegmentDistance
       currentSegment.y = prevSegment.y - Math.sin(angleToPrev) * Constants.snakeSegmentDistance
       this.positions[i] = currentSegment
+      this.lastUpdatedTime = currentTime
     }
   }
 

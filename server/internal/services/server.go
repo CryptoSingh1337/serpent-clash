@@ -93,11 +93,18 @@ ProcessPingQueue:
 				}
 			}
 		default:
-			goto BroadcastGameState
+			goto MoveAllPlayers
 		}
 	}
 
-BroadcastGameState:
+MoveAllPlayers:
+	for player := range game.Players {
+		val, ok := game.Players[player]
+		if ok && val {
+			player.Move()
+		}
+	}
+
 	// form players data in json
 	gameState := utils.GameState{
 		PlayerStates: make(map[string]utils.PlayerState),
@@ -139,7 +146,7 @@ func (game *Game) ProcessEvent(player *Player, messageType websocket.MessageType
 			if err := json.Unmarshal(payload.Body, &mouseEvent); err != nil {
 				return
 			}
-			player.Move(&mouseEvent.Coordinate)
+			player.lastMouseCoordinate = &mouseEvent.Coordinate
 		case utils.PingMessage:
 			pingEvent := utils.PingEvent{}
 			if err := json.Unmarshal(payload.Body, &pingEvent); err != nil {

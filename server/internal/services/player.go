@@ -10,12 +10,13 @@ import (
 )
 
 type Player struct {
-	Id            string
-	Conn          *websocket.Conn
-	Segments      []utils.Coordinate
-	Color         string
-	angle         float64
-	pingTimestamp uint32
+	Id                  string
+	Conn                *websocket.Conn
+	Segments            []utils.Coordinate
+	Color               string
+	angle               float64
+	pingTimestamp       uint32
+	lastMouseCoordinate *utils.Coordinate
 }
 
 func NewPlayer(conn *websocket.Conn) *Player {
@@ -27,6 +28,7 @@ func NewPlayer(conn *websocket.Conn) *Player {
 		pingTimestamp: 0,
 	}
 	player.generateRandomPosition()
+	player.lastMouseCoordinate = &player.Segments[0]
 	return player
 }
 
@@ -43,7 +45,8 @@ func (player *Player) generateRandomPosition() {
 	player.Segments = segments
 }
 
-func (player *Player) Move(mouseCoordinate *utils.Coordinate) {
+func (player *Player) Move() {
+	mouseCoordinate := player.lastMouseCoordinate
 	//log.Println("Mouse coordinate", mouseCoordinate)
 	head := player.Segments[0]
 	angle := player.angle

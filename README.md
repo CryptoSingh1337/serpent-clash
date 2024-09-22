@@ -27,6 +27,11 @@ Key Features:
 - [ ] Make world as finite and with bigger dimension than current one
 - [ ] Add camera logic
 - [ ] Add collision detection logic
+- [ ] Generate food on random coordinates
+- [ ] Food consumption logic and snake growth logic
+- [ ] Change player speed on right mouse button click
+- [ ] Leaderboard
+- [ ] Client UI design
 
 ### Optimizations
 - [ ] Use of binary format instead of json

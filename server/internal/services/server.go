@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/CryptoSingh1337/multiplayer-snake-game/server/internal/utils"
+	"github.com/CryptoSingh1337/serpent-clash/server/internal/utils"
 	"github.com/lesismal/nbio/nbhttp/websocket"
 	"log"
 	"time"

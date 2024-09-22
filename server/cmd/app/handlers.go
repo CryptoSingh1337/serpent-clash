@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/CryptoSingh1337/multiplayer-snake-game/server/internal/services"
+	"github.com/CryptoSingh1337/serpent-clash/server/internal/services"
 	"github.com/labstack/echo/v4"
 	"github.com/lesismal/nbio/nbhttp/websocket"
 )

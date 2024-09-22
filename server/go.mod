@@ -1,4 +1,4 @@
-module github.com/CryptoSingh1337/multiplayer-snake-game/server
+module github.com/CryptoSingh1337/serpent-clash/server
 
 go 1.23.0
 

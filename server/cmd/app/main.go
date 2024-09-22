@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"github.com/CryptoSingh1337/multiplayer-snake-game/server/internal/services"
+	"github.com/CryptoSingh1337/serpent-clash/server/internal/services"
 	"log"
 	"os"
 	"os/signal"

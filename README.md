@@ -5,10 +5,19 @@ The game is built with a combination of Vue.js for the client-side and Go for th
 
 Key Features:
 - Real-time multiplayer with WebSocket communication
-- Smooth snake movement based on client-side prediction
-- Dynamic player statistics and leaderboard
-- Optimized for low-latency, fast-paced gameplay
-- Scalable design with plans for further world expansion and advanced mechanics like collision detection and camera logic
+- Smooth player movement with client-side prediction and server-side validation
+- Dynamic snake rendering based on multiple coordinates and mouse input
+- Comprehensive player stats displayed on the client-side
+- Authoritative server design ensuring fair and consistent game state across all clients
+
+Future Enhancements:
+- Server Reconciliation to handle server-side lag for better synchronization
+- Player Movement Interpolation for smooth display of other players' actions
+- Expanding the Game World to create larger, more immersive arenas
+- Collision Detection for player and object interactions
+- Food Generation & Snake Growth mechanics to introduce dynamic game elements
+- Camera Logic for more intuitive navigation
+- Leaderboard and UI Enhancements for better player experience
 
 ### TODO:
 - [x] Serve vue files from backend

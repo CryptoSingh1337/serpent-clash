@@ -34,7 +34,7 @@ export class Game {
     }, 1000 / Constants.tickRate)
   }
 
-  initSocket() {
+  initSocket(): void {
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:"
     const url = window.location.hostname.includes("localhost")
       ? `${protocol}//${window.location.hostname}:${Constants.serverPort}/ws`
@@ -144,7 +144,7 @@ export class Game {
     this.stats.calculateFps()
   }
 
-  updateMouseCoordinate(x: number, y: number) {
+  updateMouseCoordinate(x: number, y: number): void {
     this.mouseCoordinate.x = x
     this.mouseCoordinate.y = y
     this.stats.updateMouseCoordinate(x, y)

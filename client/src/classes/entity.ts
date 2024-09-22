@@ -45,10 +45,15 @@ export class Player {
       const prevSegment = this.positions[i - 1]
       const currentSegment = this.positions[i]
 
-      const angleToPrev = Math.atan2(prevSegment.y - currentSegment.y, prevSegment.x - currentSegment.x)
+      const angleToPrev = Math.atan2(
+        prevSegment.y - currentSegment.y,
+        prevSegment.x - currentSegment.x
+      )
 
-      currentSegment.x = prevSegment.x - Math.cos(angleToPrev) * Constants.snakeSegmentDistance
-      currentSegment.y = prevSegment.y - Math.sin(angleToPrev) * Constants.snakeSegmentDistance
+      currentSegment.x =
+        prevSegment.x - Math.cos(angleToPrev) * Constants.snakeSegmentDistance
+      currentSegment.y =
+        prevSegment.y - Math.sin(angleToPrev) * Constants.snakeSegmentDistance
       this.positions[i] = currentSegment
       this.lastUpdatedTime = currentTime
     }

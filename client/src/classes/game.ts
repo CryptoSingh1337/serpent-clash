@@ -8,9 +8,12 @@ export class Game {
   socket: WebSocket | null = null
   stats: Stats
   playerId: string = ""
+  lastMouseCoordinate: { x: number; y: number }
   mouseCoordinate: { x: number; y: number }
   frontendPlayers: Players = {}
   currentPlayer: Player | null = null
+  inputs: { seq: number; x: number; y: number }[] = []
+  seq: number = 0
 
   constructor(ctx: CanvasRenderingContext2D) {
     if (!ctx) {
@@ -18,18 +21,32 @@ export class Game {
     }
     this.ctx = ctx
     this.mouseCoordinate = { x: 0, y: 0 }
+    this.lastMouseCoordinate = { x: 0, y: 0 }
     this.stats = new Stats()
     this.initSocket()
     setInterval(() => {
       if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-        this.socket.send(
-          JSON.stringify({
-            type: "movement",
-            body: {
-              coordinate: this.mouseCoordinate
-            }
+        if (
+          this.lastMouseCoordinate.x != this.mouseCoordinate.x &&
+          this.lastMouseCoordinate.y != this.mouseCoordinate.y
+        ) {
+          this.inputs.push({
+            seq: ++this.seq,
+            x: this.mouseCoordinate.x,
+            y: this.mouseCoordinate.y
           })
-        )
+          this.socket.send(
+            JSON.stringify({
+              type: "movement",
+              body: {
+                seq: this.seq,
+                coordinate: this.mouseCoordinate
+              }
+            })
+          )
+          this.lastMouseCoordinate.x = this.mouseCoordinate.x
+          this.lastMouseCoordinate.y = this.mouseCoordinate.y
+        }
       }
     }, 1000 / Constants.tickRate)
   }
@@ -88,6 +105,15 @@ export class Game {
               const frontendPlayer = this.frontendPlayers[id]
               frontendPlayer.positions = backendPlayer.positions
               if (this.playerId === id) {
+                const lastProcessedInput = this.inputs.findIndex((input) => {
+                  return backendPlayer.seq === input.seq
+                })
+                if (lastProcessedInput > -1) {
+                  this.inputs.splice(0, lastProcessedInput + 1)
+                }
+                this.inputs.forEach((input) => {
+                  this.updateMouseCoordinate(input.x, input.y)
+                })
                 this.stats.updateHeadCoordinate(
                   frontendPlayer.positions[0].x,
                   frontendPlayer.positions[0].y

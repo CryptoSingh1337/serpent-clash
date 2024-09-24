@@ -7,7 +7,6 @@ import (
 )
 
 const (
-	PlayerMoving         = iota
 	TickRate             = 60
 	PlayerSpeed          = 3
 	MaxTurnRate          = 0.05
@@ -19,13 +18,6 @@ const (
 	WorldFactor          = 200
 	WorldHeight          = 3 * WorldFactor
 	WorldWidth           = 4 * WorldFactor
-)
-
-const (
-	Left  = iota
-	Right = iota
-	Up    = iota
-	Down  = iota
 )
 
 const (
@@ -51,6 +43,7 @@ func (p Payload) String() string {
 }
 
 type MouseEvent struct {
+	Seq        uint64     `json:"seq"`
 	Coordinate Coordinate `json:"coordinate"`
 }
 
@@ -61,6 +54,7 @@ type PingEvent struct {
 type PlayerState struct {
 	Color    string       `json:"color"`
 	Segments []Coordinate `json:"positions"`
+	Seq      uint64       `json:"seq"`
 }
 
 type GameState struct {

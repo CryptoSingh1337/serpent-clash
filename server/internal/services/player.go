@@ -14,6 +14,7 @@ type Player struct {
 	Conn                *websocket.Conn
 	Segments            []utils.Coordinate
 	Color               string
+	Seq                 uint64
 	angle               float64
 	pingTimestamp       uint32
 	lastMouseCoordinate *utils.Coordinate
@@ -24,6 +25,7 @@ func NewPlayer(conn *websocket.Conn) *Player {
 		Id:            uuid.NewString(),
 		Conn:          conn,
 		Color:         fmt.Sprintf("hsl(%v, 100%%, 50%%)", rand.Intn(360)),
+		Seq:           0,
 		angle:         0,
 		pingTimestamp: 0,
 	}

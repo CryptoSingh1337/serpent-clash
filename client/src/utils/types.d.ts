@@ -9,6 +9,7 @@ export type BackendPlayer = {
   id: string
   color: string
   positions: Coordinate[]
+  seq: number
 }
 
 export type Players = {

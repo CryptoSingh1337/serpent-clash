@@ -114,6 +114,7 @@ MoveAllPlayers:
 			playerState := utils.PlayerState{
 				Color:    player.Color,
 				Segments: player.Segments,
+				Seq:      player.Seq,
 			}
 			gameState.PlayerStates[player.Id] = playerState
 		}
@@ -147,6 +148,7 @@ func (game *Game) ProcessEvent(player *Player, messageType websocket.MessageType
 				return
 			}
 			player.lastMouseCoordinate = &mouseEvent.Coordinate
+			player.Seq = mouseEvent.Seq
 		case utils.PingMessage:
 			pingEvent := utils.PingEvent{}
 			if err := json.Unmarshal(payload.Body, &pingEvent); err != nil {

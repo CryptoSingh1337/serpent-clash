@@ -31,7 +31,7 @@ Future Enhancements:
 - [x] Adopt class-based design for client-side
 - [x] Add support for ping calculation
 - [x] Add client-side prediction for smooth and snappy player movement (client-side)
-- [ ] Add server reconciliation to fix any server-side lag (client-side)
+- [x] Add server reconciliation to fix any server-side lag (client-side)
 - [ ] Add interpolation for smooth other player movement (client-side)
 - [ ] Make world as finite and with bigger dimension than current one
 - [ ] Add camera logic

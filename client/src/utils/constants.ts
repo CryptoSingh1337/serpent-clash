@@ -3,7 +3,7 @@ export const Constants = {
   tickRate: 60,
   snakeSegmentDiameter: 50,
   pingCooldown: 60,
-  maxTurnRate: 0.05,
-  playerSpeed: 3,
+  maxTurnRate: 0.03,
+  playerSpeed: 4,
   snakeSegmentDistance: 15
 }

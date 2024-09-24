@@ -13,7 +13,7 @@ const (
 	DefaultSnakeLength   = 10
 	DefaultGrowthFactor  = 2
 	SnakeSegmentDistance = 15
-	SnakeSegmentRadius   = 50
+	SnakeSegmentDiameter = 50
 	MaxPlayerAllowed     = 10
 	WorldFactor          = 200
 	WorldHeight          = 3 * WorldFactor

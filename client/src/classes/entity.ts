@@ -66,7 +66,7 @@ export class Player {
       c.arc(
         segment.x,
         segment.y,
-        Constants.snakeSegmentRadius / 2,
+        Constants.snakeSegmentDiameter / 2,
         0,
         Math.PI * 2
       )

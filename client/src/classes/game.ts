@@ -113,6 +113,9 @@ export class Game {
                 }
                 this.inputs.forEach((input) => {
                   this.updateMouseCoordinate(input.x, input.y)
+                  if (this.currentPlayer) {
+                    this.currentPlayer.move(input.x, input.y)
+                  }
                 })
                 this.stats.updateHeadCoordinate(
                   frontendPlayer.positions[0].x,

@@ -40,8 +40,6 @@ onMounted(() => {
       game.updateMouseCoordinate(x, y)
       if (game.currentPlayer) {
         game.currentPlayer.move(x, y)
-        const coordinate = game.currentPlayer.positions[0]
-        game.stats.updatePredictedHeadCoordinate(coordinate.x, coordinate.y)
       }
     }
   })

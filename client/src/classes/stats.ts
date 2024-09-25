@@ -14,7 +14,6 @@ export class Stats {
   // internal
   times: number[] = []
   pingCooldown: number = Constants.pingCooldown
-  predictedHeadCoordinate: { x: number; y: number } = { x: 0, y: 0 }
 
   renderStats(c: CanvasRenderingContext2D): void {
     if (!c) {
@@ -33,19 +32,9 @@ export class Stats {
       5,
       45
     )
-    c.fillText(
-      `Prediction error (X-axis): ${Math.round(((this.predictedHeadCoordinate.x - this.headCoordinate.x) / this.headCoordinate.x) * 100)}%`,
-      5,
-      60
-    )
-    c.fillText(
-      `Prediction error (Y-axis): ${Math.round(((this.predictedHeadCoordinate.y - this.headCoordinate.y) / this.headCoordinate.y) * 100)}%`,
-      5,
-      75
-    )
-    c.fillText(`Player id: ${this.playerId}`, 5, 90)
-    c.fillText(`Status: ${this.status}`, 5, 105)
-    c.fillText(`Ping: ${Math.trunc(this.ping * 100) / 100} ms`, 5, 120)
+    c.fillText(`Player id: ${this.playerId}`, 5, 60)
+    c.fillText(`Status: ${this.status}`, 5, 75)
+    c.fillText(`Ping: ${Math.trunc(this.ping * 100) / 100} ms`, 5, 90)
   }
 
   calculateFps(): void {
@@ -82,18 +71,11 @@ export class Stats {
     this.headCoordinate.y = y
   }
 
-  updatePredictedHeadCoordinate(x: number, y: number): void {
-    this.predictedHeadCoordinate.x = x
-    this.predictedHeadCoordinate.y = y
-  }
-
   reset(): void {
     this.playerId = ""
     this.status = "offline"
     this.headCoordinate.x = 1
     this.headCoordinate.y = 1
-    this.predictedHeadCoordinate.x = 1
-    this.predictedHeadCoordinate.y = 1
     this.ping = 0
     this.pingCooldown = Constants.pingCooldown
   }

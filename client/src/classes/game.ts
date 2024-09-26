@@ -103,11 +103,8 @@ export class Game {
               }
             } else {
               const frontendPlayer = this.frontendPlayers[id]
-              // TODO: implement interpolation logic
-              // frontendPlayer.positions = backendPlayer.positions
+              frontendPlayer.moveWithInterpolation(backendPlayer.positions)
               if (this.playerId === id) {
-                // frontendPlayer.positions = backendPlayer.positions
-                frontendPlayer.updateFromServer(backendPlayer.positions)
                 const lastProcessedInput = this.inputs.findIndex((input) => {
                   return backendPlayer.seq === input.seq
                 })
@@ -124,8 +121,6 @@ export class Game {
                   frontendPlayer.positions[0].x,
                   frontendPlayer.positions[0].y
                 )
-              } else {
-                frontendPlayer.moveWithInterpolation(backendPlayer.positions)
               }
             }
           }

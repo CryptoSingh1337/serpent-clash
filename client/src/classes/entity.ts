@@ -83,12 +83,6 @@ export class Player {
     this.lastUpdatedTime = currentTime
   }
 
-  updateFromServer(serverPositions: Coordinate[]): void {
-    this.positions = serverPositions
-    this.targetPositions = JSON.parse(JSON.stringify(serverPositions)) // Deep copy
-    this.lastServerUpdateTime = performance.now()
-  }
-
   draw(c: CanvasRenderingContext2D): void {
     this.positions.reverse()
     this.positions.forEach((segment, index) => {

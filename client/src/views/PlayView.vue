@@ -38,9 +38,6 @@ onMounted(() => {
     const y = event.clientY - canvas.offsetTop
     if (game) {
       game.updateMouseCoordinate(x, y)
-      if (game.currentPlayer) {
-        game.currentPlayer.move(x, y)
-      }
     }
   })
 

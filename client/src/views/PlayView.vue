@@ -31,13 +31,20 @@ onMounted(() => {
   window.addEventListener("resize", () => {
     canvas.width = innerWidth
     canvas.height = innerHeight
+    if (game) {
+      game.updateCameraWidthAndHeight(innerWidth, innerHeight)
+      game.stats.updateCameraWidthAndHeight(innerWidth, innerHeight)
+    }
   })
 
   canvas.addEventListener("mousemove", (event) => {
-    const x = event.clientX - canvas.offsetLeft
-    const y = event.clientY - canvas.offsetTop
+    const rect = canvas.getBoundingClientRect()
+    const scaleX = canvas.width / rect.width
+    const scaleY = canvas.height / rect.height
+    const screenX = (event.clientX - rect.left) * scaleX
+    const screenY = (event.clientY - rect.top) * scaleY
     if (game) {
-      game.updateMouseCoordinate(x, y)
+      game.updateMouseCoordinate(screenX, screenY)
     }
   })
 
@@ -62,8 +69,8 @@ onMounted(() => {
       game.sendPingPayload()
     }
     c.clearRect(0, 0, canvas.width, canvas.height)
-    game.renderStats()
-    game.renderPlayers()
+    game.update()
+    game.render()
     requestAnimationFrame(animate)
   }
   game.calculateFps()

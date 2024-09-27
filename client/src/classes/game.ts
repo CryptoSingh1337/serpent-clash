@@ -1,7 +1,117 @@
 import { Stats } from "@/classes/stats"
 import { Constants } from "@/utils/constants"
-import type { BackendPlayer, Players } from "@/utils/types"
+import type { BackendPlayer, Coordinate, Players } from "@/utils/types"
 import { Player } from "@/classes/entity"
+import { clamp } from "@/utils/helper"
+
+class Camera {
+  x: number = 0
+  y: number = 0
+  width: number
+  height: number
+
+  constructor(width: number, height: number) {
+    this.width = width
+    this.height = height
+  }
+
+  follow(x: number, y: number) {
+    this.x = x
+    this.y = y
+  }
+
+  applyTo(ctx: CanvasRenderingContext2D) {
+    ctx.save()
+    ctx.translate(-this.x, -this.y)
+  }
+
+  restore(ctx: CanvasRenderingContext2D) {
+    ctx.restore()
+  }
+
+  worldToScreen(worldX: number, worldY: number): Coordinate {
+    return {
+      x: Math.floor(worldX - this.x),
+      y: Math.floor(worldY - this.y)
+    }
+  }
+
+  screenToWorld(screenX: number, screenY: number): Coordinate {
+    return {
+      x: Math.floor(screenX + this.x),
+      y: Math.floor(screenY + this.y)
+    }
+  }
+}
+
+class HexGrid {
+  hexSize: number
+  hexHeight: number
+  hexWidth: number
+  verticalSpacing: number
+  horizontalSpacing: number
+
+  constructor(hexSize: number) {
+    this.hexSize = hexSize
+    this.hexHeight = hexSize * 2
+    this.hexWidth = Math.sqrt(25) * hexSize
+    this.verticalSpacing = (this.hexHeight * 8) / 4
+    this.horizontalSpacing = this.hexWidth / 1.5
+  }
+
+  drawHex(ctx: CanvasRenderingContext2D, x: number, y: number) {
+    ctx.beginPath()
+    for (let i = 0; i < 6; i++) {
+      const angle = (Math.PI / 3) * i
+      const hx = x + this.hexSize * Math.cos(angle)
+      const hy = y + this.hexSize * Math.sin(angle)
+      if (i === 0) {
+        ctx.moveTo(hx, hy)
+      } else {
+        ctx.lineTo(hx, hy)
+      }
+    }
+    ctx.closePath()
+    ctx.stroke()
+  }
+
+  render(ctx: CanvasRenderingContext2D, camera: Camera) {
+    const startX = Math.max(
+      Constants.worldBoundary.minX,
+      Math.floor(camera.x / this.horizontalSpacing) * this.horizontalSpacing -
+        this.horizontalSpacing
+    )
+    const startY = Math.max(
+      Constants.worldBoundary.minY,
+      Math.floor(camera.y / this.verticalSpacing) * this.verticalSpacing -
+        this.verticalSpacing
+    )
+    const endX = Math.min(
+      Constants.worldBoundary.maxX,
+      camera.x + camera.width + this.horizontalSpacing
+    )
+    const endY = Math.min(
+      Constants.worldBoundary.maxY,
+      camera.y + camera.height + this.verticalSpacing
+    )
+
+    ctx.strokeStyle = "rgba(200, 200, 200, 0.5)"
+    ctx.lineWidth = 4
+
+    for (let y = startY; y < endY; y += this.verticalSpacing) {
+      for (let x = startX; x < endX; x += this.horizontalSpacing) {
+        this.drawHex(ctx, x, y)
+        if (y + this.verticalSpacing / 2 < Constants.worldBoundary.maxY) {
+          this.drawHex(
+            ctx,
+            x + this.horizontalSpacing / 2,
+            y + this.verticalSpacing / 2
+          )
+        }
+      }
+    }
+  }
+}
 
 export class Game {
   ctx: CanvasRenderingContext2D
@@ -10,6 +120,8 @@ export class Game {
   playerId: string = ""
   lastMouseCoordinate: { x: number; y: number }
   mouseCoordinate: { x: number; y: number }
+  camera: Camera
+  hexGrid: HexGrid
   frontendPlayers: Players = {}
   currentPlayer: Player | null = null
   inputs: { seq: number; x: number; y: number }[] = []
@@ -23,13 +135,34 @@ export class Game {
     this.mouseCoordinate = { x: 0, y: 0 }
     this.lastMouseCoordinate = { x: 0, y: 0 }
     this.stats = new Stats()
+    this.stats.updateCameraWidthAndHeight(ctx.canvas.width, ctx.canvas.height)
+    this.camera = new Camera(ctx.canvas.width, ctx.canvas.height)
+    this.hexGrid = new HexGrid(50)
     this.initSocket()
+    this.setupMouseTracking()
+  }
+
+  setupMouseTracking(): void {
     setInterval(() => {
       if (this.socket && this.socket.readyState === WebSocket.OPEN) {
         if (
           this.lastMouseCoordinate.x != this.mouseCoordinate.x &&
           this.lastMouseCoordinate.y != this.mouseCoordinate.y
         ) {
+          const worldCoordinate = this.camera.screenToWorld(
+            this.mouseCoordinate.x,
+            this.mouseCoordinate.y
+          )
+          worldCoordinate.x = clamp(
+            worldCoordinate.x,
+            Constants.worldBoundary.minX,
+            Constants.worldBoundary.maxX
+          )
+          worldCoordinate.y = clamp(
+            worldCoordinate.y,
+            Constants.worldBoundary.minY,
+            Constants.worldBoundary.maxY
+          )
           this.inputs.push({
             seq: ++this.seq,
             x: this.mouseCoordinate.x,
@@ -40,7 +173,7 @@ export class Game {
               type: "movement",
               body: {
                 seq: this.seq,
-                coordinate: this.mouseCoordinate
+                coordinate: worldCoordinate
               }
             })
           )
@@ -113,8 +246,15 @@ export class Game {
                 }
                 this.inputs.forEach((input) => {
                   this.updateMouseCoordinate(input.x, input.y)
+                  const worldCoordinate = this.camera.screenToWorld(
+                    input.x,
+                    input.y
+                  )
                   if (this.currentPlayer) {
-                    this.currentPlayer.move(input.x, input.y)
+                    this.currentPlayer.move(
+                      worldCoordinate.x,
+                      worldCoordinate.y
+                    )
                   }
                 })
                 this.stats.updateHeadCoordinate(
@@ -159,10 +299,12 @@ export class Game {
   }
 
   renderPlayers(): void {
+    this.camera.applyTo(this.ctx)
     for (const id in this.frontendPlayers) {
       const player = this.frontendPlayers[id]
       player.draw(this.ctx)
     }
+    this.camera.restore(this.ctx)
   }
 
   renderStats(): void {
@@ -183,5 +325,55 @@ export class Game {
     if (this.socket && this.socket.readyState === WebSocket.OPEN) {
       this.socket.close()
     }
+  }
+
+  update(): void {
+    if (this.currentPlayer) {
+      const head = this.currentPlayer.positions[0]
+      const cameraX = clamp(
+        head.x - this.ctx.canvas.width / 2,
+        Constants.worldBoundary.minX,
+        Constants.worldBoundary.maxX - this.ctx.canvas.width
+      )
+      const cameraY = clamp(
+        head.y - this.ctx.canvas.height / 2,
+        Constants.worldBoundary.minY,
+        Constants.worldBoundary.maxY - this.ctx.canvas.height
+      )
+      this.camera.follow(cameraX, cameraY)
+      this.stats.updateCameraCoordinate(cameraX, cameraY)
+    }
+  }
+
+  renderBackground(): void {
+    this.camera.applyTo(this.ctx)
+    this.hexGrid.render(this.ctx, this.camera)
+    this.camera.restore(this.ctx)
+  }
+
+  render(): void {
+    this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height)
+    this.renderBackground()
+    this.ctx.beginPath()
+    this.ctx.strokeStyle = "rgba(255, 0, 0, 0.5)"
+    this.ctx.lineWidth = 5
+    this.ctx.arc(
+      this.ctx.canvas.width / 2 - this.camera.x,
+      this.ctx.canvas.height / 2 - this.camera.y,
+      2000,
+      0,
+      Math.PI * 2
+    )
+    this.ctx.stroke()
+    this.ctx.closePath()
+    this.ctx.lineWidth = 1
+    this.ctx.strokeStyle = "rgba(0, 0, 0, 1)"
+    this.renderPlayers()
+    this.renderStats()
+  }
+
+  updateCameraWidthAndHeight(width: number, height: number): void {
+    this.camera.width = width
+    this.camera.height = height
   }
 }

@@ -8,6 +8,12 @@ export class Stats {
     x: innerWidth / 2,
     y: innerHeight / 2
   }
+  cameraCoordinate: { x: number; y: number; width: number; height: number } = {
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0
+  }
   playerId: string = ""
   status: string = "offline"
 
@@ -19,7 +25,7 @@ export class Stats {
     if (!c) {
       throw new Error("Can't find canvas element")
     }
-    c.fillStyle = "White"
+    c.fillStyle = "Black"
     c.font = "normal 12px Arial"
     c.fillText(Math.floor(this.fps) + " fps", 5, 15)
     c.fillText(
@@ -32,9 +38,14 @@ export class Stats {
       5,
       45
     )
-    c.fillText(`Player id: ${this.playerId}`, 5, 60)
-    c.fillText(`Status: ${this.status}`, 5, 75)
-    c.fillText(`Ping: ${Math.trunc(this.ping * 100) / 100} ms`, 5, 90)
+    c.fillText(
+      `Camera (minX, minY, maxX, maxY): ${this.cameraCoordinate.x}, ${this.cameraCoordinate.y}, ${this.cameraCoordinate.x + this.cameraCoordinate.width}, ${this.cameraCoordinate.y + this.cameraCoordinate.height}`,
+      5,
+      60
+    )
+    c.fillText(`Player id: ${this.playerId}`, 5, 75)
+    c.fillText(`Status: ${this.status}`, 5, 90)
+    c.fillText(`Ping: ${Math.trunc(this.ping * 100) / 100} ms`, 5, 105)
   }
 
   calculateFps(): void {
@@ -71,11 +82,23 @@ export class Stats {
     this.headCoordinate.y = y
   }
 
+  updateCameraCoordinate(x: number, y: number): void {
+    this.cameraCoordinate.x = x
+    this.cameraCoordinate.y = y
+  }
+
+  updateCameraWidthAndHeight(width: number, height: number): void {
+    this.cameraCoordinate.width = width
+    this.cameraCoordinate.height = height
+  }
+
   reset(): void {
     this.playerId = ""
     this.status = "offline"
-    this.headCoordinate.x = 1
-    this.headCoordinate.y = 1
+    this.headCoordinate.x = 0
+    this.headCoordinate.y = 0
+    this.cameraCoordinate.x = 0
+    this.cameraCoordinate.y = 0
     this.ping = 0
     this.pingCooldown = Constants.pingCooldown
   }

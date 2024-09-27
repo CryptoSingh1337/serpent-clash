@@ -6,6 +6,10 @@ export const Constants = {
   snakeSegmentDistance: 15,
   snakeSegmentDiameter: 50,
   pingCooldown: 60,
-  worldWidth: 5000,
-  worldHeight: 5000
+  worldBoundary: {
+    minX: -3000,
+    maxX: 3000,
+    minY: -3000,
+    maxY: 3000
+  }
 }

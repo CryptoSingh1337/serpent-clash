@@ -5,5 +5,7 @@ export const Constants = {
   maxTurnRate: 0.03,
   snakeSegmentDistance: 15,
   snakeSegmentDiameter: 50,
-  pingCooldown: 60
+  pingCooldown: 60,
+  worldWidth: 5000,
+  worldHeight: 5000
 }

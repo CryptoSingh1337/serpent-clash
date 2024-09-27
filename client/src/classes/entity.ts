@@ -1,6 +1,6 @@
 import type { Coordinate } from "@/utils/types"
 import { Constants } from "@/utils/constants"
-import {lerp, lerpAngle} from "@/utils/helper"
+import { lerp, lerpAngle } from "@/utils/helper"
 
 export class Player {
   id: string
@@ -53,32 +53,60 @@ export class Player {
       const currentSegment = this.targetPositions[i]
 
       const angleToPrev = Math.atan2(
-          prevSegment.y - currentSegment.y,
-          prevSegment.x - currentSegment.x
+        prevSegment.y - currentSegment.y,
+        prevSegment.x - currentSegment.x
       )
 
-      currentSegment.x = prevSegment.x - Math.cos(angleToPrev) * Constants.snakeSegmentDistance
-      currentSegment.y = prevSegment.y - Math.sin(angleToPrev) * Constants.snakeSegmentDistance
+      currentSegment.x =
+        prevSegment.x - Math.cos(angleToPrev) * Constants.snakeSegmentDistance
+      currentSegment.y =
+        prevSegment.y - Math.sin(angleToPrev) * Constants.snakeSegmentDistance
     }
 
     // Interpolate actual positions
-    const interpolationFactor = Math.min((currentTime - this.lastServerUpdateTime) / Constants.tickRate, 1)
+    const interpolationFactor = Math.min(
+      (currentTime - this.lastServerUpdateTime) / Constants.tickRate,
+      1
+    )
 
-    this.angle = lerpAngle(this.angle, this.targetAngle, Constants.maxTurnRate * deltaTime)
+    this.angle = lerpAngle(
+      this.angle,
+      this.targetAngle,
+      Constants.maxTurnRate * deltaTime
+    )
 
     for (let i = 0; i < this.positions.length; i++) {
-      this.positions[i].x = lerp(this.positions[i].x, this.targetPositions[i].x, interpolationFactor)
-      this.positions[i].y = lerp(this.positions[i].y, this.targetPositions[i].y, interpolationFactor)
+      this.positions[i].x = lerp(
+        this.positions[i].x,
+        this.targetPositions[i].x,
+        interpolationFactor
+      )
+      this.positions[i].y = lerp(
+        this.positions[i].y,
+        this.targetPositions[i].y,
+        interpolationFactor
+      )
     }
     this.lastUpdatedTime = currentTime
   }
 
   moveWithInterpolation(positions: Coordinate[]): void {
     const currentTime = performance.now()
-    const interpolationFactor = Math.min((currentTime - this.lastUpdatedTime) / Constants.tickRate, 1)
+    const interpolationFactor = Math.min(
+      (currentTime - this.lastUpdatedTime) / Constants.tickRate,
+      1
+    )
     for (let i = 0; i < this.positions.length; i++) {
-      this.positions[i].x = lerp(this.positions[i].x, positions[i].x, interpolationFactor)
-      this.positions[i].y = lerp(this.positions[i].y, positions[i].y, interpolationFactor)
+      this.positions[i].x = lerp(
+        this.positions[i].x,
+        positions[i].x,
+        interpolationFactor
+      )
+      this.positions[i].y = lerp(
+        this.positions[i].y,
+        positions[i].y,
+        interpolationFactor
+      )
     }
     this.lastUpdatedTime = currentTime
   }

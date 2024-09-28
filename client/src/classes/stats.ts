@@ -38,11 +38,11 @@ export class Stats {
       5,
       45
     )
-    c.fillText(
-      `Camera (minX, minY, maxX, maxY): ${this.cameraCoordinate.x}, ${this.cameraCoordinate.y}, ${this.cameraCoordinate.x + this.cameraCoordinate.width}, ${this.cameraCoordinate.y + this.cameraCoordinate.height}`,
-      5,
-      60
-    )
+    // c.fillText(
+    //   `Camera (minX, minY, maxX, maxY): ${this.cameraCoordinate.x}, ${this.cameraCoordinate.y}, ${this.cameraCoordinate.x + this.cameraCoordinate.width}, ${this.cameraCoordinate.y + this.cameraCoordinate.height}`,
+    //   5,
+    //   60
+    // )
     c.fillText(`Player id: ${this.playerId}`, 5, 75)
     c.fillText(`Status: ${this.status}`, 5, 90)
     c.fillText(`Ping: ${Math.trunc(this.ping * 100) / 100} ms`, 5, 105)

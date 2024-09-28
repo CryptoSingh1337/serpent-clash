@@ -1,6 +1,7 @@
 import type { Coordinate } from "@/utils/types"
 import { Constants } from "@/utils/constants"
 import { lerp, lerpAngle } from "@/utils/helper"
+import type { Camera } from "@/classes/game"
 
 export class Player {
   id: string
@@ -111,13 +112,16 @@ export class Player {
     this.lastUpdatedTime = currentTime
   }
 
-  draw(c: CanvasRenderingContext2D): void {
+  draw(c: CanvasRenderingContext2D, camera: Camera): void {
+    c.lineWidth = 1 // Set line width for all segments
+    c.strokeStyle = "black"
     this.positions.reverse()
     this.positions.forEach((segment, index) => {
+      const screenPos = camera.worldToScreen(segment.x, segment.y)
       c.beginPath()
       c.arc(
-        segment.x,
-        segment.y,
+        screenPos.x,
+        screenPos.y,
         Constants.snakeSegmentDiameter / 2,
         0,
         Math.PI * 2

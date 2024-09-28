@@ -4,7 +4,7 @@ import type { BackendPlayer, Coordinate, Players } from "@/utils/types"
 import { Player } from "@/classes/entity"
 import { clamp } from "@/utils/helper"
 
-class Camera {
+export class Camera {
   x: number = 0
   y: number = 0
   width: number
@@ -20,15 +20,6 @@ class Camera {
     this.y = y
   }
 
-  applyTo(ctx: CanvasRenderingContext2D) {
-    ctx.save()
-    ctx.translate(-this.x, -this.y)
-  }
-
-  restore(ctx: CanvasRenderingContext2D) {
-    ctx.restore()
-  }
-
   worldToScreen(worldX: number, worldY: number): Coordinate {
     return {
       x: Math.floor(worldX - this.x),
@@ -41,6 +32,10 @@ class Camera {
       x: Math.floor(screenX + this.x),
       y: Math.floor(screenY + this.y)
     }
+  }
+
+  worldToScreenDistance(distance: number): number {
+    return distance
   }
 }
 
@@ -96,17 +91,18 @@ class HexGrid {
     )
 
     ctx.strokeStyle = "rgba(200, 200, 200, 0.5)"
-    ctx.lineWidth = 4
+    ctx.lineWidth = 1
 
     for (let y = startY; y < endY; y += this.verticalSpacing) {
       for (let x = startX; x < endX; x += this.horizontalSpacing) {
-        this.drawHex(ctx, x, y)
+        const screenPos = camera.worldToScreen(x, y)
+        this.drawHex(ctx, screenPos.x, screenPos.y)
         if (y + this.verticalSpacing / 2 < Constants.worldBoundary.maxY) {
-          this.drawHex(
-            ctx,
+          const offsetScreenPos = camera.worldToScreen(
             x + this.horizontalSpacing / 2,
             y + this.verticalSpacing / 2
           )
+          this.drawHex(ctx, offsetScreenPos.x, offsetScreenPos.y)
         }
       }
     }
@@ -299,12 +295,10 @@ export class Game {
   }
 
   renderPlayers(): void {
-    this.camera.applyTo(this.ctx)
     for (const id in this.frontendPlayers) {
       const player = this.frontendPlayers[id]
-      player.draw(this.ctx)
+      player.draw(this.ctx, this.camera)
     }
-    this.camera.restore(this.ctx)
   }
 
   renderStats(): void {
@@ -346,28 +340,30 @@ export class Game {
   }
 
   renderBackground(): void {
-    this.camera.applyTo(this.ctx)
     this.hexGrid.render(this.ctx, this.camera)
-    this.camera.restore(this.ctx)
+  }
+
+  renderWorldBoundary(): void {
+    const worldCenterX =
+      (Constants.worldBoundary.minX + Constants.worldBoundary.maxX) / 2
+    const worldCenterY =
+      (Constants.worldBoundary.minY + Constants.worldBoundary.maxY) / 2
+    const screenCenter = this.camera.worldToScreen(worldCenterX, worldCenterY)
+
+    const radius = 2500 // Assuming this is the radius of your world
+    const screenRadius = this.camera.worldToScreenDistance(radius)
+
+    this.ctx.beginPath()
+    this.ctx.strokeStyle = "rgba(255, 0, 0, 0.5)"
+    this.ctx.lineWidth = 5
+    this.ctx.arc(screenCenter.x, screenCenter.y, screenRadius, 0, Math.PI * 2)
+    this.ctx.stroke()
   }
 
   render(): void {
     this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height)
     this.renderBackground()
-    this.ctx.beginPath()
-    this.ctx.strokeStyle = "rgba(255, 0, 0, 0.5)"
-    this.ctx.lineWidth = 5
-    this.ctx.arc(
-      this.ctx.canvas.width / 2 - this.camera.x,
-      this.ctx.canvas.height / 2 - this.camera.y,
-      2000,
-      0,
-      Math.PI * 2
-    )
-    this.ctx.stroke()
-    this.ctx.closePath()
-    this.ctx.lineWidth = 1
-    this.ctx.strokeStyle = "rgba(0, 0, 0, 1)"
+    this.renderWorldBoundary()
     this.renderPlayers()
     this.renderStats()
   }

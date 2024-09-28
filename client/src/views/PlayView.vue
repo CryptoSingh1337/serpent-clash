@@ -53,28 +53,8 @@ onMounted(() => {
     throw new Error("Cannot initialize game object")
   }
   status.value = "disconnect"
-
-  function animate() {
-    if (!canvas) {
-      throw new Error("Can't find canvas element")
-    }
-    if (!c) {
-      throw new Error("Can't find canvas element")
-    }
-    if (!game) {
-      throw new Error("game object is not initialized")
-    }
-    game.stats.pingCooldown -= 1
-    if (game.stats.pingCooldown <= 0) {
-      game.sendPingPayload()
-    }
-    c.clearRect(0, 0, canvas.width, canvas.height)
-    game.update()
-    game.render()
-    requestAnimationFrame(animate)
-  }
   game.calculateFps()
-  animate()
+  game.start()
 })
 
 onBeforeUnmount(() => {

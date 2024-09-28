@@ -372,4 +372,20 @@ export class Game {
     this.camera.width = width
     this.camera.height = height
   }
+
+  gameLoop(): void {
+    this.update()
+    this.render()
+    this.stats.pingCooldown -= 1
+    if (this.stats.pingCooldown <= 0) {
+      this.sendPingPayload()
+    }
+    requestAnimationFrame(() => {
+      this.gameLoop()
+    })
+  }
+
+  start(): void {
+    this.gameLoop()
+  }
 }

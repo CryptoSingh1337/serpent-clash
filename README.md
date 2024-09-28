@@ -46,6 +46,7 @@ Future Enhancements:
 - [ ] Use of binary format instead of json
 - [ ] Stop rendering when tab is switched
 - [ ] Separate goroutine for calculating/processing game logic (if server struggle at current tick-rate)
+- [ ] Use of Pixi HTML 5 renderer engine
 
 ### Resources
 - [https://www.gabrielgambetta.com/client-server-game-architecture.html](https://www.gabrielgambetta.com/client-server-game-architecture.html)

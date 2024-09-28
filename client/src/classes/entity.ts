@@ -1,7 +1,7 @@
 import type { Coordinate } from "@/utils/types"
 import { Constants } from "@/utils/constants"
 import { lerp, lerpAngle } from "@/utils/helper"
-import type { Camera } from "@/classes/game"
+import type { Camera } from "@/classes/camera"
 
 export class Player {
   id: string

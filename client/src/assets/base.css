@@ -34,6 +34,16 @@
   --color-text: var(--vt-c-text-light-1);
 
   --section-gap: 160px;
+
+  --m: 2rem;
+
+  --red: #FF6565;
+  --pink: #FF64F9;
+  --purple: #6B5FFF;
+  --blue: #4D8AFF;
+  --green: #5BFF89;
+  --yellow: #FFEE55;
+  --orange: #FF6D1B;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -58,28 +68,15 @@
   font-weight: normal;
 }
 
-/*html {*/
-/*  --s: 37px; !* control the size *!*/
-
-/*  --c: #0000, var(--color-background-mute) 0.5deg 119.5deg, #0000 120deg;*/
-/*  --g1: conic-gradient(from 60deg at 56.25% calc(425% / 6), var(--c));*/
-/*  --g2: conic-gradient(from 180deg at 43.75% calc(425% / 6), var(--c));*/
-/*  --g3: conic-gradient(from -60deg at 50% calc(175% / 12), var(--c));*/
-/*  background:*/
-/*    var(--g1),*/
-/*    var(--g1) var(--s) calc(1.73 * var(--s)),*/
-/*    var(--g2),*/
-/*    var(--g2) var(--s) calc(1.73 * var(--s)),*/
-/*    var(--g3) var(--s) 0,*/
-/*    var(--g3) 0 calc(1.73 * var(--s)) var(--color-background);*/
-/*  background-size: calc(2 * var(--s)) calc(3.46 * var(--s));*/
-/*  !* 3.46 = 2*sqrt(3)*/
-/*     1.73 = sqrt(3)*/
-/*  *!*/
-/*}*/
+html {
+  scrollbar-width: thin;
+  scroll-behavior: smooth;
+}
 
 body {
   min-height: 100vh;
+  color: var(--color-text);
+  background: var(--color-background);
   transition:
     color 0.5s,
     background-color 0.5s;

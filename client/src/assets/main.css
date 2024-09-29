@@ -2,3 +2,19 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer utilities {
+    .neon-text {
+        text-shadow: 0 0 5px rgba(0, 255, 255, 0.7),
+        0 0 10px rgba(0, 255, 255, 0.7),
+        0 0 15px rgba(0, 255, 255, 0.7);
+    }
+
+    .glow-btn {
+        box-shadow: 0 0 10px #00FF00, 0 0 20px #00FF00, 0 0 30px #00FF00;
+    }
+
+    .neon-border {
+        border: 2px solid rgba(0, 255, 255, 0.7);
+    }
+}

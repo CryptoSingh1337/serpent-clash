@@ -83,11 +83,13 @@ const router = useRouter()
     <div class="max-w-5xl mx-auto px-4">
       <h2 class="text-4xl font-bold text-teal-300 mb-6">Gameplay Preview</h2>
       <div class="mb-8">
-        <img
-          src="https://example.com/gameplay-preview.jpg"
-          alt="Gameplay Preview"
-          class="w-full rounded-lg shadow-lg"
-        />
+        <iframe
+          class="mx-auto my-10 aspect-video w-full"
+          src="https://www.youtube-nocookie.com/embed/LiovUkBWOos"
+          title="YouTube video player"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          :allowfullscreen="false"
+        ></iframe>
       </div>
       <a
         href="#leaderboard"

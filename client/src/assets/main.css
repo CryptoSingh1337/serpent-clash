@@ -4,17 +4,16 @@
 @tailwind utilities;
 
 @layer utilities {
-    .neon-text {
-        text-shadow: 0 0 5px rgba(0, 255, 255, 0.7),
-        0 0 10px rgba(0, 255, 255, 0.7),
-        0 0 15px rgba(0, 255, 255, 0.7);
-    }
+  .button-container {
+    @apply relative rounded-full overflow-hidden;
+  }
 
-    .glow-btn {
-        box-shadow: 0 0 10px #00FF00, 0 0 20px #00FF00, 0 0 30px #00FF00;
-    }
+  .button-container::before {
+    background: conic-gradient(var(--rgb-accent-1) 125deg, transparent 90deg);
+    @apply absolute h-[175%] w-[175%] left-[-37.5%] top-[-37.5%] content-[''] animate-border-spin;
+  }
 
-    .neon-border {
-        border: 2px solid rgba(0, 255, 255, 0.7);
-    }
+  .button-content {
+    @apply absolute w-[calc(100%-4px)] h-[calc((100%-4px))] left-[2px] top-[2px] bg-primary rounded-full;
+  }
 }

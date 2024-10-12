@@ -312,9 +312,7 @@ export class Game {
       (Constants.worldBoundary.minY + Constants.worldBoundary.maxY) / 2
     const screenCenter = this.camera.worldToScreen(worldCenterX, worldCenterY)
 
-    const radius = 2500 // Assuming this is the radius of your world
-    const screenRadius = this.camera.worldToScreenDistance(radius)
-
+    const screenRadius = this.camera.worldToScreenDistance(Constants.worldBoundary.radius)
     this.ctx.beginPath()
     this.ctx.strokeStyle = "rgba(255, 0, 0, 0.5)"
     this.ctx.lineWidth = 5

@@ -16,6 +16,7 @@ const (
 	SnakeSegmentDistance = 15
 	SnakeSegmentDiameter = 50
 	MaxPlayerAllowed     = 10
+	WorldBoundaryRadius  = 2750
 	WorldBoundaryMinX    = -3000
 	WorldBoundaryMaxX    = 3000
 	WorldBoundaryMinY    = -3000

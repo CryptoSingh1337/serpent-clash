@@ -7,6 +7,7 @@ export const Constants = {
   snakeSegmentDiameter: 50,
   pingCooldown: 60,
   worldBoundary: {
+    radius: 2750,
     minX: -3000,
     maxX: 3000,
     minY: -3000,

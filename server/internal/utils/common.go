@@ -6,6 +6,7 @@ import (
 	"math"
 )
 
+// Common constants
 const (
 	TickRate             = 60
 	PlayerSpeed          = 4
@@ -15,11 +16,13 @@ const (
 	SnakeSegmentDistance = 15
 	SnakeSegmentDiameter = 50
 	MaxPlayerAllowed     = 10
-	WorldFactor          = 200
-	WorldHeight          = 3 * WorldFactor
-	WorldWidth           = 4 * WorldFactor
+	WorldBoundaryMinX    = -3000
+	WorldBoundaryMaxX    = 3000
+	WorldBoundaryMinY    = -3000
+	WorldBoundaryMaxY    = 3000
 )
 
+// Message types
 const (
 	HelloMessage     = "hello"
 	PingMessage      = "ping"

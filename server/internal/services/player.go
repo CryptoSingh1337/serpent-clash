@@ -35,8 +35,8 @@ func NewPlayer(conn *websocket.Conn) *Player {
 }
 
 func (player *Player) generateRandomPosition() {
-	x := float64(100 + rand.Intn(utils.WorldWidth-100))
-	y := float64(100 + rand.Intn(utils.WorldHeight-100))
+	x := float64(utils.WorldBoundaryMinX + rand.Intn(utils.WorldBoundaryMaxX-utils.WorldBoundaryMinX+1))
+	y := float64(utils.WorldBoundaryMinY + rand.Intn(utils.WorldBoundaryMaxY-utils.WorldBoundaryMinY+1))
 
 	segments := make([]utils.Coordinate, utils.DefaultSnakeLength)
 	segments[0] = utils.Coordinate{X: x, Y: y}
@@ -49,7 +49,6 @@ func (player *Player) generateRandomPosition() {
 
 func (player *Player) Move() {
 	mouseCoordinate := player.lastMouseCoordinate
-	//log.Println("Mouse coordinate", mouseCoordinate)
 	head := player.Segments[0]
 	angle := player.angle
 	targetAngle := math.Atan2(mouseCoordinate.Y-head.Y, mouseCoordinate.X-head.X)

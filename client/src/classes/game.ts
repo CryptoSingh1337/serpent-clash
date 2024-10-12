@@ -271,10 +271,6 @@ export class Game {
     this.stats.renderStats(this.ctx)
   }
 
-  calculateFps(): void {
-    this.stats.calculateFps()
-  }
-
   updateMouseCoordinate(x: number, y: number): void {
     this.mouseCoordinate.x = x
     this.mouseCoordinate.y = y
@@ -337,6 +333,7 @@ export class Game {
   updateCameraWidthAndHeight(width: number, height: number): void {
     this.camera.width = width
     this.camera.height = height
+    this.stats.updateCameraWidthAndHeight(width, height)
   }
 
   gameLoop(): void {
@@ -352,6 +349,7 @@ export class Game {
   }
 
   start(): void {
+    this.stats.calculateFps()
     this.gameLoop()
   }
 }

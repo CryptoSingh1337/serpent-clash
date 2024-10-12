@@ -33,7 +33,6 @@ onMounted(() => {
     canvas.height = innerHeight
     if (game) {
       game.updateCameraWidthAndHeight(innerWidth, innerHeight)
-      game.stats.updateCameraWidthAndHeight(innerWidth, innerHeight)
     }
   })
 
@@ -53,7 +52,6 @@ onMounted(() => {
     throw new Error("Cannot initialize game object")
   }
   status.value = "disconnect"
-  game.calculateFps()
   game.start()
 })
 

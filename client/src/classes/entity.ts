@@ -35,9 +35,9 @@ export class Player {
 
   move(x: number, y: number): void {
     const currentTime = performance.now()
-    const deltaTime = (currentTime - this.lastUpdatedTime) / 1000 // Convert to seconds
+    const deltaTime = currentTime - this.lastUpdatedTime
 
-    if (deltaTime < 1 / Constants.tickRate) {
+    if (deltaTime < Math.floor(1000 / Constants.tickRate)) {
       return
     }
     // Update target angle and position

@@ -143,7 +143,7 @@ export class Game {
           this.lastMouseCoordinate.y = this.mouseCoordinate.y
         }
       }
-    }, 1000 / Constants.tickRate)
+    }, Math.floor(1000 / Constants.tickRate))
   }
 
   initSocket(): void {

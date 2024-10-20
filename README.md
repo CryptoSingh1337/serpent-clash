@@ -1,5 +1,5 @@
 # Serpent Clash
-Serpent Clash is a fast-paced, real-time multiplayer snake game where players compete to outmaneuver and outgrow their opponents. Players control serpentine avatars, navigating a dynamic battlefield while dodging opponents and obstacles. The game leverages modern WebSocket communication for smooth, real-time player interaction and incorporates client-side prediction to ensure responsive gameplay even in high-latency situations.
+Serpent Clash is a fast-paced, real-time multiplayer snake game where players compete to outmaneuver and outgrow their opponents. Players control serpentine avatars, navigating a dynamic battlefield while dodging opponents. The game leverages modern WebSocket communication for smooth, real-time player interaction and incorporates client-side prediction to ensure responsive gameplay even in high-latency situations.
 
 The game is built with a combination of Vue.js for the client-side and Go for the backend, following an authoritative server model to ensure fairness and consistency in gameplay. With real-time movement tracking and competitive elements, Serpent Clash challenges players' reflexes and strategic thinking as they slither to the top of the leaderboard.
 

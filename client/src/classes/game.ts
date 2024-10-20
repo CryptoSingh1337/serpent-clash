@@ -105,45 +105,48 @@ export class Game {
   }
 
   setupMouseTracking(): void {
-    setInterval(() => {
-      if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-        if (
-          this.lastMouseCoordinate.x != this.mouseCoordinate.x &&
-          this.lastMouseCoordinate.y != this.mouseCoordinate.y
-        ) {
-          const worldCoordinate = this.camera.screenToWorld(
-            this.mouseCoordinate.x,
-            this.mouseCoordinate.y
-          )
-          worldCoordinate.x = clamp(
-            worldCoordinate.x,
-            Constants.worldBoundary.minX,
-            Constants.worldBoundary.maxX
-          )
-          worldCoordinate.y = clamp(
-            worldCoordinate.y,
-            Constants.worldBoundary.minY,
-            Constants.worldBoundary.maxY
-          )
-          this.inputs.push({
-            seq: ++this.seq,
-            x: this.mouseCoordinate.x,
-            y: this.mouseCoordinate.y
-          })
-          this.socket.send(
-            JSON.stringify({
-              type: "movement",
-              body: {
-                seq: this.seq,
-                coordinate: worldCoordinate
-              }
+    setInterval(
+      () => {
+        if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+          if (
+            this.lastMouseCoordinate.x != this.mouseCoordinate.x &&
+            this.lastMouseCoordinate.y != this.mouseCoordinate.y
+          ) {
+            const worldCoordinate = this.camera.screenToWorld(
+              this.mouseCoordinate.x,
+              this.mouseCoordinate.y
+            )
+            worldCoordinate.x = clamp(
+              worldCoordinate.x,
+              Constants.worldBoundary.minX,
+              Constants.worldBoundary.maxX
+            )
+            worldCoordinate.y = clamp(
+              worldCoordinate.y,
+              Constants.worldBoundary.minY,
+              Constants.worldBoundary.maxY
+            )
+            this.inputs.push({
+              seq: ++this.seq,
+              x: this.mouseCoordinate.x,
+              y: this.mouseCoordinate.y
             })
-          )
-          this.lastMouseCoordinate.x = this.mouseCoordinate.x
-          this.lastMouseCoordinate.y = this.mouseCoordinate.y
+            this.socket.send(
+              JSON.stringify({
+                type: "movement",
+                body: {
+                  seq: this.seq,
+                  coordinate: worldCoordinate
+                }
+              })
+            )
+            this.lastMouseCoordinate.x = this.mouseCoordinate.x
+            this.lastMouseCoordinate.y = this.mouseCoordinate.y
+          }
         }
-      }
-    }, Math.floor(1000 / Constants.tickRate))
+      },
+      Math.floor(1000 / Constants.tickRate)
+    )
   }
 
   initSocket(): void {
@@ -312,7 +315,9 @@ export class Game {
       (Constants.worldBoundary.minY + Constants.worldBoundary.maxY) / 2
     const screenCenter = this.camera.worldToScreen(worldCenterX, worldCenterY)
 
-    const screenRadius = this.camera.worldToScreenDistance(Constants.worldBoundary.radius)
+    const screenRadius = this.camera.worldToScreenDistance(
+      Constants.worldBoundary.radius
+    )
     this.ctx.beginPath()
     this.ctx.strokeStyle = "rgba(255, 0, 0, 0.5)"
     this.ctx.lineWidth = 5

@@ -33,7 +33,7 @@ COPY server/ ./
 COPY --from=frontend-builder /app/dist ./client/dist
 
 # Build the Go app
-RUN go build -o ./server/main ./cmd/app
+RUN go build -o ./server/main ./cmd
 
 # Stage 3: Final Image
 FROM alpine:latest

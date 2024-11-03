@@ -17,7 +17,7 @@ build: build-go build-vue
 ## Build Go application
 build-go:
 	@echo "Building Go server..."
-	cd $(GO_APP_PATH)/cmd/app && go build -o $(GO_APP_OUTPUT_PATH)/$(GO_APP_NAME).exe
+	cd $(GO_APP_PATH)/cmd && go build -o $(GO_APP_OUTPUT_PATH)/$(GO_APP_NAME).exe
 
 ## Build Vue application
 install-npm-dep:

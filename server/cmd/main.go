@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/services"
-	"log"
+	"github.com/CryptoSingh1337/serpent-clash/server/internal/utils"
 	"os"
 	"os/signal"
 	"time"
@@ -14,13 +14,13 @@ func main() {
 	app := &App{
 		Config: *config,
 	}
-	log.Println("Loaded config", app.Config)
+	utils.Logger.LogInfo().Msgf("Loaded config: %v\n", app.Config)
 	game := services.NewGame()
 	srv := initHTTPServer(app, game)
 
 	err := srv.Start()
 	if err != nil {
-		log.Fatalf("nbio.Start failed: %v\n", err)
+		utils.Logger.LogFatal().Msgf("nbio.Start failed: %v\n", err)
 	}
 
 	interrupt := make(chan os.Signal, 1)
@@ -32,7 +32,7 @@ func main() {
 	game.Close()
 	err = srv.Shutdown(ctx)
 	if err != nil {
-		log.Fatalf("Shutdown failed: %v\n", err)
+		utils.Logger.LogFatal().Msgf("Shutdown failed: %v\n", err)
 		return
 	}
 }

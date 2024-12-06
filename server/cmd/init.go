@@ -2,10 +2,11 @@ package main
 
 import (
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/services"
+	"github.com/CryptoSingh1337/serpent-clash/server/internal/utils"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/lesismal/nbio/nbhttp"
-	"log"
+	"github.com/rs/zerolog"
 	"os"
 	"path/filepath"
 	"strings"
@@ -24,7 +25,9 @@ type App struct {
 }
 
 func initLogger(e *echo.Echo) {
-	e.Logger.SetLevel(2)
+	utils.NewLogger()
+	zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	e.Use(utils.LoggingMiddleware)
 }
 
 func LoadConfig() *Config {
@@ -51,7 +54,7 @@ func LoadConfig() *Config {
 	} else {
 		data, err := os.ReadFile(".env")
 		if err != nil {
-			log.Fatal(err)
+			utils.Logger.LogError().Err(err)
 		}
 		content := string(data)
 		lines := strings.Split(content, "\n")
@@ -69,17 +72,7 @@ func LoadConfig() *Config {
 
 func initHTTPServer(app *App, game *services.Game) *nbhttp.Engine {
 	e := echo.New()
-
-	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
-		Skipper: func(c echo.Context) bool {
-			if c.Request().RequestURI == "/ws" {
-				return false
-			}
-			return true
-		},
-	}))
 	e.Use(middleware.Recover())
-
 	// Register app (*App) to be injected into all HTTP handlers.
 	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
@@ -89,7 +82,6 @@ func initHTTPServer(app *App, game *services.Game) *nbhttp.Engine {
 	})
 
 	initLogger(e)
-
 	initHandler(e, app, game)
 
 	return nbhttp.NewEngine(nbhttp.Config{

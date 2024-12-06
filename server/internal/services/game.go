@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/utils"
 	"github.com/lesismal/nbio/nbhttp/websocket"
-	"log"
 	"time"
 )
 
@@ -53,9 +52,9 @@ func (game *Game) processTick() {
 		select {
 		case player := <-game.JoinQueue:
 			if err := game.AddPlayer(player); err != nil {
-				log.Printf("Error adding player %s: %v", player.Id, err)
+				utils.Logger.LogError().Msgf("Error adding player %s: %v", player.Id, err)
 				if err := player.Conn.Close(); err != nil {
-					log.Printf("Error closing connection for player %s: %v", player.Id, err)
+					utils.Logger.LogError().Msgf("Error closing connection for player %s: %v", player.Id, err)
 				}
 			}
 		default:
@@ -70,7 +69,7 @@ ProcessLeaveQueue:
 		select {
 		case player := <-game.LeaveQueue:
 			if err := game.RemovePlayer(player); err != nil {
-				log.Printf("Error removing player %s: %v", player.Id, err)
+				utils.Logger.LogError().Msgf("Error removing player %s: %v", player.Id, err)
 			}
 		default:
 			// Exit the loop when LeaveQueue is empty
@@ -89,7 +88,7 @@ ProcessPingQueue:
 				payload, _ := json.Marshal(utils.Payload{Type: utils.PongMessage, Body: body})
 				err := player.Conn.WriteMessage(websocket.TextMessage, payload)
 				if err != nil {
-					log.Printf("Error pinging player %s: %v", player.Id, err)
+					utils.Logger.LogError().Msgf("Error pinging player %s: %v", player.Id, err)
 				}
 			}
 		default:
@@ -127,7 +126,7 @@ MoveAllPlayers:
 			err := player.Conn.WriteMessage(websocket.TextMessage, payload)
 			if err != nil {
 				if err := player.Conn.Close(); err != nil {
-					log.Printf("Error closing connection for player %s: %v", player.Id, err)
+					utils.Logger.LogError().Msgf("Error closing connection for player %s: %v", player.Id, err)
 				}
 			}
 		}
@@ -167,7 +166,7 @@ func (game *Game) AddPlayer(player *Player) error {
 	if game.Players[player] {
 		return errors.New("player already exists")
 	}
-	log.Println("Server::AddPlayer - player Id - " + player.Id + " joined")
+	utils.Logger.LogInfo().Msg("Server::AddPlayer - player Id - " + player.Id + " joined")
 	game.Players[player] = true
 	player.generateRandomPosition()
 	body := fmt.Sprintf(`{"id":%q}`, player.Id)
@@ -180,9 +179,9 @@ func (game *Game) RemovePlayer(player *Player) error {
 		return errors.New("no players left")
 	}
 	if _, ok := game.Players[player]; ok {
-		log.Println("Server::RemovePlayer - player Id - " + player.Id + " left")
+		utils.Logger.LogInfo().Msg("Server::RemovePlayer - player Id - " + player.Id + " left")
 		if err := player.Conn.Close(); err != nil {
-			log.Printf("Error closing connection for player %s: %v", player.Id, err)
+			utils.Logger.LogError().Msgf("Error closing connection for player %s: %v", player.Id, err)
 		}
 		delete(game.Players, player)
 		return nil
@@ -191,7 +190,7 @@ func (game *Game) RemovePlayer(player *Player) error {
 }
 
 func (game *Game) Close() {
-	log.Println("Clearing off resources...")
+	utils.Logger.LogInfo().Msgf("Clearing off resources...")
 	// Stop ticker
 	game.Done <- true
 

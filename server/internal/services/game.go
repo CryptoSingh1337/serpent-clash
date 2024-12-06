@@ -1,7 +1,6 @@
 package services
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/utils"
@@ -84,8 +83,8 @@ ProcessPingQueue:
 		case player := <-game.PingQueue:
 			val, ok := game.Players[player]
 			if ok && val {
-				body, _ := json.Marshal(utils.PingEvent{Timestamp: player.pingTimestamp})
-				payload, _ := json.Marshal(utils.Payload{Type: utils.PongMessage, Body: body})
+				body, _ := utils.ToJsonB(utils.PingEvent{Timestamp: player.pingTimestamp})
+				payload, _ := utils.ToJsonB(utils.Payload{Type: utils.PongMessage, Body: body})
 				err := player.Conn.WriteMessage(websocket.TextMessage, payload)
 				if err != nil {
 					utils.Logger.LogError().Msgf("Error pinging player %s: %v", player.Id, err)
@@ -119,8 +118,8 @@ MoveAllPlayers:
 		}
 	}
 	// Send game state to every player
-	body, _ := json.Marshal(gameState)
-	payload, _ := json.Marshal(utils.Payload{Type: utils.GameStateMessage, Body: body})
+	body, _ := utils.ToJsonB(gameState)
+	payload, _ := utils.ToJsonB(utils.Payload{Type: utils.GameStateMessage, Body: body})
 	for player, flag := range game.Players {
 		if flag {
 			err := player.Conn.WriteMessage(websocket.TextMessage, payload)
@@ -136,21 +135,21 @@ MoveAllPlayers:
 func (game *Game) ProcessEvent(player *Player, messageType websocket.MessageType, data []byte) {
 	switch messageType {
 	case websocket.TextMessage:
-		payload := utils.Payload{}
-		if err := json.Unmarshal(data, &payload); err != nil {
+		payload, err := utils.FromJsonB[utils.Payload](data)
+		if err != nil {
 			return
 		}
 		switch payload.Type {
 		case utils.Movement:
-			mouseEvent := utils.MouseEvent{}
-			if err := json.Unmarshal(payload.Body, &mouseEvent); err != nil {
+			mouseEvent, err := utils.FromJsonB[utils.MouseEvent](payload.Body)
+			if err != nil {
 				return
 			}
 			player.lastMouseCoordinate = &mouseEvent.Coordinate
 			player.Seq = mouseEvent.Seq
 		case utils.PingMessage:
-			pingEvent := utils.PingEvent{}
-			if err := json.Unmarshal(payload.Body, &pingEvent); err != nil {
+			pingEvent, err := utils.FromJsonB[utils.PingEvent](payload.Body)
+			if err != nil {
 				return
 			}
 			player.pingTimestamp = pingEvent.Timestamp
@@ -170,7 +169,10 @@ func (game *Game) AddPlayer(player *Player) error {
 	game.Players[player] = true
 	player.generateRandomPosition()
 	body := fmt.Sprintf(`{"id":%q}`, player.Id)
-	payload, _ := json.Marshal(utils.Payload{Type: utils.HelloMessage, Body: []byte(body)})
+	payload, err := utils.ToJsonB(utils.Payload{Type: utils.HelloMessage, Body: []byte(body)})
+	if err != nil {
+		return err
+	}
 	return player.Conn.WriteMessage(websocket.TextMessage, payload)
 }
 

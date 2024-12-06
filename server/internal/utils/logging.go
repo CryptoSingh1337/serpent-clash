@@ -17,16 +17,19 @@ var Logger CustomLogger
 
 func NewLogger() CustomLogger {
 	output := zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339}
+	output.FormatTimestamp = func(i any) string {
+		return "\x1b[m" + i.(string) + "\x1b[0m"
+	}
 	output.FormatLevel = func(i any) string {
 		return strings.ToUpper(fmt.Sprintf("|%-6s|", i))
 	}
-	output.FormatFieldName = func(i interface{}) string {
+	output.FormatFieldName = func(i any) string {
 		return fmt.Sprintf("%s:", i)
 	}
-	output.FormatFieldValue = func(i interface{}) string {
+	output.FormatFieldValue = func(i any) string {
 		return fmt.Sprintf("%s", i)
 	}
-	output.FormatErrFieldName = func(i interface{}) string {
+	output.FormatErrFieldName = func(i any) string {
 		return fmt.Sprintf("%s: ", i)
 	}
 	logger := zerolog.New(output).With().Caller().Timestamp().Logger()

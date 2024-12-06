@@ -80,7 +80,6 @@ export class Game {
   socket: WebSocket | null = null
   stats: Stats
   playerId: string = ""
-  lastMouseCoordinate: { x: number; y: number }
   mouseCoordinate: { x: number; y: number }
   camera: Camera
   hexGrid: HexGrid
@@ -95,7 +94,6 @@ export class Game {
     }
     this.ctx = ctx
     this.mouseCoordinate = { x: 0, y: 0 }
-    this.lastMouseCoordinate = { x: 0, y: 0 }
     this.stats = new Stats()
     this.stats.updateCameraWidthAndHeight(ctx.canvas.width, ctx.canvas.height)
     this.camera = new Camera(ctx.canvas.width, ctx.canvas.height)
@@ -108,41 +106,34 @@ export class Game {
     setInterval(
       () => {
         if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-          if (
-            this.lastMouseCoordinate.x != this.mouseCoordinate.x &&
-            this.lastMouseCoordinate.y != this.mouseCoordinate.y
-          ) {
-            const worldCoordinate = this.camera.screenToWorld(
-              this.mouseCoordinate.x,
-              this.mouseCoordinate.y
-            )
-            worldCoordinate.x = clamp(
-              worldCoordinate.x,
-              Constants.worldBoundary.minX,
-              Constants.worldBoundary.maxX
-            )
-            worldCoordinate.y = clamp(
-              worldCoordinate.y,
-              Constants.worldBoundary.minY,
-              Constants.worldBoundary.maxY
-            )
-            this.inputs.push({
-              seq: ++this.seq,
-              x: this.mouseCoordinate.x,
-              y: this.mouseCoordinate.y
+          const worldCoordinate = this.camera.screenToWorld(
+            this.mouseCoordinate.x,
+            this.mouseCoordinate.y
+          )
+          worldCoordinate.x = clamp(
+            worldCoordinate.x,
+            Constants.worldBoundary.minX,
+            Constants.worldBoundary.maxX
+          )
+          worldCoordinate.y = clamp(
+            worldCoordinate.y,
+            Constants.worldBoundary.minY,
+            Constants.worldBoundary.maxY
+          )
+          this.inputs.push({
+            seq: ++this.seq,
+            x: this.mouseCoordinate.x,
+            y: this.mouseCoordinate.y
+          })
+          this.socket.send(
+            JSON.stringify({
+              type: "movement",
+              body: {
+                seq: this.seq,
+                coordinate: worldCoordinate
+              }
             })
-            this.socket.send(
-              JSON.stringify({
-                type: "movement",
-                body: {
-                  seq: this.seq,
-                  coordinate: worldCoordinate
-                }
-              })
-            )
-            this.lastMouseCoordinate.x = this.mouseCoordinate.x
-            this.lastMouseCoordinate.y = this.mouseCoordinate.y
-          }
+          )
         }
       },
       Math.floor(1000 / Constants.tickRate)

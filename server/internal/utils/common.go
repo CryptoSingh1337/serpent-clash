@@ -9,8 +9,8 @@ import (
 // Common constants
 const (
 	TickRate             = 60
-	PlayerSpeed          = 4
-	MaxTurnRate          = 0.03
+	PlayerSpeed          = 5
+	MaxTurnRate          = 0.05
 	DefaultSnakeLength   = 10
 	DefaultGrowthFactor  = 2
 	SnakeSegmentDistance = 15

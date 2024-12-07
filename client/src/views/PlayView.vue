@@ -1,19 +1,31 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref, useTemplateRef } from "vue"
-import { Game } from "@/classes/game"
+import { GameDriver } from "@/drivers/game_driver.ts"
+import { DebugDriver } from "@/drivers/debug_driver.ts"
+import DebugMenu from "@/components/DebugMenu.vue"
 
 const devicePixelRatio = window.devicePixelRatio || 1
 const canvasRef = useTemplateRef<HTMLCanvasElement>("canvas-ref")
-let game: Game | null = null
-const status = ref<string>("connect")
+let game: GameDriver | null = null
+let debug: DebugDriver | null = null
+const status = ref<string>("Connect")
+const debugMenuEnabled = ref<boolean>(true)
 
 function connectOrDisconnect(): void {
-  if (game && status.value === "connect") {
+  if (
+    game &&
+    game.socketDriver &&
+    game.socketDriver.getReadyState() === WebSocket.CLOSED
+  ) {
+    console.debug("Connecting socket connection...")
     game.connect()
-    status.value = "disconnect"
-  } else if (game && status.value === "disconnect") {
+  } else if (
+    game &&
+    game.socketDriver &&
+    game.socketDriver.getReadyState() === WebSocket.OPEN
+  ) {
+    console.debug("Disconnecting socket connection...")
     game.disconnect()
-    status.value = "connect"
   }
 }
 
@@ -47,11 +59,11 @@ onMounted(() => {
     }
   })
 
-  game = new Game(c)
+  game = new GameDriver(c, status)
   if (!game) {
     throw new Error("Cannot initialize game object")
   }
-  status.value = "disconnect"
+  debug = new DebugDriver(game)
   game.start()
 })
 
@@ -65,11 +77,16 @@ onBeforeUnmount(() => {
 <template>
   <div class="h-full w-full">
     <canvas ref="canvas-ref"></canvas>
-    <button
-      class="absolute top-5 right-5 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full"
-      @click="connectOrDisconnect"
-    >
-      {{ status }}
-    </button>
+    <div class="absolute top-5 right-5">
+      <div class="relative text-end">
+        <button
+          class="w-32 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full"
+          @click.prevent="connectOrDisconnect"
+        >
+          {{ status }}
+        </button>
+      </div>
+      <DebugMenu v-if="debugMenuEnabled" :debug-menu="debug" />
+    </div>
   </div>
 </template>

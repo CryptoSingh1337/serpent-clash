@@ -1,83 +1,17 @@
-import { Stats } from "@/classes/stats"
-import { Constants } from "@/utils/constants"
+import type { Ref } from "vue"
+import { Stats } from "@/classes/stats.ts"
+import { Constants } from "@/utils/constants.ts"
 import type { BackendPlayer, Players } from "@/utils/types"
-import { Player } from "@/classes/entity"
-import { clamp } from "@/utils/helper"
-import { Camera } from "@/classes/camera"
+import { Player } from "@/classes/entity.ts"
+import { clamp } from "@/utils/helper.ts"
+import { Camera } from "@/classes/camera.ts"
+import { SocketDriver } from "@/drivers/socket_driver.ts"
+import { HexGrid } from "@/classes/hex_grid.ts"
 
-class HexGrid {
-  hexSize: number
-  hexHeight: number
-  hexWidth: number
-  verticalSpacing: number
-  horizontalSpacing: number
-
-  constructor(hexSize: number) {
-    this.hexSize = hexSize
-    this.hexHeight = hexSize * 2
-    this.hexWidth = Math.sqrt(25) * hexSize
-    this.verticalSpacing = (this.hexHeight * 8) / 4
-    this.horizontalSpacing = this.hexWidth / 1.5
-  }
-
-  drawHex(ctx: CanvasRenderingContext2D, x: number, y: number) {
-    ctx.beginPath()
-    for (let i = 0; i < 6; i++) {
-      const angle = (Math.PI / 3) * i
-      const hx = x + this.hexSize * Math.cos(angle)
-      const hy = y + this.hexSize * Math.sin(angle)
-      if (i === 0) {
-        ctx.moveTo(hx, hy)
-      } else {
-        ctx.lineTo(hx, hy)
-      }
-    }
-    ctx.closePath()
-    ctx.stroke()
-  }
-
-  render(ctx: CanvasRenderingContext2D, camera: Camera) {
-    const startX = Math.max(
-      Constants.worldBoundary.minX,
-      Math.floor(camera.x / this.horizontalSpacing) * this.horizontalSpacing -
-        this.horizontalSpacing
-    )
-    const startY = Math.max(
-      Constants.worldBoundary.minY,
-      Math.floor(camera.y / this.verticalSpacing) * this.verticalSpacing -
-        this.verticalSpacing
-    )
-    const endX = Math.min(
-      Constants.worldBoundary.maxX,
-      camera.x + camera.width + this.horizontalSpacing
-    )
-    const endY = Math.min(
-      Constants.worldBoundary.maxY,
-      camera.y + camera.height + this.verticalSpacing
-    )
-
-    ctx.strokeStyle = "rgba(200, 200, 200, 0.5)"
-    ctx.lineWidth = 1
-
-    for (let y = startY; y < endY; y += this.verticalSpacing) {
-      for (let x = startX; x < endX; x += this.horizontalSpacing) {
-        const screenPos = camera.worldToScreen(x, y)
-        this.drawHex(ctx, screenPos.x, screenPos.y)
-        if (y + this.verticalSpacing / 2 < Constants.worldBoundary.maxY) {
-          const offsetScreenPos = camera.worldToScreen(
-            x + this.horizontalSpacing / 2,
-            y + this.verticalSpacing / 2
-          )
-          this.drawHex(ctx, offsetScreenPos.x, offsetScreenPos.y)
-        }
-      }
-    }
-  }
-}
-
-export class Game {
+export class GameDriver {
   ctx: CanvasRenderingContext2D
-  socket: WebSocket | null = null
+  socketDriver: SocketDriver | null = null
+  clientStatus: Ref
   stats: Stats
   playerId: string = ""
   mouseCoordinate: { x: number; y: number }
@@ -88,7 +22,7 @@ export class Game {
   inputs: { seq: number; x: number; y: number }[] = []
   seq: number = 0
 
-  constructor(ctx: CanvasRenderingContext2D) {
+  constructor(ctx: CanvasRenderingContext2D, status: Ref) {
     if (!ctx) {
       throw new Error("Can't find canvas element")
     }
@@ -98,6 +32,7 @@ export class Game {
     this.stats.updateCameraWidthAndHeight(ctx.canvas.width, ctx.canvas.height)
     this.camera = new Camera(ctx.canvas.width, ctx.canvas.height)
     this.hexGrid = new HexGrid(50)
+    this.clientStatus = status
     this.initSocket()
     this.setupMouseTracking()
   }
@@ -105,7 +40,10 @@ export class Game {
   setupMouseTracking(): void {
     setInterval(
       () => {
-        if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+        if (
+          this.socketDriver &&
+          this.socketDriver.getReadyState() === WebSocket.OPEN
+        ) {
           const worldCoordinate = this.camera.screenToWorld(
             this.mouseCoordinate.x,
             this.mouseCoordinate.y
@@ -125,7 +63,7 @@ export class Game {
             x: this.mouseCoordinate.x,
             y: this.mouseCoordinate.y
           })
-          this.socket.send(
+          this.socketDriver.send(
             JSON.stringify({
               type: "movement",
               body: {
@@ -141,27 +79,25 @@ export class Game {
   }
 
   initSocket(): void {
-    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:"
-    const url = window.location.hostname.includes("localhost")
-      ? `${protocol}//${window.location.hostname}:${Constants.serverPort}/ws`
-      : `${protocol}//${window.location.hostname}/ws`
-    this.socket = new WebSocket(url)
-    this.socket.onopen = () => {
+    const onOpen = () => {
       console.log("Socket opened")
+      this.clientStatus.value = "Disconnect"
       this.stats.updateStatus("online")
     }
-    this.socket.onclose = () => {
+    const onClose = () => {
       console.log("Socket closed")
+      this.clientStatus.value = "Connect"
       this.stats.reset()
       this.currentPlayer = null
       for (const id in this.frontendPlayers) {
         delete this.frontendPlayers[id]
       }
     }
-    this.socket.onerror = (err: any) => {
-      console.error(err)
+    const onError = (err: any) => {
+      this.clientStatus.value = "Connect"
+      throw err
     }
-    this.socket.onmessage = (data: any) => {
+    const onMessage = (data: any) => {
       data = JSON.parse(data.data)
       const body = data.body
       switch (data.type) {
@@ -232,11 +168,15 @@ export class Game {
         }
       }
     }
+    this.socketDriver = new SocketDriver(onOpen, onClose, onError, onMessage)
   }
 
   sendPingPayload(): void {
-    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-      this.socket.send(
+    if (
+      this.socketDriver &&
+      this.socketDriver.getReadyState() === WebSocket.OPEN
+    ) {
+      this.socketDriver.send(
         JSON.stringify({
           type: "ping",
           body: {
@@ -249,7 +189,10 @@ export class Game {
   }
 
   connect(): void {
-    if (!this.socket || this.socket.readyState === WebSocket.CLOSED) {
+    if (
+      !this.socketDriver ||
+      this.socketDriver.getReadyState() === WebSocket.CLOSED
+    ) {
       this.initSocket()
     }
   }
@@ -272,8 +215,11 @@ export class Game {
   }
 
   disconnect(): void {
-    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-      this.socket.close()
+    if (
+      this.socketDriver &&
+      this.socketDriver.getReadyState() === WebSocket.OPEN
+    ) {
+      this.socketDriver.close()
     }
   }
 

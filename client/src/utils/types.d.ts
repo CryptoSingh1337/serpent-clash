@@ -1,4 +1,6 @@
 import type { Player } from "@/classes/entity"
+import type { Camera } from "@/classes/camera.ts"
+import type { Stats } from "@/classes/stats.ts"
 
 export type Coordinate = {
   x: number
@@ -14,4 +16,11 @@ export type BackendPlayer = {
 
 export type Players = {
   [id: string]: Player
+}
+
+export type DebugMenuEventPayload = {
+  player: Player | null
+  camera: Camera
+  stats: Stats
+  ctx: CanvasRenderingContext2D
 }

@@ -24,3 +24,10 @@ export type DebugMenuEventPayload = {
   stats: Stats
   ctx: CanvasRenderingContext2D
 }
+
+export type CameraCoordinates = {
+  x: number
+  y: number
+  width: number
+  height: number
+}

@@ -11,8 +11,8 @@ export class DebugDriver {
 
   teleport(x: number, y: number): void {
     console.log(`Teleporting to (${x}, ${y})`)
-    const { currentPlayer, camera, stats, ctx } = this.game
-    if (currentPlayer && camera && stats && ctx && ctx.canvas) {
+    const { currentPlayer, displayDriver, statsDriver, ctx } = this.game
+    if (currentPlayer && statsDriver && ctx && ctx.canvas) {
       const head = currentPlayer.positions[0]
       const cameraX = clamp(
         head.x - ctx.canvas.width / 2,
@@ -24,8 +24,8 @@ export class DebugDriver {
         Constants.worldBoundary.minY,
         Constants.worldBoundary.maxY - ctx.canvas.height
       )
-      camera.follow(cameraX, cameraY)
-      stats.updateCameraCoordinate(cameraX, cameraY)
+      displayDriver.updateCameraCoordinates(cameraX, cameraY)
+      statsDriver.updateCameraCoordinate(cameraX, cameraY)
     }
   }
 }

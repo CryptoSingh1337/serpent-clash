@@ -1,4 +1,5 @@
 import { Constants } from "@/utils/constants"
+import type { CameraCoordinates } from "@/utils/types"
 
 export class Stats {
   fps: number = 0
@@ -8,7 +9,7 @@ export class Stats {
     x: innerWidth / 2,
     y: innerHeight / 2
   }
-  cameraCoordinate: { x: number; y: number; width: number; height: number } = {
+  cameraCoordinate: CameraCoordinates = {
     x: 0,
     y: 0,
     width: 0,
@@ -28,19 +29,8 @@ export class Stats {
     c.fillStyle = "White"
     c.font = "normal 12px Arial"
     c.fillText(Math.floor(this.fps) + " fps", 5, 15)
-    c.fillText(
-      `Coordinates: ${this.headCoordinate.x}, ${this.headCoordinate.y}`,
-      5,
-      30
-    )
-    c.fillText(
-      `Mouse coordinates: ${this.mouseCoordinate.x}, ${this.mouseCoordinate.y}`,
-      5,
-      45
-    )
-    c.fillText(`Player id: ${this.playerId}`, 5, 60)
-    c.fillText(`Status: ${this.status}`, 5, 75)
-    c.fillText(`Ping: ${Math.trunc(this.ping * 100) / 100} ms`, 5, 90)
+    c.fillText(`Status: ${this.status}`, 5, 30)
+    c.fillText(`Ping: ${Math.trunc(this.ping * 100) / 100} ms`, 5, 45)
   }
 
   calculateFps(): void {
@@ -87,13 +77,12 @@ export class Stats {
     this.cameraCoordinate.height = height
   }
 
+  resetPingCooldown(): void {
+    this.pingCooldown = Constants.pingCooldown
+  }
+
   reset(): void {
-    this.playerId = ""
     this.status = "offline"
-    this.headCoordinate.x = 0
-    this.headCoordinate.y = 0
-    this.cameraCoordinate.x = 0
-    this.cameraCoordinate.y = 0
     this.ping = 0
     this.pingCooldown = Constants.pingCooldown
   }

@@ -1,10 +1,40 @@
 <script setup lang="ts">
 import type { DebugDriver } from "@/drivers/debug_driver.ts"
+import { computed } from "vue"
 
 const props = defineProps<{
   debugMenu: DebugDriver | null
 }>()
+const stats = computed(() => props.debugMenu?.game.statsDriver.stats)
+
 const menuItems = [
+  {
+    id: "info",
+    title: "Info",
+    css: "grid gap-1 items-start",
+    subFields: [
+      {
+        tag: "span",
+        id: "coordinates",
+        label: "Coordinates:"
+      },
+      {
+        tag: "span",
+        id: "mouse-coordinates",
+        label: "Mouse coordinates:"
+      },
+      {
+        tag: "span",
+        id: "camera-coordinates",
+        label: "Camera coordinates:"
+      },
+      {
+        tag: "span",
+        id: "player-id",
+        label: "Player id:"
+      }
+    ]
+  },
   {
     id: "teleport",
     title: "Teleport",
@@ -35,15 +65,55 @@ const menuItems = [
 </script>
 
 <template>
-  <div class="mt-2 relative border rounded-s p-2 backdrop-blur text-xs">
+  <div class="mt-2 w-72 relative border rounded-s p-2 backdrop-blur text-xs">
     <h1 class="text-center">Debug menu</h1>
-    <div class="space-y-1" :key="item.id" v-for="item in menuItems">
-      <h1>{{ item.title }}</h1>
+    <div class="space-y-1 my-1" :key="item.id" v-for="item in menuItems">
+      <h1 class="border-b font-bold italic">{{ item.title }}</h1>
       <div :class="item.css">
         <div :key="subField.id" v-for="subField in item.subFields">
-          <label v-if="subField.tag === 'input'" :for="subField.id">{{
-            subField.label
-          }}</label>
+          <span
+            class="font-thin"
+            v-if="subField.tag === 'span' && subField.label === 'Coordinates:'"
+            :id="subField.id"
+          >
+            {{ subField.label }}
+            {{ stats && stats.value && stats.value.headCoordinate }}
+          </span>
+          <span
+            class="font-thin"
+            v-if="
+              subField.tag === 'span' && subField.label === 'Mouse coordinates:'
+            "
+            :id="subField.id"
+          >
+            {{ subField.label }}
+            {{ stats && stats.value && stats.value.mouseCoordinate }}
+          </span>
+          <span
+            class="font-thin"
+            v-if="
+              subField.tag === 'span' &&
+              subField.label === 'Camera coordinates:'
+            "
+            :id="subField.id"
+          >
+            {{ subField.label }}
+            {{ stats && stats.value && stats.value.cameraCoordinate }}
+          </span>
+          <span
+            class="font-thin"
+            v-if="subField.tag === 'span' && subField.label === 'Player id:'"
+            :id="subField.id"
+          >
+            {{ subField.label }}
+            {{ stats && stats.value && stats.value.playerId }}
+          </span>
+          <label
+            class="font-thin"
+            v-if="subField.tag === 'input'"
+            :for="subField.id"
+            >{{ subField.label }}</label
+          >
           <input
             v-if="subField.tag === 'input'"
             :id="subField.id"

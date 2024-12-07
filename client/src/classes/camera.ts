@@ -29,8 +29,4 @@ export class Camera {
       y: Math.floor(screenY + this.y)
     }
   }
-
-  worldToScreenDistance(distance: number): number {
-    return distance
-  }
 }

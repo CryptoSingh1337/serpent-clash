@@ -1,22 +1,20 @@
-import type { Ref } from "vue"
-import { Stats } from "@/classes/stats.ts"
+import { type Ref } from "vue"
 import { Constants } from "@/utils/constants.ts"
 import type { BackendPlayer, Players } from "@/utils/types"
 import { Player } from "@/classes/entity.ts"
 import { clamp } from "@/utils/helper.ts"
-import { Camera } from "@/classes/camera.ts"
 import { SocketDriver } from "@/drivers/socket_driver.ts"
-import { HexGrid } from "@/classes/hex_grid.ts"
+import { StatsDriver } from "@/drivers/stats_driver.ts"
+import { DisplayDriver } from "@/drivers/display_driver.ts"
 
 export class GameDriver {
   ctx: CanvasRenderingContext2D
+  displayDriver: DisplayDriver
   socketDriver: SocketDriver | null = null
+  statsDriver: StatsDriver
   clientStatus: Ref
-  stats: Stats
   playerId: string = ""
   mouseCoordinate: { x: number; y: number }
-  camera: Camera
-  hexGrid: HexGrid
   frontendPlayers: Players = {}
   currentPlayer: Player | null = null
   inputs: { seq: number; x: number; y: number }[] = []
@@ -27,27 +25,30 @@ export class GameDriver {
       throw new Error("Can't find canvas element")
     }
     this.ctx = ctx
+    this.displayDriver = new DisplayDriver(ctx)
+    this.statsDriver = new StatsDriver()
+    this.statsDriver.updateCameraWidthAndHeight(
+      ctx.canvas.width,
+      ctx.canvas.height
+    )
     this.mouseCoordinate = { x: 0, y: 0 }
-    this.stats = new Stats()
-    this.stats.updateCameraWidthAndHeight(ctx.canvas.width, ctx.canvas.height)
-    this.camera = new Camera(ctx.canvas.width, ctx.canvas.height)
-    this.hexGrid = new HexGrid(50)
     this.clientStatus = status
     this.initSocket()
-    this.setupMouseTracking()
+    this.initMouseTracking()
   }
 
-  setupMouseTracking(): void {
+  initMouseTracking(): void {
     setInterval(
       () => {
         if (
           this.socketDriver &&
           this.socketDriver.getReadyState() === WebSocket.OPEN
         ) {
-          const worldCoordinate = this.camera.screenToWorld(
-            this.mouseCoordinate.x,
-            this.mouseCoordinate.y
-          )
+          const worldCoordinate =
+            this.displayDriver.getCameraScreenToWorldCoordinates(
+              this.mouseCoordinate.x,
+              this.mouseCoordinate.y
+            )
           worldCoordinate.x = clamp(
             worldCoordinate.x,
             Constants.worldBoundary.minX,
@@ -82,12 +83,12 @@ export class GameDriver {
     const onOpen = () => {
       console.log("Socket opened")
       this.clientStatus.value = "Disconnect"
-      this.stats.updateStatus("online")
+      this.statsDriver.updateStatus("online")
     }
     const onClose = () => {
       console.log("Socket closed")
       this.clientStatus.value = "Connect"
-      this.stats.reset()
+      this.statsDriver.reset()
       this.currentPlayer = null
       for (const id in this.frontendPlayers) {
         delete this.frontendPlayers[id]
@@ -103,11 +104,11 @@ export class GameDriver {
       switch (data.type) {
         case "hello": {
           this.playerId = body.id
-          this.stats.updatePlayerId(this.playerId)
+          this.statsDriver.updatePlayerId(this.playerId)
           break
         }
         case "pong": {
-          this.stats.updatePing(performance.now() - body.timestamp)
+          this.statsDriver.updatePing(performance.now() - body.timestamp)
           break
         }
         case "game_state": {
@@ -138,10 +139,11 @@ export class GameDriver {
                 }
                 this.inputs.forEach((input) => {
                   this.updateMouseCoordinate(input.x, input.y)
-                  const worldCoordinate = this.camera.screenToWorld(
-                    input.x,
-                    input.y
-                  )
+                  const worldCoordinate =
+                    this.displayDriver.getCameraScreenToWorldCoordinates(
+                      input.x,
+                      input.y
+                    )
                   if (this.currentPlayer) {
                     this.currentPlayer.move(
                       worldCoordinate.x,
@@ -149,7 +151,7 @@ export class GameDriver {
                     )
                   }
                 })
-                this.stats.updateHeadCoordinate(
+                this.statsDriver.updateHeadCoordinate(
                   frontendPlayer.positions[0].x,
                   frontendPlayer.positions[0].y
                 )
@@ -184,7 +186,7 @@ export class GameDriver {
           }
         })
       )
-      this.stats.pingCooldown = Constants.pingCooldown
+      this.statsDriver.resetPingCooldown()
     }
   }
 
@@ -197,21 +199,10 @@ export class GameDriver {
     }
   }
 
-  renderPlayers(): void {
-    for (const id in this.frontendPlayers) {
-      const player = this.frontendPlayers[id]
-      player.draw(this.ctx, this.camera)
-    }
-  }
-
-  renderStats(): void {
-    this.stats.renderStats(this.ctx)
-  }
-
   updateMouseCoordinate(x: number, y: number): void {
     this.mouseCoordinate.x = x
     this.mouseCoordinate.y = y
-    this.stats.updateMouseCoordinate(x, y)
+    this.statsDriver.updateMouseCoordinate(x, y)
   }
 
   disconnect(): void {
@@ -236,51 +227,29 @@ export class GameDriver {
         Constants.worldBoundary.minY,
         Constants.worldBoundary.maxY - this.ctx.canvas.height
       )
-      this.camera.follow(cameraX, cameraY)
-      this.stats.updateCameraCoordinate(cameraX, cameraY)
+      this.displayDriver.updateCameraCoordinates(cameraX, cameraY)
+      this.statsDriver.updateCameraCoordinate(cameraX, cameraY)
     }
-  }
-
-  renderBackground(): void {
-    this.hexGrid.render(this.ctx, this.camera)
-  }
-
-  renderWorldBoundary(): void {
-    const worldCenterX =
-      (Constants.worldBoundary.minX + Constants.worldBoundary.maxX) / 2
-    const worldCenterY =
-      (Constants.worldBoundary.minY + Constants.worldBoundary.maxY) / 2
-    const screenCenter = this.camera.worldToScreen(worldCenterX, worldCenterY)
-
-    const screenRadius = this.camera.worldToScreenDistance(
-      Constants.worldBoundary.radius
-    )
-    this.ctx.beginPath()
-    this.ctx.strokeStyle = "rgba(255, 0, 0, 0.5)"
-    this.ctx.lineWidth = 5
-    this.ctx.arc(screenCenter.x, screenCenter.y, screenRadius, 0, Math.PI * 2)
-    this.ctx.stroke()
   }
 
   render(): void {
     this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height)
-    this.renderBackground()
-    this.renderWorldBoundary()
-    this.renderPlayers()
-    this.renderStats()
+    this.displayDriver.drawHexGrid()
+    this.displayDriver.drawWorldBoundary()
+    this.displayDriver.drawPlayers(this.frontendPlayers)
+    this.statsDriver.renderStats(this.ctx)
   }
 
   updateCameraWidthAndHeight(width: number, height: number): void {
-    this.camera.width = width
-    this.camera.height = height
-    this.stats.updateCameraWidthAndHeight(width, height)
+    this.displayDriver.updateCameraHeight(width, height)
+    this.statsDriver.updateCameraWidthAndHeight(width, height)
   }
 
   gameLoop(): void {
     this.update()
     this.render()
-    this.stats.pingCooldown -= 1
-    if (this.stats.pingCooldown <= 0) {
+    this.statsDriver.reducePingCooldown()
+    if (this.statsDriver.getPingCooldown() <= 0) {
       this.sendPingPayload()
     }
     requestAnimationFrame(() => {
@@ -289,7 +258,7 @@ export class GameDriver {
   }
 
   start(): void {
-    this.stats.calculateFps()
+    this.statsDriver.calculateFps()
     this.gameLoop()
   }
 }

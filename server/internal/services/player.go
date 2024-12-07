@@ -29,20 +29,26 @@ func NewPlayer(conn *websocket.Conn) *Player {
 		angle:         0,
 		pingTimestamp: 0,
 	}
-	player.generateRandomPosition()
+	player.GenerateRandomPosition(utils.DefaultSnakeLength)
 	player.lastMouseCoordinate = &player.Segments[0]
 	return player
 }
 
-func (player *Player) generateRandomPosition() {
-	x := float64(utils.WorldBoundaryMinX + rand.Intn(utils.WorldBoundaryMaxX-utils.WorldBoundaryMinX+1))
-	y := float64(utils.WorldBoundaryMinY + rand.Intn(utils.WorldBoundaryMaxY-utils.WorldBoundaryMinY+1))
+func (player *Player) GenerateRandomPosition(length int) {
+	totalSnakeLength := float64((length - 1) * utils.SnakeSegmentDistance)
+	maxRadius := utils.WorldBoundaryRadius - totalSnakeLength
 
-	segments := make([]utils.Coordinate, utils.DefaultSnakeLength)
+	theta := rand.Float64() * 2 * math.Pi
+	radius := rand.Float64() * maxRadius
+
+	x := radius * math.Cos(theta)
+	y := radius * math.Sin(theta)
+
+	segments := make([]utils.Coordinate, length)
 	segments[0] = utils.Coordinate{X: x, Y: y}
 	for i := 1; i < len(segments); i++ {
-		segments[i].X = x - float64(i)*utils.SnakeSegmentDistance
-		segments[i].Y = y
+		segments[i].X = x - float64(i)*utils.SnakeSegmentDistance*math.Cos(theta)
+		segments[i].Y = y - float64(i)*utils.SnakeSegmentDistance*math.Sin(theta)
 	}
 	player.Segments = segments
 }

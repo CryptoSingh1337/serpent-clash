@@ -1,4 +1,4 @@
-import { Constants } from "@/utils/constants.ts"
+import { getServerBaseUrl } from "@/utils/helper.ts"
 
 export class SocketDriver {
   socket: WebSocket
@@ -18,11 +18,8 @@ export class SocketDriver {
     onError: (err: any) => void,
     onMessage: (data: any) => void
   ): WebSocket {
-    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:"
-    const url = window.location.hostname.includes("localhost")
-      ? `${protocol}//${window.location.hostname}:${Constants.serverPort}/ws`
-      : `${protocol}//${window.location.hostname}/ws`
-    const socket = new WebSocket(url)
+    const baseUrl = getServerBaseUrl(true)
+    const socket = new WebSocket(`${baseUrl}/ws`)
     socket.onopen = onOpen
     socket.onclose = onClose
     socket.onerror = onError

@@ -203,6 +203,14 @@ func (game *Game) RemovePlayer(player *Player) error {
 	return errors.New("player not exists")
 }
 
+func (game *Game) TeleportPlayer(playerId string, coordinate *utils.Coordinate) (*[]utils.Coordinate, bool) {
+	player, ok := game.getPlayerById(playerId)
+	if ok {
+		return player.TeleportTo(coordinate.X, coordinate.Y), true
+	}
+	return nil, false
+}
+
 func (game *Game) handleCollisions(collisions []Collision) {
 	for _, collision := range collisions {
 		player1, ok1 := game.getPlayerById(collision.A)

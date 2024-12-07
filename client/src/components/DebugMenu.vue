@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { DebugDriver } from "@/drivers/debug_driver.ts"
-import { computed } from "vue"
+import { computed, onMounted, ref } from "vue"
+import type { Coordinate } from "@/utils/types"
+import { getServerBaseUrl } from "@/utils/helper.ts"
 
 const props = defineProps<{
   debugMenu: DebugDriver | null
@@ -62,6 +64,31 @@ const menuItems = [
     ]
   }
 ]
+const teleportX = ref<number>(0)
+const teleportY = ref<number>(0)
+let baseUrl = ""
+async function teleport(): Promise<void> {
+  if (!props.debugMenu || props.debugMenu.game.playerId === "") {
+    console.log("player id is not valid")
+    return
+  }
+  const payload: Coordinate = {
+    x: teleportX.value,
+    y: teleportY.value
+  }
+  await fetch(`${baseUrl}/player/${props.debugMenu.game.playerId}/teleport`, {
+    method: "POST",
+    headers: {
+      "Content-type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  })
+  props.debugMenu.teleport(teleportX.value, teleportY.value)
+}
+
+onMounted(() => {
+  baseUrl = getServerBaseUrl(false)
+})
 </script>
 
 <template>
@@ -115,16 +142,32 @@ const menuItems = [
             >{{ subField.label }}</label
           >
           <input
-            v-if="subField.tag === 'input'"
-            :id="subField.id"
             class="text-black ml-1"
+            v-if="subField.tag === 'input' && subField.id === 'teleport-x'"
+            v-model="teleportX"
+            :id="subField.id"
+            :type="subField.type"
+            :style="subField.style"
+          />
+          <input
+            class="text-black ml-1"
+            v-else-if="subField.tag === 'input' && subField.id === 'teleport-y'"
+            v-model="teleportY"
+            :id="subField.id"
+            :type="subField.type"
+            :style="subField.style"
+          />
+          <input
+            class="text-black ml-1"
+            v-else-if="subField.tag === 'input'"
+            :id="subField.id"
             :type="subField.type"
             :style="subField.style"
           />
           <button
             v-if="item.id === 'teleport' && subField.tag === 'button'"
             class="w-full py-1 px-1 text-center bg-blue-500 hover:bg-blue-700"
-            @click.prevent="props.debugMenu && props.debugMenu.teleport(1, 2)"
+            @click.prevent="teleport"
           >
             Save
           </button>

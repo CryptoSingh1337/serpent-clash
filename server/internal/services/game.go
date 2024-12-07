@@ -9,6 +9,7 @@ import (
 )
 
 type Game struct {
+	HashGrid   *SpatialHashGrid
 	Players    map[*Player]bool
 	Broadcast  chan string
 	JoinQueue  chan *Player
@@ -19,6 +20,7 @@ type Game struct {
 
 func NewGame() *Game {
 	game := &Game{
+		HashGrid:   NewSpatialHashGrid(utils.SnakeSegmentDiameter * 2),
 		Players:    make(map[*Player]bool),
 		Broadcast:  make(chan string),
 		JoinQueue:  make(chan *Player, utils.MaxPlayerAllowed),
@@ -99,9 +101,17 @@ MoveAllPlayers:
 	for player := range game.Players {
 		val, ok := game.Players[player]
 		if ok && val {
+			game.HashGrid.RemovePlayer(player)
 			player.Move()
+			game.HashGrid.InsertPlayer(player)
 		}
 	}
+
+	//utils.Logger.LogInfo().Msgf("HashGrid: %v", game.HashGrid.Grid)
+
+	collisions := game.HashGrid.DetectCollisions()
+	//utils.Logger.LogInfo().Msgf("Collisions: %v", collisions)
+	game.handleCollisions(collisions)
 
 	// form players data in json
 	gameState := utils.GameState{
@@ -167,7 +177,7 @@ func (game *Game) AddPlayer(player *Player) error {
 	}
 	utils.Logger.LogInfo().Msg("Server::AddPlayer - player Id - " + player.Id + " joined")
 	game.Players[player] = true
-	player.generateRandomPosition()
+	//player.GenerateRandomPosition(utils.DefaultSnakeLength)
 	body := fmt.Sprintf(`{"id":%q}`, player.Id)
 	payload, err := utils.ToJsonB(utils.Payload{Type: utils.HelloMessage, Body: []byte(body)})
 	if err != nil {
@@ -180,15 +190,69 @@ func (game *Game) RemovePlayer(player *Player) error {
 	if len(game.Players) == 0 {
 		return errors.New("no players left")
 	}
+	// TODO: break snake into food particles
 	if _, ok := game.Players[player]; ok {
-		utils.Logger.LogInfo().Msg("Server::RemovePlayer - player Id - " + player.Id + " left")
 		if err := player.Conn.Close(); err != nil {
 			utils.Logger.LogError().Msgf("Error closing connection for player %s: %v", player.Id, err)
 		}
+		game.HashGrid.RemovePlayerById(player.Id)
 		delete(game.Players, player)
+		utils.Logger.LogInfo().Msgf("Server::RemovePlayer - player Id - %v left", player.Id)
 		return nil
 	}
 	return errors.New("player not exists")
+}
+
+func (game *Game) handleCollisions(collisions []Collision) {
+	for _, collision := range collisions {
+		player1, ok1 := game.getPlayerById(collision.A)
+		player2, ok2 := game.getPlayerById(collision.B)
+
+		if ok1 && ok2 {
+			// Head-to-body collision
+			if game.isHeadToBodyCollision(player1, player2) {
+				utils.Logger.LogInfo().Msgf("Player %v collide with Player %v", player1.Id, player2.Id)
+				game.killPlayer(player1)
+			} else if game.isHeadToBodyCollision(player2, player1) {
+				utils.Logger.LogInfo().Msgf("Player %v collide with Player %v", player1.Id, player2.Id)
+				game.killPlayer(player2)
+			} else {
+				utils.Logger.LogInfo().Msgf("Player %v and player %v had head to head collision", player1.Id,
+					player2.Id)
+				game.killPlayer(player1)
+				game.killPlayer(player2)
+			}
+		}
+	}
+}
+
+func (game *Game) getPlayerById(id string) (*Player, bool) {
+	for player := range game.Players {
+		if player.Id == id {
+			return player, true
+		}
+	}
+	return nil, false
+}
+
+func (game *Game) isHeadToBodyCollision(player1, player2 *Player) bool {
+	head1 := player1.Segments[0]
+	for i := 1; i < len(player2.Segments); i++ {
+		if game.distanceSquared(head1, player2.Segments[i]) < utils.SnakeSegmentDistance*utils.SnakeSegmentDistance {
+			return true
+		}
+	}
+	return false
+}
+
+func (game *Game) distanceSquared(pos1, pos2 utils.Coordinate) float64 {
+	dx := pos1.X - pos2.X
+	dy := pos1.Y - pos2.Y
+	return dx*dx + dy*dy
+}
+
+func (game *Game) killPlayer(player *Player) {
+	game.LeaveQueue <- player
 }
 
 func (game *Game) Close() {

@@ -14,13 +14,13 @@ func main() {
 	app := &App{
 		Config: *config,
 	}
-	utils.Logger.LogInfo().Msgf("Loaded config: %v\n", app.Config)
+	utils.Logger.LogInfo().Msgf("Loaded config: %v", app.Config)
 	game := services.NewGame()
 	srv := initHTTPServer(app, game)
 
 	err := srv.Start()
 	if err != nil {
-		utils.Logger.LogFatal().Msgf("nbio.Start failed: %v\n", err)
+		utils.Logger.LogFatal().Msgf("nbio.Start failed: %v", err)
 	}
 
 	interrupt := make(chan os.Signal, 1)
@@ -32,7 +32,7 @@ func main() {
 	game.Close()
 	err = srv.Shutdown(ctx)
 	if err != nil {
-		utils.Logger.LogFatal().Msgf("Shutdown failed: %v\n", err)
+		utils.Logger.LogFatal().Msgf("Shutdown failed: %v", err)
 		return
 	}
 }

@@ -26,6 +26,7 @@ func handleWebsocket(c echo.Context, game *services.Game) error {
 	w := c.Response()
 	r := c.Request()
 	upgrader := websocket.NewUpgrader()
+	upgrader.EnableCompression(false)
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		return err

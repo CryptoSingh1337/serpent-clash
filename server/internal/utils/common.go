@@ -10,17 +10,13 @@ import (
 const (
 	TickRate             = 60
 	PlayerSpeed          = 5
-	MaxTurnRate          = 0.05
+	MaxTurnRate          = 0.03
 	DefaultSnakeLength   = 10
 	DefaultGrowthFactor  = 2
 	SnakeSegmentDistance = 15
 	SnakeSegmentDiameter = 50
 	MaxPlayerAllowed     = 10
 	WorldBoundaryRadius  = 2750
-	WorldBoundaryMinX    = -3000
-	WorldBoundaryMaxX    = 3000
-	WorldBoundaryMinY    = -3000
-	WorldBoundaryMaxY    = 3000
 )
 
 // Message types
@@ -30,6 +26,7 @@ const (
 	PongMessage      = "pong"
 	GameStateMessage = "game_state"
 	Movement         = "movement"
+	Kill             = "kill"
 )
 
 type Coordinate struct {
@@ -53,6 +50,10 @@ type MouseEvent struct {
 
 type PingEvent struct {
 	Timestamp uint32 `json:"timestamp"`
+}
+
+type DeathEvent struct {
+	PlayerId string `json:"playerId"`
 }
 
 type PlayerState struct {

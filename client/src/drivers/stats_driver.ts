@@ -1,12 +1,15 @@
 import { Stats } from "@/classes/stats.ts"
 import { ref, type Ref } from "vue"
+import { DisplayDriver } from "@/drivers/display_driver.ts"
 
 export class StatsDriver {
+  displayDriver: DisplayDriver
   stats: Ref<Stats> | null
   _stats: Stats
   debugMode: boolean = false
 
-  constructor() {
+  constructor(displayDriver: DisplayDriver) {
+    this.displayDriver = displayDriver
     this.debugMode = import.meta.env.VITE_DEBUG_MODE === "true"
     if (this.debugMode) {
       this.stats = ref<Stats>(new Stats())
@@ -17,8 +20,8 @@ export class StatsDriver {
     }
   }
 
-  renderStats(c: CanvasRenderingContext2D): void {
-    this._stats.renderStats(c)
+  renderStats(): void {
+    this.displayDriver.renderStats(this._stats)
   }
 
   calculateFps(): void {

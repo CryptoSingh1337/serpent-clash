@@ -117,23 +117,23 @@ export class Player {
     this.lastUpdatedTime = currentTime
   }
 
-  draw(c: CanvasRenderingContext2D, camera: Camera): void {
-    c.lineWidth = 1 // Set line width for all segments
-    c.strokeStyle = "black"
+  draw(ctx: CanvasRenderingContext2D, camera: Camera): void {
+    ctx.lineWidth = 1
+    ctx.strokeStyle = "black"
     this.positions.reverse()
     this.positions.forEach((segment, index) => {
       const screenPos = camera.worldToScreen(segment.x, segment.y)
-      c.beginPath()
-      c.arc(
+      ctx.beginPath()
+      ctx.arc(
         screenPos.x,
         screenPos.y,
         Constants.snakeSegmentDiameter / 2,
         0,
         Math.PI * 2
       )
-      c.fillStyle = `hsl(${(index / this.positions.length) * 360}, 100%, 50%)` // Gradient color effect
-      c.fill()
-      c.stroke()
+      ctx.fillStyle = `hsl(${(index / this.positions.length) * 360}, 100%, 50%)`
+      ctx.fill()
+      ctx.stroke()
     })
     this.positions.reverse()
   }

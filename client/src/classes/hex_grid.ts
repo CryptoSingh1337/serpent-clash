@@ -19,7 +19,7 @@ export class HexGrid {
   }
 
   drawHex(x: number, y: number) {
-    this.displayDriver.drawHex(x, y, this.hexSize)
+    this.displayDriver.renderHex(x, y, this.hexSize)
   }
 
   render() {

@@ -1,16 +1,38 @@
-import { clamp } from "@/utils/helper.ts"
+import { clamp, getServerBaseUrl } from "@/utils/helper.ts"
 import { Constants } from "@/utils/constants.ts"
 import type { GameDriver } from "@/drivers/game_driver.ts"
+import type { Coordinate } from "@/utils/types"
 
 export class DebugDriver {
   game: GameDriver
+  serverBaseUrl: string
 
   constructor(game: GameDriver) {
     this.game = game
+    this.serverBaseUrl = getServerBaseUrl(false)
   }
 
-  teleport(x: number, y: number): void {
-    console.log(`Teleporting to (${x}, ${y})`)
+  async teleport(coordinate: Coordinate): Promise<void> {
+    if (this.game.playerId === "") {
+      console.log("invalid player id...")
+      return
+    }
+    if (
+      this.game.socketDriver &&
+      this.game.socketDriver.socket &&
+      this.game.socketDriver.getReadyState() !== WebSocket.OPEN
+    ) {
+      console.log("Socket is closed...")
+      return
+    }
+    console.log(`Teleporting to (${coordinate})`)
+    await fetch(`${this.serverBaseUrl}/player/${this.game.playerId}/teleport`, {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json"
+      },
+      body: JSON.stringify(coordinate)
+    })
     const { currentPlayer, displayDriver, statsDriver, ctx } = this.game
     if (currentPlayer && statsDriver && ctx && ctx.canvas) {
       const head = currentPlayer.positions[0]

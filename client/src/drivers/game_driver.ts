@@ -32,7 +32,7 @@ export class GameDriver {
     }
     this.ctx = ctx
     this.displayDriver = new DisplayDriver(ctx)
-    this.statsDriver = new StatsDriver()
+    this.statsDriver = new StatsDriver(this.displayDriver)
     this.statsDriver.updateCameraWidthAndHeight(
       ctx.canvas.width,
       ctx.canvas.height
@@ -298,10 +298,10 @@ export class GameDriver {
 
   render(): void {
     this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height)
-    this.displayDriver.drawHexGrid()
-    this.displayDriver.drawWorldBoundary()
-    this.displayDriver.drawPlayers(this.frontendPlayers)
-    this.statsDriver.renderStats(this.ctx)
+    this.displayDriver.renderHexGrid()
+    this.displayDriver.renderWorldBoundary()
+    this.displayDriver.renderPlayers(this.frontendPlayers)
+    this.statsDriver.renderStats()
   }
 
   updateCameraWidthAndHeight(width: number, height: number): void {

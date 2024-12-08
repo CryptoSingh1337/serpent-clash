@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import type { DebugDriver } from "@/drivers/debug_driver.ts"
-import { computed, onMounted, ref } from "vue"
+import { computed, ref } from "vue"
 import type { Coordinate } from "@/utils/types"
-import { getServerBaseUrl } from "@/utils/helper.ts"
 
 const props = defineProps<{
   debugMenu: DebugDriver | null
 }>()
-const stats = computed(() => props.debugMenu?.game.statsDriver.stats)
+const stats = computed(
+  () => props.debugMenu && props.debugMenu.game.statsDriver.stats
+)
 
 const menuItems = [
   {
@@ -66,29 +67,17 @@ const menuItems = [
 ]
 const teleportX = ref<number>(0)
 const teleportY = ref<number>(0)
-let baseUrl = ""
 async function teleport(): Promise<void> {
-  if (!props.debugMenu || props.debugMenu.game.playerId === "") {
-    console.log("player id is not valid")
+  if (!props.debugMenu) {
+    console.log("debug menu is initialized")
     return
   }
-  const payload: Coordinate = {
+  const coordinate: Coordinate = {
     x: teleportX.value,
     y: teleportY.value
   }
-  await fetch(`${baseUrl}/player/${props.debugMenu.game.playerId}/teleport`, {
-    method: "POST",
-    headers: {
-      "Content-type": "application/json"
-    },
-    body: JSON.stringify(payload)
-  })
-  props.debugMenu.teleport(teleportX.value, teleportY.value)
+  await props.debugMenu.teleport(coordinate)
 }
-
-onMounted(() => {
-  baseUrl = getServerBaseUrl(false)
-})
 </script>
 
 <template>

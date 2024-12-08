@@ -2,6 +2,7 @@ import { Camera } from "@/classes/camera.ts"
 import type { CameraCoordinates, Coordinate, Players } from "@/utils/types"
 import { Constants } from "@/utils/constants.ts"
 import { HexGrid } from "@/classes/hex_grid.ts"
+import type { Stats } from "@/classes/stats.ts"
 
 export class DisplayDriver {
   ctx: CanvasRenderingContext2D
@@ -14,7 +15,7 @@ export class DisplayDriver {
     this.hexGrid = new HexGrid(this, 50)
   }
 
-  drawHex(x: number, y: number, hexSize: number): void {
+  renderHex(x: number, y: number, hexSize: number): void {
     this.ctx.beginPath()
     for (let i = 0; i < 6; i++) {
       const angle = (Math.PI / 3) * i
@@ -30,14 +31,14 @@ export class DisplayDriver {
     this.ctx.stroke()
   }
 
-  drawPlayers(players: Players): void {
+  renderPlayers(players: Players): void {
     for (const id in players) {
       const player = players[id]
       player.draw(this.ctx, this.camera)
     }
   }
 
-  drawWorldBoundary(): void {
+  renderWorldBoundary(): void {
     const worldCenterX =
       (Constants.worldBoundary.minX + Constants.worldBoundary.maxX) / 2
     const worldCenterY =
@@ -55,7 +56,15 @@ export class DisplayDriver {
     this.ctx.stroke()
   }
 
-  drawHexGrid(): void {
+  renderStats(stats: Stats): void {
+    this.ctx.fillStyle = "White"
+    this.ctx.font = "normal 12px Arial"
+    this.ctx.fillText(Math.floor(stats.fps) + " fps", 5, 15)
+    this.ctx.fillText(`Status: ${stats.status}`, 5, 30)
+    this.ctx.fillText(`Ping: ${Math.trunc(stats.ping * 100) / 100} ms`, 5, 45)
+  }
+
+  renderHexGrid(): void {
     this.hexGrid.render()
   }
 

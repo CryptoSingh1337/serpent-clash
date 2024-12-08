@@ -22,17 +22,6 @@ export class Stats {
   times: number[] = []
   pingCooldown: number = Constants.pingCooldown
 
-  renderStats(c: CanvasRenderingContext2D): void {
-    if (!c) {
-      throw new Error("Can't find canvas element")
-    }
-    c.fillStyle = "White"
-    c.font = "normal 12px Arial"
-    c.fillText(Math.floor(this.fps) + " fps", 5, 15)
-    c.fillText(`Status: ${this.status}`, 5, 30)
-    c.fillText(`Ping: ${Math.trunc(this.ping * 100) / 100} ms`, 5, 45)
-  }
-
   calculateFps(): void {
     window.requestAnimationFrame((): void => {
       const now = performance.now()

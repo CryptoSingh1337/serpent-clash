@@ -2,61 +2,70 @@ import { Stats } from "@/classes/stats.ts"
 import { ref, type Ref } from "vue"
 
 export class StatsDriver {
-  stats: Ref<Stats>
+  stats: Ref<Stats> | null
+  _stats: Stats
+  debugMode: boolean = false
 
   constructor() {
-    this.stats = ref<Stats>(new Stats())
+    this.debugMode = import.meta.env.VITE_DEBUG_MODE === "true"
+    if (this.debugMode) {
+      this.stats = ref<Stats>(new Stats())
+      this._stats = this.stats.value
+    } else {
+      this.stats = null
+      this._stats = new Stats()
+    }
   }
 
   renderStats(c: CanvasRenderingContext2D): void {
-    this.stats.value.renderStats(c)
+    this._stats.renderStats(c)
   }
 
   calculateFps(): void {
-    this.stats.value.calculateFps()
+    this._stats.calculateFps()
   }
 
   updatePing(ping: number): void {
-    this.stats.value.updatePing(ping)
+    this._stats.updatePing(ping)
   }
 
   updatePlayerId(playerId: string): void {
-    this.stats.value.updatePlayerId(playerId)
+    this._stats.updatePlayerId(playerId)
   }
 
   updateStatus(status: string): void {
-    this.stats.value.updateStatus(status)
+    this._stats.updateStatus(status)
   }
 
   updateMouseCoordinate(x: number, y: number): void {
-    this.stats.value.updateMouseCoordinate(x, y)
+    this._stats.updateMouseCoordinate(x, y)
   }
 
   updateHeadCoordinate(x: number, y: number): void {
-    this.stats.value.updateHeadCoordinate(x, y)
+    this._stats.updateHeadCoordinate(x, y)
   }
 
   updateCameraCoordinate(x: number, y: number): void {
-    this.stats.value.updateCameraCoordinate(x, y)
+    this._stats.updateCameraCoordinate(x, y)
   }
 
   updateCameraWidthAndHeight(width: number, height: number): void {
-    this.stats.value.updateCameraWidthAndHeight(width, height)
+    this._stats.updateCameraWidthAndHeight(width, height)
   }
 
   getPingCooldown(): number {
-    return this.stats.value.pingCooldown
+    return this._stats.pingCooldown
   }
 
   reducePingCooldown(): void {
-    this.stats.value.pingCooldown -= 1
+    this._stats.pingCooldown -= 1
   }
 
   resetPingCooldown(): void {
-    this.stats.value.resetPingCooldown()
+    this._stats.resetPingCooldown()
   }
 
   reset(): void {
-    this.stats.value.reset()
+    this._stats.reset()
   }
 }

@@ -6,11 +6,9 @@ import type { Camera } from "@/classes/camera"
 export class Player {
   id: string
   positions: Coordinate[]
-  targetPositions: Coordinate[]
   radius: number
   color: string
   angle: number = 0
-  targetAngle: number = 0
   lastUpdatedTime: number = 0
   lastServerUpdateTime: number = 0
   speedBoost: boolean = false
@@ -30,7 +28,6 @@ export class Player {
     this.color = color
     this.radius = radius
     this.positions = positions
-    this.targetPositions = JSON.parse(JSON.stringify(positions)) // Deep copy
     this.lastServerUpdateTime = performance.now()
   }
 
@@ -41,22 +38,25 @@ export class Player {
     if (deltaTime < Math.floor(1000 / Constants.tickRate)) {
       return
     }
-    // Update target angle and position
-    const head = this.targetPositions[0]
-    this.targetAngle = Math.atan2(y - head.y, x - head.x)
+
+    const head = this.positions[0]
+    let angle = this.angle
+    const targetAngle = Math.atan2(y - head.y, x - head.x)
+    angle = lerpAngle(angle, targetAngle, Constants.maxTurnRate)
 
     // Move target head
     let speed = Constants.playerSpeed
     if (this.speedBoost) {
       speed += Constants.playerSpeedBoost
     }
-    head.x += Math.cos(this.targetAngle) * speed * deltaTime
-    head.y += Math.sin(this.targetAngle) * speed * deltaTime
+    head.x += Math.cos(angle) * speed
+    head.y += Math.sin(angle) * speed
+    this.positions[0] = head
 
     // Update target positions for the rest of the body
-    for (let i = 1; i < this.targetPositions.length; i++) {
-      const prevSegment = this.targetPositions[i - 1]
-      const currentSegment = this.targetPositions[i]
+    for (let i = 1; i < this.positions.length; i++) {
+      const prevSegment = this.positions[i - 1]
+      const currentSegment = this.positions[i]
 
       const angleToPrev = Math.atan2(
         prevSegment.y - currentSegment.y,
@@ -67,31 +67,6 @@ export class Player {
         prevSegment.x - Math.cos(angleToPrev) * Constants.snakeSegmentDistance
       currentSegment.y =
         prevSegment.y - Math.sin(angleToPrev) * Constants.snakeSegmentDistance
-    }
-
-    // Interpolate actual positions
-    const interpolationFactor = Math.min(
-      (currentTime - this.lastServerUpdateTime) / Constants.tickRate,
-      1
-    )
-
-    this.angle = lerpAngle(
-      this.angle,
-      this.targetAngle,
-      Constants.maxTurnRate * deltaTime
-    )
-
-    for (let i = 0; i < this.positions.length; i++) {
-      this.positions[i].x = lerp(
-        this.positions[i].x,
-        this.targetPositions[i].x,
-        interpolationFactor
-      )
-      this.positions[i].y = lerp(
-        this.positions[i].y,
-        this.targetPositions[i].y,
-        interpolationFactor
-      )
     }
     this.lastUpdatedTime = currentTime
   }

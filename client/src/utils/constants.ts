@@ -3,6 +3,7 @@ export const Constants = {
   serverPort: 8080,
   tickRate: 60,
   playerSpeed: 5,
+  playerSpeedBoost: 3,
   maxTurnRate: 0.03,
   snakeSegmentDistance: 15,
   snakeSegmentDiameter: 50,

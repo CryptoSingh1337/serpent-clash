@@ -10,6 +10,7 @@ import (
 const (
 	TickRate             = 60
 	PlayerSpeed          = 5
+	PlayerBoostSpeed     = 3
 	MaxTurnRate          = 0.03
 	DefaultSnakeLength   = 10
 	DefaultGrowthFactor  = 2
@@ -26,6 +27,7 @@ const (
 	PongMessage      = "pong"
 	GameStateMessage = "game_state"
 	Movement         = "movement"
+	SpeedBoost       = "boost"
 	Kill             = "kill"
 )
 
@@ -46,6 +48,11 @@ func (p Payload) String() string {
 type MouseEvent struct {
 	Seq        uint64     `json:"seq"`
 	Coordinate Coordinate `json:"coordinate"`
+}
+
+type SpeedBoostEvent struct {
+	Seq     uint64 `json:"seq"`
+	Enabled bool   `json:"enabled"`
 }
 
 type PingEvent struct {

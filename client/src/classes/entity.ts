@@ -13,6 +13,7 @@ export class Player {
   targetAngle: number = 0
   lastUpdatedTime: number = 0
   lastServerUpdateTime: number = 0
+  speedBoost: boolean = false
 
   constructor({
     id,
@@ -45,8 +46,12 @@ export class Player {
     this.targetAngle = Math.atan2(y - head.y, x - head.x)
 
     // Move target head
-    head.x += Math.cos(this.targetAngle) * Constants.playerSpeed * deltaTime
-    head.y += Math.sin(this.targetAngle) * Constants.playerSpeed * deltaTime
+    let speed = Constants.playerSpeed
+    if (this.speedBoost) {
+      speed += Constants.playerSpeedBoost
+    }
+    head.x += Math.cos(this.targetAngle) * speed * deltaTime
+    head.y += Math.sin(this.targetAngle) * speed * deltaTime
 
     // Update target positions for the rest of the body
     for (let i = 1; i < this.targetPositions.length; i++) {

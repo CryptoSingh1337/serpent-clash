@@ -18,6 +18,7 @@ type Player struct {
 	angle               float64
 	pingTimestamp       uint32
 	lastMouseCoordinate *utils.Coordinate
+	speedBoost          bool
 }
 
 func NewPlayer(conn *websocket.Conn) *Player {
@@ -61,8 +62,12 @@ func (player *Player) Move() {
 	angle = utils.LerpAngle(angle, targetAngle, utils.MaxTurnRate)
 
 	// Move the head towards the mouse coordinate
-	head.X += math.Cos(angle) * utils.PlayerSpeed
-	head.Y += math.Sin(angle) * utils.PlayerSpeed
+	speed := float64(utils.PlayerSpeed)
+	if player.speedBoost {
+		speed += utils.PlayerBoostSpeed
+	}
+	head.X += math.Cos(angle) * speed
+	head.Y += math.Sin(angle) * speed
 
 	// Update the head position and angle
 	player.Segments[0] = head

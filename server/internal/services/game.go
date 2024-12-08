@@ -157,6 +157,12 @@ func (game *Game) ProcessEvent(player *Player, messageType websocket.MessageType
 			}
 			player.lastMouseCoordinate = &mouseEvent.Coordinate
 			player.Seq = mouseEvent.Seq
+		case utils.SpeedBoost:
+			speedBoostEvent, err := utils.FromJsonB[utils.SpeedBoostEvent](payload.Body)
+			if err != nil {
+				return
+			}
+			player.speedBoost = speedBoostEvent.Enabled
 		case utils.PingMessage:
 			pingEvent, err := utils.FromJsonB[utils.PingEvent](payload.Body)
 			if err != nil {

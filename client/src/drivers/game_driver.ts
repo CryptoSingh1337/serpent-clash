@@ -116,7 +116,10 @@ export class GameDriver {
           )
           this.inputs.push({
             seq: ++this.seq,
-            event: worldCoordinate
+            event: {
+              x: this.mouseCoordinate.x,
+              y: this.mouseCoordinate.y
+            }
           })
           this.socketDriver.send(
             JSON.stringify({

@@ -9,7 +9,7 @@ import (
 	"github.com/lesismal/nbio/nbhttp/websocket"
 )
 
-func initHandler(e *echo.Echo, app *App, game *services.Game) {
+func initHandler(e *echo.Echo, app *App, game *services.GameDriver) {
 	e.File("/", app.Config.indexFile)
 	e.Static("/assets", app.Config.assetDir)
 	e.Static("/", app.Config.distDir)
@@ -28,7 +28,7 @@ func handleCatchAll(c echo.Context) error {
 	return c.File(app.Config.indexFile)
 }
 
-func handleWebsocket(c echo.Context, game *services.Game) error {
+func handleWebsocket(c echo.Context, game *services.GameDriver) error {
 	w := c.Response()
 	r := c.Request()
 	upgrader := websocket.NewUpgrader()
@@ -48,7 +48,7 @@ func handleWebsocket(c echo.Context, game *services.Game) error {
 	return nil
 }
 
-func handlePlayerTeleport(c echo.Context, game *services.Game) error {
+func handlePlayerTeleport(c echo.Context, game *services.GameDriver) error {
 	app := c.Get("app").(*App)
 	if !app.Config.debugMode {
 		return c.JSON(http.StatusOK, utils.CreateResponse[any](nil,

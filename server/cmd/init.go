@@ -88,7 +88,7 @@ func LoadConfig() *Config {
 	return &config
 }
 
-func initHTTPServer(app *App, game *services.Game) *nbhttp.Engine {
+func initHTTPServer(app *App, game *services.GameDriver) *nbhttp.Engine {
 	e := echo.New()
 	e.Use(middleware.Recover())
 	// Register app (*App) to be injected into all HTTP handlers.

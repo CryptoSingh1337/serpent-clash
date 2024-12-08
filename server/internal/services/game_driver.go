@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-type Game struct {
+type GameDriver struct {
 	HashGrid   *SpatialHashGrid
 	Players    map[*Player]bool
 	Broadcast  chan string
@@ -18,8 +18,8 @@ type Game struct {
 	Done       chan bool
 }
 
-func NewGame() *Game {
-	game := &Game{
+func NewGame() *GameDriver {
+	game := &GameDriver{
 		HashGrid:   NewSpatialHashGrid(utils.SnakeSegmentDiameter * 2),
 		Players:    make(map[*Player]bool),
 		Broadcast:  make(chan string),
@@ -32,7 +32,7 @@ func NewGame() *Game {
 	return game
 }
 
-func (game *Game) init() {
+func (game *GameDriver) init() {
 	ticker := time.NewTicker(1000 / utils.TickRate * time.Millisecond)
 	go func() {
 		for {
@@ -47,7 +47,7 @@ func (game *Game) init() {
 	}()
 }
 
-func (game *Game) processTick() {
+func (game *GameDriver) processTick() {
 	// Process all players in JoinQueue
 	for {
 		select {
@@ -142,7 +142,7 @@ MoveAllPlayers:
 	}
 }
 
-func (game *Game) ProcessEvent(player *Player, messageType websocket.MessageType, data []byte) {
+func (game *GameDriver) ProcessEvent(player *Player, messageType websocket.MessageType, data []byte) {
 	switch messageType {
 	case websocket.TextMessage:
 		payload, err := utils.FromJsonB[utils.Payload](data)
@@ -174,7 +174,7 @@ func (game *Game) ProcessEvent(player *Player, messageType websocket.MessageType
 	}
 }
 
-func (game *Game) AddPlayer(player *Player) error {
+func (game *GameDriver) AddPlayer(player *Player) error {
 	if utils.MaxPlayerAllowed <= len(game.Players) {
 		return errors.New("max players reached")
 	}
@@ -192,7 +192,7 @@ func (game *Game) AddPlayer(player *Player) error {
 	return player.Conn.WriteMessage(websocket.TextMessage, payload)
 }
 
-func (game *Game) RemovePlayer(player *Player) error {
+func (game *GameDriver) RemovePlayer(player *Player) error {
 	if len(game.Players) == 0 {
 		return errors.New("no players left")
 	}
@@ -209,7 +209,7 @@ func (game *Game) RemovePlayer(player *Player) error {
 	return errors.New("player not exists")
 }
 
-func (game *Game) TeleportPlayer(playerId string, coordinate *utils.Coordinate) (*[]utils.Coordinate, bool) {
+func (game *GameDriver) TeleportPlayer(playerId string, coordinate *utils.Coordinate) (*[]utils.Coordinate, bool) {
 	player, ok := game.getPlayerById(playerId)
 	if ok {
 		return player.TeleportTo(coordinate.X, coordinate.Y), true
@@ -217,7 +217,7 @@ func (game *Game) TeleportPlayer(playerId string, coordinate *utils.Coordinate) 
 	return nil, false
 }
 
-func (game *Game) handleCollisions(collisions []Collision) {
+func (game *GameDriver) handleCollisions(collisions []Collision) {
 	for _, collision := range collisions {
 		player1, ok1 := game.getPlayerById(collision.A)
 		player2, ok2 := game.getPlayerById(collision.B)
@@ -240,7 +240,7 @@ func (game *Game) handleCollisions(collisions []Collision) {
 	}
 }
 
-func (game *Game) getPlayerById(id string) (*Player, bool) {
+func (game *GameDriver) getPlayerById(id string) (*Player, bool) {
 	for player := range game.Players {
 		if player.Id == id {
 			return player, true
@@ -249,7 +249,7 @@ func (game *Game) getPlayerById(id string) (*Player, bool) {
 	return nil, false
 }
 
-func (game *Game) isHeadToBodyCollision(player1, player2 *Player) bool {
+func (game *GameDriver) isHeadToBodyCollision(player1, player2 *Player) bool {
 	head1 := player1.Segments[0]
 	for i := 1; i < len(player2.Segments); i++ {
 		if game.distanceSquared(head1, player2.Segments[i]) < utils.SnakeSegmentDistance*utils.SnakeSegmentDistance {
@@ -259,17 +259,17 @@ func (game *Game) isHeadToBodyCollision(player1, player2 *Player) bool {
 	return false
 }
 
-func (game *Game) distanceSquared(pos1, pos2 utils.Coordinate) float64 {
+func (game *GameDriver) distanceSquared(pos1, pos2 utils.Coordinate) float64 {
 	dx := pos1.X - pos2.X
 	dy := pos1.Y - pos2.Y
 	return dx*dx + dy*dy
 }
 
-func (game *Game) killPlayer(player *Player) {
+func (game *GameDriver) killPlayer(player *Player) {
 	game.LeaveQueue <- player
 }
 
-func (game *Game) Close() {
+func (game *GameDriver) Close() {
 	utils.Logger.LogInfo().Msgf("Clearing off resources...")
 	// Stop ticker
 	game.Done <- true

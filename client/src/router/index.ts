@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router"
 import HomeView from "@/views/HomeView.vue"
-import PlayView from "@/views/PlayView.vue"
+import MainView from "@/views/MainView.vue"
 import ErrorView from "@/views/ErrorView.vue"
 
 const router = createRouter({
@@ -14,7 +14,7 @@ const router = createRouter({
     {
       path: "/play",
       name: "play",
-      component: PlayView
+      component: MainView
     },
     {
       path: "/:pathMatch(.*)*",

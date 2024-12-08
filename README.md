@@ -37,10 +37,15 @@ Future Enhancements:
 - [x] Add interpolation for smooth other player movement (client-side)
 - [x] Make world as finite and with bigger dimension than current one
 - [x] Add camera logic
-- [ ] Add collision detection logic
+- [x] Add collision detection logic
+- [x] Create debug menu with features like teleport etc
+- [x] Increase and decrease player speed on mousedown and mouseup events respectively
+- [x] Improve player spawn coordinates by considering world radius
+- [ ] Compensate player speed by decreasing player length
+- [ ] Detect collision with world boundary
 - [ ] Generate food on random coordinates
 - [ ] Food consumption logic and snake growth logic
-- [ ] Change player speed on right mouse button click
+- [ ] Create chat system using SSE and channels
 - [ ] Leaderboard
 - [ ] Client UI design
 

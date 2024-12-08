@@ -12,6 +12,10 @@ RUN npm install
 # Copy the rest of the Vue app
 COPY client/ ./
 
+ARG ARG_VITE_DEBUG_MODE=false
+
+ENV VITE_DEBUG_MODE=$ARG_VITE_DEBUG_MODE
+
 # Build the Vue app for production
 RUN npm run build
 
@@ -50,6 +54,7 @@ ENV GO_ENV=PROD
 ENV SERVER_ADDR=0.0.0.0
 ENV SERVER_PORT=8080
 ENV DIST_DIR=/app/client/dist
+ENV DEBUG_MODE=false
 
 # Expose the port the Go server listens on
 EXPOSE 8080

@@ -9,7 +9,11 @@ const canvasRef = useTemplateRef<HTMLCanvasElement>("canvas-ref")
 let game: GameDriver | null = null
 let debug: DebugDriver | null = null
 const status = ref<string>("Connect")
-const debugMenuEnabled = ref<boolean>(true)
+const debugMode: boolean = import.meta.env.VITE_DEBUG_MODE === "true"
+
+if (debugMode) {
+  console.log("Debug mode enabled")
+}
 
 function connectOrDisconnect(): void {
   if (
@@ -86,7 +90,7 @@ onBeforeUnmount(() => {
           {{ status }}
         </button>
       </div>
-      <DebugMenu v-if="debugMenuEnabled" :debug-menu="debug" />
+      <DebugMenu v-if="debugMode" :debug-menu="debug" />
     </div>
   </div>
 </template>

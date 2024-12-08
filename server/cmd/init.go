@@ -7,6 +7,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/lesismal/nbio/nbhttp"
 	"github.com/rs/zerolog"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -18,6 +19,7 @@ type Config struct {
 	distDir   string
 	assetDir  string
 	indexFile string
+	debugMode bool
 }
 
 type App struct {
@@ -39,7 +41,6 @@ func LoadConfig() *Config {
 		port: "8080",
 	}
 	if env == "PROD" {
-		// Read from environment variables
 		if env := os.Getenv("SERVER_ADDR"); env != "" {
 			config.addr = env
 		}
@@ -51,19 +52,36 @@ func LoadConfig() *Config {
 			config.assetDir = filepath.Join(config.distDir, "assets")
 			config.indexFile = filepath.Join(config.distDir, "index.html")
 		}
+		if env := os.Getenv("DEBUG_MODE"); env != "" {
+			if env == "true" {
+				config.debugMode = true
+			} else {
+				config.debugMode = false
+			}
+		}
 	} else {
 		data, err := os.ReadFile(".env")
 		if err != nil {
-			utils.Logger.LogError().Err(err)
+			log.Fatal(err)
 		}
 		content := string(data)
 		lines := strings.Split(content, "\n")
 		for _, line := range lines {
+			if len(line) == 0 {
+				continue
+			}
+			line = strings.TrimSuffix(line, "\r")
 			env := strings.Split(line, "=")
 			if env[0] == "DIST_DIR" {
 				config.distDir = strings.TrimSuffix(env[1], "\r")
 				config.assetDir = filepath.Join(config.distDir, "assets")
 				config.indexFile = filepath.Join(config.distDir, "index.html")
+			} else if env[0] == "DEBUG_MODE" {
+				if env[1] == "true" {
+					config.debugMode = true
+				} else {
+					config.debugMode = false
+				}
 			}
 		}
 	}

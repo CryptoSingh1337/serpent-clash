@@ -49,6 +49,11 @@ func handleWebsocket(c echo.Context, game *services.Game) error {
 }
 
 func handlePlayerTeleport(c echo.Context, game *services.Game) error {
+	app := c.Get("app").(*App)
+	if !app.Config.debugMode {
+		return c.JSON(http.StatusOK, utils.CreateResponse[any](nil,
+			utils.NewError("debug mode is disabled")))
+	}
 	playerId := c.Param("playerId")
 	coordinate := new(utils.Coordinate)
 	if err := c.Bind(coordinate); err != nil {

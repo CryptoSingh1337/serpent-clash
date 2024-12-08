@@ -14,9 +14,9 @@ func main() {
 	app := &App{
 		Config: *config,
 	}
-	utils.Logger.LogInfo().Msgf("Loaded config: %v", app.Config)
 	game := services.NewGame()
 	srv := initHTTPServer(app, game)
+	utils.Logger.LogInfo().Msgf("Loaded config: %v", app.Config)
 
 	err := srv.Start()
 	if err != nil {

@@ -41,7 +41,7 @@ Future Enhancements:
 - [x] Create debug menu with features like teleport etc
 - [x] Increase and decrease player speed on mousedown and mouseup events respectively
 - [x] Improve snake spawn coordinates by considering world radius
-- [ ] Re-arch classes and create driver classes for better code readability and maintainability
+- [x] Re-arch classes and create driver classes for better code readability and maintainability
 - [ ] Compensate snake speed by decreasing snake length
 - [ ] Detect collision with world boundary
 - [ ] Generate food on random coordinates

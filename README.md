@@ -40,8 +40,8 @@ Future Enhancements:
 - [x] Add collision detection logic
 - [x] Create debug menu with features like teleport etc
 - [x] Increase and decrease player speed on mousedown and mouseup events respectively
-- [x] Improve player spawn coordinates by considering world radius
-- [ ] Compensate player speed by decreasing player length
+- [x] Improve snake spawn coordinates by considering world radius
+- [ ] Compensate snake speed by decreasing snake length
 - [ ] Detect collision with world boundary
 - [ ] Generate food on random coordinates
 - [ ] Food consumption logic and snake growth logic

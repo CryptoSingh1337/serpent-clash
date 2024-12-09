@@ -1,22 +1,22 @@
-import { Stats } from "@/classes/stats.ts"
+import { CustomStats } from "@/classes/custom_stats.ts"
 import { ref, type Ref } from "vue"
 import { DisplayDriver } from "@/drivers/display_driver.ts"
 
 export class StatsDriver {
   displayDriver: DisplayDriver
-  stats: Ref<Stats> | null
-  _stats: Stats
+  stats: Ref<CustomStats> | null
+  _stats: CustomStats
   debugMode: boolean = false
 
   constructor(displayDriver: DisplayDriver) {
     this.displayDriver = displayDriver
     this.debugMode = import.meta.env.VITE_DEBUG_MODE === "true"
     if (this.debugMode) {
-      this.stats = ref<Stats>(new Stats())
+      this.stats = ref<CustomStats>(new CustomStats())
       this._stats = this.stats.value
     } else {
       this.stats = null
-      this._stats = new Stats()
+      this._stats = new CustomStats()
     }
   }
 

@@ -2,7 +2,7 @@ import { Camera } from "@/classes/camera.ts"
 import type { CameraCoordinates, Coordinate, Players } from "@/utils/types"
 import { Constants } from "@/utils/constants.ts"
 import { HexGrid } from "@/classes/hex_grid.ts"
-import type { Stats } from "@/classes/stats.ts"
+import type { CustomStats } from "@/classes/custom_stats.ts"
 
 export class DisplayDriver {
   ctx: CanvasRenderingContext2D
@@ -56,12 +56,12 @@ export class DisplayDriver {
     this.ctx.stroke()
   }
 
-  renderStats(stats: Stats): void {
+  renderStats(stats: CustomStats): void {
     this.ctx.fillStyle = "White"
     this.ctx.font = "normal 12px Arial"
-    this.ctx.fillText(Math.floor(stats.fps) + " fps", 5, 15)
-    this.ctx.fillText(`Status: ${stats.status}`, 5, 30)
-    this.ctx.fillText(`Ping: ${Math.trunc(stats.ping * 100) / 100} ms`, 5, 45)
+    // this.ctx.fillText(Math.floor(stats.fps) + " fps", 5, 75)
+    this.ctx.fillText(`Status: ${stats.status}`, 5, 60)
+    this.ctx.fillText(`Ping: ${Math.trunc(stats.ping * 100) / 100} ms`, 5, 75)
   }
 
   renderHexGrid(): void {

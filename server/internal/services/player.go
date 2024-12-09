@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/utils"
 	"github.com/google/uuid"
+	"github.com/labstack/echo/v4"
 	"github.com/lesismal/nbio/nbhttp/websocket"
 	"math"
 	"math/rand"
@@ -11,7 +12,9 @@ import (
 
 type Player struct {
 	Id                  string
+	Username            *string
 	Conn                *websocket.Conn
+	W                   *echo.Response
 	Segments            []utils.Coordinate
 	Color               string
 	Seq                 uint64
@@ -21,10 +24,12 @@ type Player struct {
 	speedBoost          bool
 }
 
-func NewPlayer(conn *websocket.Conn) *Player {
+func NewPlayer(username *string, conn *websocket.Conn, w *echo.Response) *Player {
 	player := &Player{
 		Id:            uuid.NewString(),
+		Username:      username,
 		Conn:          conn,
+		W:             w,
 		Color:         fmt.Sprintf("hsl(%v, 100%%, 50%%)", rand.Intn(360)),
 		Seq:           0,
 		angle:         0,

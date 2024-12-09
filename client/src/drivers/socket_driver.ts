@@ -4,22 +4,24 @@ export class SocketDriver {
   socket: WebSocket
 
   constructor(
+    username: string,
     onOpen: () => void,
     onClose: () => void,
     onError: (err: any) => void,
     onMessage: (data: any) => void
   ) {
-    this.socket = this.init(onOpen, onClose, onError, onMessage)
+    this.socket = this.init(username, onOpen, onClose, onError, onMessage)
   }
 
   init(
+    username: string,
     onOpen: () => void,
     onClose: () => void,
     onError: (err: any) => void,
     onMessage: (data: any) => void
   ): WebSocket {
     const baseUrl = getServerBaseUrl(true)
-    const socket = new WebSocket(`${baseUrl}/ws`)
+    const socket = new WebSocket(`${baseUrl}/ws?username=${username}`)
     socket.onopen = onOpen
     socket.onclose = onClose
     socket.onerror = onError

@@ -1,7 +1,7 @@
 import { Constants } from "@/utils/constants"
 import type { CameraCoordinates } from "@/utils/types"
 
-export class Stats {
+export class CustomStats {
   fps: number = 0
   ping: number = 0
   mouseCoordinate: { x: number; y: number } = { x: 0, y: 0 }

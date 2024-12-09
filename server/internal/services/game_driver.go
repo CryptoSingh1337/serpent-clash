@@ -11,7 +11,7 @@ import (
 type GameDriver struct {
 	HashGrid   *SpatialHashGrid
 	Players    map[*Player]bool
-	Broadcast  chan string
+	Broadcast  chan *string
 	JoinQueue  chan *Player
 	LeaveQueue chan *Player
 	PingQueue  chan *Player
@@ -22,7 +22,7 @@ func NewGame() *GameDriver {
 	game := &GameDriver{
 		HashGrid:   NewSpatialHashGrid(utils.SnakeSegmentDiameter * 2),
 		Players:    make(map[*Player]bool),
-		Broadcast:  make(chan string),
+		Broadcast:  make(chan *string),
 		JoinQueue:  make(chan *Player, utils.MaxPlayerAllowed),
 		LeaveQueue: make(chan *Player, utils.MaxPlayerAllowed),
 		PingQueue:  make(chan *Player, utils.MaxPlayerAllowed),

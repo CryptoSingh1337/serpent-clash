@@ -1,12 +1,14 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/services"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/utils"
 	"github.com/labstack/echo/v4"
 	"github.com/lesismal/llib/std/net/http"
 	"github.com/lesismal/nbio/nbhttp/websocket"
+	"strings"
 )
 
 func initHandler(e *echo.Echo, app *App, game *services.GameDriver) {
@@ -29,6 +31,11 @@ func handleCatchAll(c echo.Context) error {
 }
 
 func handleWebsocket(c echo.Context, game *services.GameDriver) error {
+	username := c.QueryParam("username")
+	username = strings.TrimSpace(username)
+	if username == "" {
+		return errors.New("invalid username")
+	}
 	w := c.Response()
 	r := c.Request()
 	upgrader := websocket.NewUpgrader()
@@ -37,7 +44,7 @@ func handleWebsocket(c echo.Context, game *services.GameDriver) error {
 	if err != nil {
 		return err
 	}
-	player := services.NewPlayer(conn)
+	player := services.NewPlayer(&username, conn, w)
 	upgrader.OnMessage(func(c *websocket.Conn, messageType websocket.MessageType, data []byte) {
 		game.ProcessEvent(player, messageType, data)
 	})

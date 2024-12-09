@@ -19,7 +19,7 @@ const router = useRouter()
         <div class="button-container w-32 h-20">
           <button
             class="text-white font-bold text-2xl button-content"
-            @click.prevent="router.push('/play')"
+            @click.prevent="router.push('/menu')"
           >
             Play
           </button>

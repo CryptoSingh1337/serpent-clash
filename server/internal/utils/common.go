@@ -20,7 +20,7 @@ const (
 	WorldBoundaryRadius  = 2750
 )
 
-// Message types
+// ChatMessage types
 const (
 	HelloMessage     = "hello"
 	PingMessage      = "ping"
@@ -71,6 +71,11 @@ type PlayerState struct {
 
 type GameState struct {
 	PlayerStates map[string]PlayerState `json:"playerStates"`
+}
+
+type ChatMessage struct {
+	Username string `json:"username"`
+	Message  string `json:"message"`
 }
 
 func LerpAngle(a, b, t float64) float64 {

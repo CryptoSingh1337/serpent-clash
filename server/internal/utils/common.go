@@ -89,3 +89,9 @@ func LerpAngle(a, b, t float64) float64 {
 	}
 	return a + diff*math.Min(t, 1.0)
 }
+
+func EuclideanDistance(a, b, x, y float64) float64 {
+	dy := y - b
+	dx := x - a
+	return math.Sqrt(dy*dy + dx*dx)
+}

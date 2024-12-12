@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/utils"
 	"github.com/lesismal/nbio/nbhttp/websocket"
+	"math"
 	"time"
 )
 
@@ -103,14 +104,16 @@ MoveAllPlayers:
 		if ok && val {
 			game.HashGrid.RemovePlayer(player)
 			player.Move()
+			distance := utils.EuclideanDistance(0, 0, player.Segments[0].X, player.Segments[0].Y) +
+				utils.SnakeSegmentDiameter/2
+			if distance >= utils.WorldBoundaryRadius {
+				game.killPlayer(player)
+			}
 			game.HashGrid.InsertPlayer(player)
 		}
 	}
 
-	//utils.Logger.LogInfo().Msgf("HashGrid: %v", game.HashGrid.Grid)
-
 	collisions := game.HashGrid.DetectCollisions()
-	//utils.Logger.LogInfo().Msgf("Collisions: %v", collisions)
 	game.handleCollisions(collisions)
 
 	// form players data in json
@@ -219,22 +222,20 @@ func (game *GameDriver) TeleportPlayer(playerId string, coordinate *utils.Coordi
 
 func (game *GameDriver) handleCollisions(collisions []Collision) {
 	for _, collision := range collisions {
-		player1, ok1 := game.getPlayerById(collision.A)
-		player2, ok2 := game.getPlayerById(collision.B)
-
+		a, ok1 := game.getPlayerById(collision.A)
+		b, ok2 := game.getPlayerById(collision.B)
 		if ok1 && ok2 {
 			// Head-to-body collision
-			if game.isHeadToBodyCollision(player1, player2) {
-				utils.Logger.LogInfo().Msgf("Player %v collide with Player %v", player1.Id, player2.Id)
-				game.killPlayer(player1)
-			} else if game.isHeadToBodyCollision(player2, player1) {
-				utils.Logger.LogInfo().Msgf("Player %v collide with Player %v", player1.Id, player2.Id)
-				game.killPlayer(player2)
+			if game.isHeadToBodyCollision(a, b) {
+				utils.Logger.LogInfo().Msgf("Player %v collide with Player %v", a.Id, b.Id)
+				game.killPlayer(a)
+			} else if game.isHeadToBodyCollision(b, a) {
+				utils.Logger.LogInfo().Msgf("Player %v collide with Player %v", a.Id, b.Id)
+				game.killPlayer(b)
 			} else {
-				utils.Logger.LogInfo().Msgf("Player %v and player %v had head to head collision", player1.Id,
-					player2.Id)
-				game.killPlayer(player1)
-				game.killPlayer(player2)
+				utils.Logger.LogInfo().Msgf("Player %v and player %v had head to head collision", a.Id, b.Id)
+				game.killPlayer(a)
+				game.killPlayer(b)
 			}
 		}
 	}
@@ -249,20 +250,16 @@ func (game *GameDriver) getPlayerById(id string) (*Player, bool) {
 	return nil, false
 }
 
-func (game *GameDriver) isHeadToBodyCollision(player1, player2 *Player) bool {
-	head1 := player1.Segments[0]
-	for i := 1; i < len(player2.Segments); i++ {
-		if game.distanceSquared(head1, player2.Segments[i]) < utils.SnakeSegmentDistance*utils.SnakeSegmentDistance {
+func (game *GameDriver) isHeadToBodyCollision(a, b *Player) bool {
+	head := a.Segments[0]
+	for i := 1; i < len(b.Segments); i++ {
+		distance := utils.EuclideanDistance(head.X, head.Y, b.Segments[i].X, b.Segments[i].Y) +
+			utils.SnakeSegmentDiameter/2
+		if math.Floor(distance) == 0 {
 			return true
 		}
 	}
 	return false
-}
-
-func (game *GameDriver) distanceSquared(pos1, pos2 utils.Coordinate) float64 {
-	dx := pos1.X - pos2.X
-	dy := pos1.Y - pos2.Y
-	return dx*dx + dy*dy
 }
 
 func (game *GameDriver) killPlayer(player *Player) {

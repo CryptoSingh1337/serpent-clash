@@ -24,10 +24,6 @@ export class StatsDriver {
     this.displayDriver.renderStats(this._stats)
   }
 
-  calculateFps(): void {
-    this._stats.calculateFps()
-  }
-
   updatePing(ping: number): void {
     this._stats.updatePing(ping)
   }

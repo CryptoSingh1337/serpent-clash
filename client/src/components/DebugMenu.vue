@@ -9,7 +9,6 @@ const props = defineProps<{
 const stats = computed(
   () => props.debugMenu && props.debugMenu.game.statsDriver.stats
 )
-
 const menuItems = [
   {
     id: "info",

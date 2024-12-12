@@ -1,4 +1,4 @@
-import {type Ref, type ShallowRef} from "vue"
+import { type Ref, type ShallowRef } from "vue"
 import { Constants } from "@/utils/constants.ts"
 import type {
   BackendPlayer,
@@ -18,7 +18,7 @@ const debugMode: boolean = import.meta.env.VITE_DEBUG_MODE === "true"
 
 export class GameDriver {
   ctx: CanvasRenderingContext2D
-  stats: object
+  stats: Stats | null = null
   displayDriver: DisplayDriver
   socketDriver: SocketDriver | null = null
   statsDriver: StatsDriver
@@ -31,7 +31,17 @@ export class GameDriver {
   inputs: ReconcileEvent[] = []
   seq: number = 0
 
-  constructor(username: string, ctx: CanvasRenderingContext2D, statsContainer: Readonly<ShallowRef<HTMLDivElement | null>> | null, status: Ref) {
+  constructor({
+    username,
+    ctx,
+    statsContainer,
+    status
+  }: {
+    username: string
+    ctx: CanvasRenderingContext2D
+    statsContainer: Readonly<ShallowRef<HTMLDivElement | null>> | null
+    status: Ref
+  }) {
     if (!ctx) {
       throw new Error("Can't find canvas element")
     }
@@ -56,6 +66,30 @@ export class GameDriver {
   }
 
   initMouseControls(): void {
+    const resetDefault = (): void => {
+      if (
+        this.socketDriver &&
+        this.socketDriver.getReadyState() === WebSocket.OPEN
+      ) {
+        if (this.currentPlayer) {
+          this.currentPlayer.speedBoost = false
+        }
+        const event: SpeedBoost = {
+          enabled: false
+        }
+        this.inputs.push({
+          seq: ++this.seq,
+          event: event
+        })
+        this.socketDriver.send(
+          JSON.stringify({
+            type: "boost",
+            body: event
+          })
+        )
+      }
+    }
+    this.ctx.canvas.addEventListener("mouseleave", resetDefault)
     this.ctx.canvas.addEventListener("mousedown", (): void => {
       if (
         this.socketDriver &&
@@ -328,21 +362,24 @@ export class GameDriver {
   }
 
   gameLoop(): void {
-    this.stats.begin()
+    if (this.stats != null) {
+      this.stats.begin()
+    }
     this.update()
     this.render()
     this.statsDriver.reducePingCooldown()
     if (this.statsDriver.getPingCooldown() <= 0) {
       this.sendPingPayload()
     }
-    this.stats.end()
+    if (this.stats != null) {
+      this.stats.end()
+    }
     requestAnimationFrame(() => {
       this.gameLoop()
     })
   }
 
   start(): void {
-    // this.statsDriver.calculateFps()
     this.gameLoop()
   }
 }

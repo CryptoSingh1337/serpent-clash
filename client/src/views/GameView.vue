@@ -74,7 +74,7 @@ onMounted(() => {
     }
   })
 
-  game = new GameDriver(username, ctx, statsContainer, status)
+  game = new GameDriver({ username, ctx, statsContainer, status })
   if (!game) {
     throw new Error("Cannot initialize game object")
   }

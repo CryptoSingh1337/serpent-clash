@@ -152,5 +152,3 @@ const router = useRouter()
     >
   </footer>
 </template>
-
-<style scoped></style>

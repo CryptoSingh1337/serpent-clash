@@ -42,8 +42,9 @@ Future Enhancements:
 - [x] Increase and decrease player speed on mousedown and mouseup events respectively
 - [x] Improve snake spawn coordinates by considering world radius
 - [x] Re-arch classes and create driver classes for better code readability and maintainability
+- [x] Detect collision with world boundary
+- [ ] Improve collision detection logic, right now always considered as a head to head collision
 - [ ] Compensate snake speed by decreasing snake length
-- [ ] Detect collision with world boundary
 - [ ] Generate food on random coordinates
 - [ ] Food consumption logic and snake growth logic
 - [ ] Create chat system using SSE and channels

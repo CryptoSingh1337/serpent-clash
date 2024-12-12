@@ -50,6 +50,7 @@ Future Enhancements:
 - [ ] Create chat system using SSE and channels
 - [ ] Leaderboard
 - [ ] Client UI design
+- [ ] Add prometheus to capture different metrics
 
 ### Optimizations
 - [ ] Use of binary format instead of json

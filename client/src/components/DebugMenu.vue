@@ -32,6 +32,11 @@ const menuItems = [
       },
       {
         tag: "span",
+        id: "camera-dimensions",
+        label: "Camera dimensions:"
+      },
+      {
+        tag: "span",
         id: "player-id",
         label: "Player id:"
       }
@@ -87,7 +92,6 @@ async function teleport(): Promise<void> {
       <div :class="item.css">
         <div :key="subField.id" v-for="subField in item.subFields">
           <span
-            class="font-thin"
             v-if="subField.tag === 'span' && subField.label === 'Coordinates:'"
             :id="subField.id"
           >
@@ -95,7 +99,6 @@ async function teleport(): Promise<void> {
             {{ stats && stats.value && stats.value.headCoordinate }}
           </span>
           <span
-            class="font-thin"
             v-if="
               subField.tag === 'span' && subField.label === 'Mouse coordinates:'
             "
@@ -105,7 +108,6 @@ async function teleport(): Promise<void> {
             {{ stats && stats.value && stats.value.mouseCoordinate }}
           </span>
           <span
-            class="font-thin"
             v-if="
               subField.tag === 'span' &&
               subField.label === 'Camera coordinates:'
@@ -113,22 +115,29 @@ async function teleport(): Promise<void> {
             :id="subField.id"
           >
             {{ subField.label }}
-            {{ stats && stats.value && stats.value.cameraCoordinate }}
+            {{ stats && stats.value && stats.value.cameraCoordinate.x }},
+            {{ stats && stats.value && stats.value.cameraCoordinate.y }}
           </span>
           <span
-            class="font-thin"
+            v-if="
+              subField.tag === 'span' && subField.label === 'Camera dimensions:'
+            "
+            :id="subField.id"
+          >
+            {{ subField.label }}
+            {{ stats && stats.value && stats.value.cameraCoordinate.width }},
+            {{ stats && stats.value && stats.value.cameraCoordinate.height }}
+          </span>
+          <span
             v-if="subField.tag === 'span' && subField.label === 'Player id:'"
             :id="subField.id"
           >
             {{ subField.label }}
             {{ stats && stats.value && stats.value.playerId }}
           </span>
-          <label
-            class="font-thin"
-            v-if="subField.tag === 'input'"
-            :for="subField.id"
-            >{{ subField.label }}</label
-          >
+          <label v-if="subField.tag === 'input'" :for="subField.id">
+            {{ subField.label }}
+          </label>
           <input
             class="text-black ml-1"
             v-if="subField.tag === 'input' && subField.id === 'teleport-x'"

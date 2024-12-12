@@ -1,8 +1,8 @@
 import { Constants } from "@/utils/constants"
 import type { CameraCoordinates } from "@/utils/types"
+import { roundOff } from "@/utils/helper.ts"
 
 export class CustomStats {
-  fps: number = 0
   ping: number = 0
   mouseCoordinate: { x: number; y: number } = { x: 0, y: 0 }
   headCoordinate: { x: number; y: number } = {
@@ -19,20 +19,7 @@ export class CustomStats {
   status: string = "offline"
 
   // internal
-  times: number[] = []
   pingCooldown: number = Constants.pingCooldown
-
-  calculateFps(): void {
-    window.requestAnimationFrame((): void => {
-      const now = performance.now()
-      while (this.times.length > 0 && this.times[0] <= now - 1000) {
-        this.times.shift()
-      }
-      this.times.push(now)
-      this.fps = this.times.length
-      this.calculateFps()
-    })
-  }
 
   updatePing(ping: number): void {
     this.ping = ping
@@ -52,13 +39,13 @@ export class CustomStats {
   }
 
   updateHeadCoordinate(x: number, y: number): void {
-    this.headCoordinate.x = x
-    this.headCoordinate.y = y
+    this.headCoordinate.x = roundOff(x)
+    this.headCoordinate.y = roundOff(y)
   }
 
   updateCameraCoordinate(x: number, y: number): void {
-    this.cameraCoordinate.x = x
-    this.cameraCoordinate.y = y
+    this.cameraCoordinate.x = roundOff(x)
+    this.cameraCoordinate.y = roundOff(y)
   }
 
   updateCameraWidthAndHeight(width: number, height: number): void {

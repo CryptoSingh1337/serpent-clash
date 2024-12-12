@@ -25,6 +25,10 @@ export function clamp(value: number, min: number, max: number): number {
   return value
 }
 
+export function roundOff(value: number): number {
+  return Math.floor(value * 100) / 100
+}
+
 export function getServerBaseUrl(ws: boolean): string {
   let protocol = window.location.protocol === "https:" ? "wss:" : "ws:"
   if (!ws) {

@@ -49,15 +49,17 @@ onMounted(() => {
   if (!canvas) {
     throw new Error("Can't find canvas element")
   }
-  const ctx = canvas.getContext("2d")
+  const ctx = canvas.getContext("2d", { alpha: false })
   if (!ctx) {
     throw new Error("Can't find canvas element")
   }
   canvas.width = window.innerWidth * devicePixelRatio
   canvas.height = window.innerHeight * devicePixelRatio
+  ctx.scale(devicePixelRatio, devicePixelRatio)
   window.addEventListener("resize", () => {
     canvas.width = innerWidth * devicePixelRatio
     canvas.height = innerHeight * devicePixelRatio
+    ctx.scale(devicePixelRatio, devicePixelRatio)
     if (game) {
       game.updateCameraWidthAndHeight(canvas.width, canvas.height)
     }

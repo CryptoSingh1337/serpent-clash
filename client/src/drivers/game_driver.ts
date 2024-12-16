@@ -349,7 +349,7 @@ export class GameDriver {
   }
 
   render(): void {
-    this.ctx.fillStyle = '#191825'
+    this.ctx.fillStyle = "#191825"
     this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height)
     this.displayDriver.renderHexGrid()
     this.displayDriver.renderWorldBoundary()

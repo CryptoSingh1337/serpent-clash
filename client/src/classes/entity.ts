@@ -95,8 +95,8 @@ export class Player {
   draw(ctx: CanvasRenderingContext2D, camera: Camera): void {
     ctx.lineWidth = 1
     ctx.strokeStyle = "black"
-    this.positions.reverse()
-    this.positions.forEach((segment, index) => {
+    for (let i = this.positions.length - 1, j = 0; i >= 0; i--, j++) {
+      const segment = this.positions[i]
       const screenPos = camera.worldToScreen(segment.x, segment.y)
       ctx.beginPath()
       ctx.arc(
@@ -106,10 +106,9 @@ export class Player {
         0,
         Math.PI * 2
       )
-      ctx.fillStyle = `hsl(${(index / this.positions.length) * 360}, 100%, 50%)`
+      ctx.fillStyle = `hsl(${(j / this.positions.length) * 360}, 100%, 50%)`
       ctx.fill()
       ctx.stroke()
-    })
-    this.positions.reverse()
+    }
   }
 }

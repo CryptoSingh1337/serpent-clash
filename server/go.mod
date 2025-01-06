@@ -5,7 +5,7 @@ go 1.23.0
 require (
 	github.com/google/uuid v1.6.0
 	github.com/labstack/echo/v4 v4.13.3
-	github.com/lesismal/llib v1.1.13
+	github.com/lesismal/llib v1.2.0
 	github.com/lesismal/nbio v1.5.12
 	github.com/rs/zerolog v1.33.0
 )

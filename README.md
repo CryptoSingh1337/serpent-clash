@@ -43,6 +43,7 @@ Future Enhancements:
 - [x] Improve snake spawn coordinates by considering world radius
 - [x] Re-arch classes and create driver classes for better code readability and maintainability
 - [x] Detect collision with world boundary
+- [ ] Re-design the whole backend system using Entity-Component system
 - [ ] Improve collision detection logic, right now always considered as a head to head collision
 - [ ] Compensate snake speed by decreasing snake length
 - [ ] Generate food on random coordinates

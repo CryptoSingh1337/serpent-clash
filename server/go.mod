@@ -7,7 +7,7 @@ require (
 	github.com/labstack/echo/v4 v4.13.3
 	github.com/lesismal/llib v1.2.1
 	github.com/lesismal/nbio v1.6.3
-	github.com/rs/zerolog v1.33.0
+	github.com/rs/zerolog v1.34.0
 )
 
 require (

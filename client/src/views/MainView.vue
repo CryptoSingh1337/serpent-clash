@@ -12,7 +12,7 @@ const username = ref<string>("")
       <div>Username</div>
       <input
         type="text"
-        class="text-black"
+        class=""
         v-model="username"
         placeholder="Enter your name..."
         @keydown.enter.prevent="router.push(`/play?username=${username}`)"

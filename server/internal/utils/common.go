@@ -3,7 +3,6 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
-	"math"
 )
 
 // Common constants
@@ -76,22 +75,4 @@ type GameState struct {
 type ChatMessage struct {
 	Username string `json:"username"`
 	Message  string `json:"message"`
-}
-
-func LerpAngle(a, b, t float64) float64 {
-	diff := b - a
-	// Handle wrapping from -π to π
-	for diff < -math.Pi {
-		diff += 2 * math.Pi
-	}
-	for diff > math.Pi {
-		diff -= 2 * math.Pi
-	}
-	return a + diff*math.Min(t, 1.0)
-}
-
-func EuclideanDistance(a, b, x, y float64) float64 {
-	dy := y - b
-	dx := x - a
-	return math.Sqrt(dy*dy + dx*dx)
 }

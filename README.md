@@ -20,6 +20,29 @@ Future Enhancements:
 - Food Generation & Snake Growth mechanics to introduce dynamic game elements
 - Leaderboard and UI Enhancements for better player experience
 
+### Backend ECS Architecture -
+
+#### Entities:
+- Player
+- Food
+
+#### Components:
+- Color
+- Input
+- Network
+- PlayerInfo
+- Position
+- Snake
+- Speed
+
+#### Systems:
+- Movement
+- Network
+- Collision
+
+#### Entity-Component relations:
+- **Player:** Color, Input, Network, PlayerInfo, Position 
+
 ### TODO:
 - [x] Serve vue files from backend
 - [x] POC - web socket server

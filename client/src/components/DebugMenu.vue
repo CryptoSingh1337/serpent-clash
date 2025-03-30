@@ -85,7 +85,7 @@ async function teleport(): Promise<void> {
 </script>
 
 <template>
-  <div class="mt-2 w-72 border rounded-s p-2 backdrop-blur text-xs">
+  <div class="mt-2 w-72 border rounded-s p-2 backdrop-blur-sm text-xs">
     <h1 class="text-center">Debug menu</h1>
     <div class="space-y-1 my-1" :key="item.id" v-for="item in menuItems">
       <h1 class="border-b font-bold italic">{{ item.title }}</h1>

@@ -1,19 +1,49 @@
-@import "base.css";
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import './base.css' layer(base);
+@import 'tailwindcss';
 
-@layer utilities {
-  .button-container {
-    @apply relative rounded-full overflow-hidden;
+@theme {
+  --color-primary: #191825;
+  --color-secondary: #865dff;
+  --color-accent-1: #e384ff;
+  --color-accent-2: #ffa3fd;
+  --color-rgb-secondary: rgb(134, 93, 255);
+
+  --animate-border-spin: border-spin 3s linear infinite;
+
+  @keyframes border-spin {
+    100% {
+      transform: rotate(360deg);
+    }
   }
+}
 
-  .button-container::before {
+/*
+  The default border color has changed to `currentColor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+}
+
+@utility button-container {
+  @apply relative rounded-full overflow-hidden;
+
+  &::before {
     background: conic-gradient(var(--rgb-accent-1) 125deg, transparent 90deg);
     @apply absolute h-[175%] w-[175%] left-[-37.5%] top-[-37.5%] content-[''] animate-border-spin;
   }
+}
 
-  .button-content {
-    @apply absolute w-[calc(100%-4px)] h-[calc((100%-4px))] left-[2px] top-[2px] bg-primary rounded-full;
-  }
+@utility button-content {
+  @apply absolute w-[calc(100%-4px)] h-[calc((100%-4px))] left-[2px] top-[2px] bg-primary rounded-full;
 }

@@ -42,7 +42,7 @@ function handleMessageInputFocus(showChat: boolean) {
   <div>
     <div
       id="chat-menu"
-      class="flex flex-col-reverse p-4 h-60 w-96 backdrop-blur-sm overflow-hidden opacity-0 transition-opacity ease-in-out delay-100"
+      class="flex flex-col-reverse p-4 h-60 w-96 backdrop-blur-xs overflow-hidden opacity-0 transition-opacity ease-in-out delay-100"
     >
       <div id="chat-view" class="overflow-y-scroll">
         <div :key="idx" v-for="(message, idx) in messages" class="flex">
@@ -51,7 +51,7 @@ function handleMessageInputFocus(showChat: boolean) {
         </div>
       </div>
     </div>
-    <div class="flex h-7 w-96 items-center px-2 backdrop-blur border-x">
+    <div class="flex h-7 w-96 items-center px-2 backdrop-blur-sm border-x">
       <input
         class="w-full bg-transparent py-1 outline-0 focus:outline-0"
         type="text"

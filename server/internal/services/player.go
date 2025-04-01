@@ -19,7 +19,7 @@ type Player struct {
 	Color               string
 	Seq                 uint64
 	angle               float64
-	pingTimestamp       uint32
+	pingTimestamp       uint64
 	lastMouseCoordinate *utils.Coordinate
 	speedBoost          bool
 }

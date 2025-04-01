@@ -8,7 +8,7 @@ import (
 
 func TestPlayer_GenerateRandomPosition(t *testing.T) {
 	for i := 0; i < 1000; i++ {
-		player := NewPlayer(nil)
+		player := NewPlayer(nil, nil, nil)
 		player.GenerateRandomPosition(5)
 		p, q := player.Segments[0].X, player.Segments[0].Y
 		distance := math.Sqrt(p*p + q*q)

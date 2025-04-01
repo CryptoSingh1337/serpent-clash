@@ -70,7 +70,7 @@ type SpeedBoostEvent struct {
 }
 
 type PingEvent struct {
-	Timestamp uint32 `json:"timestamp"`
+	Timestamp uint64 `json:"timestamp"`
 }
 
 type DeathEvent struct {

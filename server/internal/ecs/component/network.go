@@ -10,3 +10,10 @@ type Network struct {
 	PingTimestamp   uint64
 	MessageSequence uint64
 }
+
+func NewNetworkComponent(connection *websocket.Conn) Network {
+	return Network{
+		Connection: connection,
+		Connected:  true,
+	}
+}

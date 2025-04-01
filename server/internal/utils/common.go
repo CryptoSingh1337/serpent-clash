@@ -30,6 +30,21 @@ const (
 	Kill             = "kill"
 )
 
+// Entity types
+const (
+	PlayerEntity = "player"
+	FoodEntity   = "food"
+)
+
+// Component names
+const (
+	InputComponent      = "input"
+	NetworkComponent    = "network"
+	PlayerInfoComponent = "playerInfo"
+	PositionComponent   = "position"
+	SnakeComponent      = "snake"
+)
+
 type Coordinate struct {
 	X float64 `json:"x"`
 	Y float64 `json:"y"`

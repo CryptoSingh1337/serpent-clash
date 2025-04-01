@@ -3,6 +3,7 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/lesismal/nbio/nbhttp/websocket"
 )
 
 // Common constants
@@ -81,6 +82,11 @@ type PlayerState struct {
 	Color    string       `json:"color"`
 	Segments []Coordinate `json:"positions"`
 	Seq      uint64       `json:"seq"`
+}
+
+type JoinEvent struct {
+	PlayerId   string
+	Connection *websocket.Conn
 }
 
 type GameState struct {

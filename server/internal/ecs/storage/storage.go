@@ -13,10 +13,10 @@ type Storage interface {
 	GetAllEntitiesByType(componentType string) []types.Id
 	GetAllComponentByName(componentName string) any
 	GetComponentByEntityIdAndNames(entityId types.Id, componentNames ...string) map[string]any
-	GetComponentByEntityIdAndName(entityId types.Id, componentName string) (any, bool)
-	AddComponent(entityId types.Id, entityType string, component any)
-	DeleteComponent(entityId types.Id, entityType string)
-	UpdateComponent(entityId types.Id, entityType string, component any)
+	GetComponentByEntityIdAndName(entityId types.Id, componentName string) any
+	AddComponent(entityId types.Id, componentName string, component any)
+	ReplaceComponent(entityId types.Id, componentName string, component any)
+	DeleteComponent(entityId types.Id, componentName string)
 }
 
 type SimpleStorage struct {
@@ -83,13 +83,13 @@ func (s *SimpleStorage) GetAllEntitiesByType(t string) []types.Id {
 
 func (s *SimpleStorage) GetAllComponentByName(componentName string) any {
 	switch componentName {
-	case "input":
+	case utils.InputComponent:
 		return s.inputComponents.GetAll()
-	case "network":
+	case utils.NetworkComponent:
 		return s.networkComponents.GetAll()
-	case "playerInfo":
+	case utils.PlayerInfoComponent:
 		return s.playerInfoComponents.GetAll()
-	case "snake":
+	case utils.SnakeComponent:
 		return s.snakeComponents.GetAll()
 	}
 	return nil
@@ -101,13 +101,13 @@ func (s *SimpleStorage) GetComponentByEntityIdAndNames(entityId types.Id, compon
 		var c any
 		exists := false
 		switch name {
-		case "input":
+		case utils.InputComponent:
 			c, exists = s.inputComponents.Get(entityId)
-		case "network":
+		case utils.NetworkComponent:
 			c, exists = s.networkComponents.Get(entityId)
-		case "playerInfo":
+		case utils.PlayerInfoComponent:
 			c, exists = s.playerInfoComponents.Get(entityId)
-		case "snake":
+		case utils.SnakeComponent:
 			c, exists = s.snakeComponents.Get(entityId)
 		}
 		if exists {
@@ -117,48 +117,68 @@ func (s *SimpleStorage) GetComponentByEntityIdAndNames(entityId types.Id, compon
 	return components
 }
 
-func (s *SimpleStorage) GetComponentByEntityIdAndName(entityId types.Id, componentName string) (any, bool) {
+func (s *SimpleStorage) GetComponentByEntityIdAndName(entityId types.Id, componentName string) any {
 	var c any
 	exists := false
 	switch componentName {
-	case "input":
+	case utils.InputComponent:
 		c, exists = s.inputComponents.Get(entityId)
-	case "network":
+	case utils.NetworkComponent:
 		c, exists = s.networkComponents.Get(entityId)
-	case "playerInfo":
+	case utils.PlayerInfoComponent:
 		c, exists = s.playerInfoComponents.Get(entityId)
-	case "snake":
+	case utils.SnakeComponent:
 		c, exists = s.snakeComponents.Get(entityId)
 	}
 	if exists {
-		return c, true
+		return c
 	}
-	return nil, false
+	return nil
 }
 
-func (s *SimpleStorage) AddComponent(entityId types.Id, entityType string, com any) {
-	switch entityType {
-	case "input":
+func (s *SimpleStorage) AddComponent(entityId types.Id, componentName string, com any) {
+	switch componentName {
+	case utils.InputComponent:
 		c := com.(component.Input)
 		s.inputComponents.Add(entityId, c)
-	case "network":
+	case utils.NetworkComponent:
 		c := com.(component.Network)
 		s.networkComponents.Add(entityId, c)
-	case "playerInfo":
+	case utils.PlayerInfoComponent:
 		c := com.(component.PlayerInfo)
 		s.playerInfoComponents.Add(entityId, c)
-	case "snake":
+	case utils.SnakeComponent:
 		c := com.(component.Snake)
 		s.snakeComponents.Add(entityId, c)
 	}
 }
 
-func (s *SimpleStorage) DeleteComponent(entityId types.Id, entityType string) {
-	//TODO implement me
-	panic("implement me")
+func (s *SimpleStorage) ReplaceComponent(entityId types.Id, componentName string, com any) {
+	switch componentName {
+	case utils.InputComponent:
+		c := com.(component.Input)
+		s.inputComponents.Replace(entityId, c)
+	case utils.NetworkComponent:
+		c := com.(component.Network)
+		s.networkComponents.Replace(entityId, c)
+	case utils.PlayerInfoComponent:
+		c := com.(component.PlayerInfo)
+		s.playerInfoComponents.Replace(entityId, c)
+	case utils.SnakeComponent:
+		c := com.(component.Snake)
+		s.snakeComponents.Replace(entityId, c)
+	}
 }
 
-func (s *SimpleStorage) UpdateComponent(entityId types.Id, entityType string, component any) {
-	//TODO implement me
-	panic("implement me")
+func (s *SimpleStorage) DeleteComponent(entityId types.Id, componentName string) {
+	switch componentName {
+	case utils.InputComponent:
+		s.inputComponents.Remove(entityId)
+	case utils.NetworkComponent:
+		s.networkComponents.Remove(entityId)
+	case utils.PlayerInfoComponent:
+		s.playerInfoComponents.Remove(entityId)
+	case utils.SnakeComponent:
+		s.snakeComponents.Remove(entityId)
+	}
 }

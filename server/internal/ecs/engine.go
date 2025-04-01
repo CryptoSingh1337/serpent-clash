@@ -15,7 +15,7 @@ func NewEngine() *Engine {
 	simpleStorage := storage.NewSimpleStorage()
 	engine := &Engine{
 		storage: simpleStorage,
-		systems: make([]system.System, 3),
+		systems: make([]system.System, 0),
 	}
 	var networkSystem system.System = system.NewNetworkSystem(simpleStorage)
 	var movementSystem system.System = system.NewMovementSystem(simpleStorage)
@@ -28,11 +28,19 @@ func (e *Engine) AddEntity(entityId types.Id, entityType string) {
 	e.storage.AddEntity(entityId, entityType)
 }
 
-func (e *Engine) RemoveEntity(entityId types.Id) {
-	e.storage.RemoveEntity(entityId)
+func (e *Engine) RemoveEntity(entityId types.Id, entityType string) {
+	e.storage.RemoveEntity(entityId, entityType)
 }
 
-func (e *Engine) Update() {
+func (e *Engine) GetComponent(entityId types.Id, componentName string) any {
+	return e.storage.GetComponentByEntityIdAndName(entityId, componentName)
+}
+
+func (e *Engine) UpdateComponent(entityId types.Id, componentName string, component any) {
+	e.storage.ReplaceComponent(entityId, componentName, component)
+}
+
+func (e *Engine) UpdateSystems() {
 	for _, s := range e.systems {
 		s.Update()
 	}

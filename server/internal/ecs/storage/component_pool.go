@@ -44,6 +44,14 @@ func (p *Pool[T]) GetAll() []T {
 	return p.pool
 }
 
+func (p *Pool[T]) Replace(entityId types.Id, component T) {
+	idx, exists := p.entityToIndex[entityId]
+	if !exists {
+		return
+	}
+	p.pool[idx] = component
+}
+
 func (p *Pool[T]) Remove(entityId types.Id) {
 	idx, exists := p.entityToIndex[entityId]
 	if !exists {

@@ -13,8 +13,6 @@ func NewCollisionSystem(storage storage.Storage) *CollisionSystem {
 }
 
 func (c *CollisionSystem) Update() {
-	//TODO implement me
-	panic("implement me")
 }
 
 func (c *CollisionSystem) Stop() {

@@ -3,7 +3,6 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/lesismal/nbio/nbhttp/websocket"
 )
 
 // Common constants
@@ -20,7 +19,7 @@ const (
 	WorldBoundaryRadius  = 2750
 )
 
-// ChatMessage types
+// Message types
 const (
 	HelloMessage     = "hello"
 	PingMessage      = "ping"
@@ -74,6 +73,12 @@ type PingEvent struct {
 	Timestamp uint64 `json:"timestamp"`
 }
 
+type PingMessageEvent struct {
+	RequestInitiateTimestamp  uint64 `json:"req_init"`
+	RequestAckTimestamp       uint64 `json:"req_ack"`
+	ResponseInitiateTimestamp uint64 `json:"res_init"`
+}
+
 type DeathEvent struct {
 	PlayerId string `json:"playerId"`
 }
@@ -82,11 +87,6 @@ type PlayerState struct {
 	Color    string       `json:"color"`
 	Segments []Coordinate `json:"positions"`
 	Seq      uint64       `json:"seq"`
-}
-
-type JoinEvent struct {
-	PlayerId   string
-	Connection *websocket.Conn
 }
 
 type GameState struct {

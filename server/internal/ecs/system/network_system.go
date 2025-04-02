@@ -5,6 +5,7 @@ import (
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/storage"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/utils"
 	"github.com/lesismal/nbio/nbhttp/websocket"
+	"time"
 )
 
 type NetworkSystem struct {
@@ -22,9 +23,21 @@ func (n *NetworkSystem) Update() {
 	body, _ := utils.ToJsonB(gameState)
 	payload, _ := utils.ToJsonB(utils.Payload{Type: utils.GameStateMessage, Body: body})
 	networkComponents := n.storage.GetAllComponentByName("network").([]component.Network)
+	pingEvent := utils.PingMessageEvent{}
 	for _, networkComponent := range networkComponents {
 		if networkComponent.Connected {
 			err := networkComponent.Connection.WriteMessage(websocket.TextMessage, payload)
+			if err != nil {
+				networkComponent.Connected = false
+				// TODO: call engine player remove method
+			}
+			networkComponent.ResponseInitiateTimestamp = uint64(time.Now().UnixMilli())
+			pingEvent.RequestInitiateTimestamp = networkComponent.RequestInitiateTimestamp
+			pingEvent.RequestAckTimestamp = networkComponent.RequestAckTimestamp
+			pingEvent.ResponseInitiateTimestamp = networkComponent.ResponseInitiateTimestamp
+			body, _ = utils.ToJsonB(pingEvent)
+			payload, _ = utils.ToJsonB(utils.Payload{Type: utils.PongMessage, Body: body})
+			err = networkComponent.Connection.WriteMessage(websocket.TextMessage, payload)
 			if err != nil {
 				networkComponent.Connected = false
 				// TODO: call engine player remove method

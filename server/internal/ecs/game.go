@@ -2,6 +2,7 @@ package ecs
 
 import (
 	"errors"
+	"github.com/CryptoSingh1337/serpent-clash/server/internal/types"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/utils"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
@@ -11,14 +12,14 @@ import (
 )
 
 type Game struct {
-	World *World
-	Done  chan bool
+	Engine *Engine
+	Done   chan bool
 }
 
 func NewGame() *Game {
 	return &Game{
-		World: NewWorld(),
-		Done:  make(chan bool),
+		Engine: NewEngine(),
+		Done:   make(chan bool),
 	}
 }
 
@@ -38,16 +39,16 @@ func (g *Game) Start() {
 }
 
 func (g *Game) Stop() {
-	g.World.Stop()
+	g.Engine.Stop()
 	g.Done <- true
 	close(g.Done)
 }
 
 func (g *Game) processTick() {
-	start := time.Now().UnixMilli()
-	g.World.Update(1000 / utils.TickRate * time.Millisecond)
-	end := time.Now().UnixMilli()
-	utils.Logger.Debug().Msgf("Time taken to process tick: %d ms", end-start)
+	//start := time.Now().UnixMilli()
+	g.Engine.UpdateSystems()
+	//end := time.Now().UnixMilli()
+	//utils.Logger.Debug().Msgf("Time taken to process tick: %d ms", end-start)
 }
 
 func (g *Game) AddPlayer(c echo.Context) error {
@@ -66,14 +67,15 @@ func (g *Game) AddPlayer(c echo.Context) error {
 	}
 	playerId := uuid.New().String()
 	upgrader.OnMessage(func(c *websocket.Conn, messageType websocket.MessageType, data []byte) {
-		g.World.ProcessEvent(playerId, messageType, data)
+		g.Engine.ProcessEvent(playerId, messageType, data)
 	})
-	g.World.JoinQueue <- &utils.JoinEvent{
-		PlayerId:   playerId,
+	g.Engine.JoinQueue <- &types.JoinEvent{
 		Connection: conn,
+		PlayerId:   playerId,
+		Username:   username,
 	}
 	conn.OnClose(func(c *websocket.Conn, err error) {
-		g.World.LeaveQueue <- playerId
+		g.Engine.LeaveQueue <- playerId
 	})
 	return nil
 }

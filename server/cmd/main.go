@@ -6,6 +6,7 @@ import (
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/utils"
 	"os"
 	"os/signal"
+	"syscall"
 	"time"
 )
 
@@ -25,7 +26,7 @@ func main() {
 	}
 
 	interrupt := make(chan os.Signal, 1)
-	signal.Notify(interrupt, os.Interrupt)
+	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
 	<-interrupt
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)

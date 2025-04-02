@@ -5,10 +5,12 @@ import (
 )
 
 type Network struct {
-	Connection      *websocket.Conn
-	Connected       bool
-	PingTimestamp   uint64
-	MessageSequence uint64
+	Connection                *websocket.Conn
+	Connected                 bool
+	RequestInitiateTimestamp  uint64
+	RequestAckTimestamp       uint64
+	ResponseInitiateTimestamp uint64
+	MessageSequence           uint64
 }
 
 func NewNetworkComponent(connection *websocket.Conn) Network {

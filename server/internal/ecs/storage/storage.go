@@ -30,7 +30,7 @@ type SimpleStorage struct {
 
 func NewSimpleStorage() Storage {
 	return &SimpleStorage{
-		entities:             make([]types.Id, 0),
+		entities:             make([]types.Id, 0, 10),
 		entityGroup:          make(map[string][]types.Id),
 		inputComponents:      NewPool[component.Input](),
 		networkComponents:    NewPool[component.Network](),
@@ -43,7 +43,7 @@ func (s *SimpleStorage) AddEntity(entityId types.Id, entityType string) {
 	s.entities = append(s.entities, entityId)
 	_, exists := s.entityGroup[entityType]
 	if !exists {
-		s.entityGroup[entityType] = make([]types.Id, 5)
+		s.entityGroup[entityType] = make([]types.Id, 0, 5)
 	}
 	s.entityGroup[entityType] = append(s.entityGroup[entityType], entityId)
 }

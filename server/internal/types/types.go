@@ -1,9 +1,19 @@
 package types
 
-import "github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/component"
+import (
+	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/component"
+	"github.com/lesismal/nbio/nbhttp/websocket"
+)
 
 type Id uint32
 
 type Component interface {
 	component.Input | component.Network | component.PlayerInfo | component.Snake
+}
+
+type JoinEvent struct {
+	Connection *websocket.Conn
+	EntityId   Id
+	PlayerId   string
+	Username   string
 }

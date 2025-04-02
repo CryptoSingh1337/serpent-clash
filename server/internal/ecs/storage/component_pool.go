@@ -13,7 +13,7 @@ type Pool[T types.Component] struct {
 
 func NewPool[T types.Component]() *Pool[T] {
 	return &Pool[T]{
-		pool:          make([]T, 10),
+		pool:          make([]T, 0, 10),
 		entityToIndex: make(map[types.Id]int),
 		indexToEntity: make(map[int]types.Id),
 		nextIndex:     0,

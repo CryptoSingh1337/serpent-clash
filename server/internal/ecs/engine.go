@@ -46,6 +46,9 @@ func NewEngine() *Engine {
 	return engine
 }
 
+func (e *Engine) Start() {
+}
+
 func (e *Engine) AddPlayer(joinEvent *types.JoinEvent) error {
 	utils.Logger.Info().Msgf("Inside Engine.AddPlayer :: joinEvent: %v", joinEvent)
 	if joinEvent.PlayerId == "" {
@@ -89,7 +92,7 @@ func (e *Engine) AddPlayer(joinEvent *types.JoinEvent) error {
 		utils.Logger.Error().Msgf("connection is nil")
 	}
 	body := fmt.Sprintf(`{"id":%q}`, joinEvent.PlayerId)
-	payload, err := utils.ToJsonB(utils.Payload{Type: utils.HelloMessage, Body: []byte(body)})
+	payload, err := utils.ToJsonB(utils.Payload{Type: utils.HelloMessageType, Body: []byte(body)})
 	if err != nil {
 		return err
 	}
@@ -164,30 +167,25 @@ func (e *Engine) ProcessEvent(playerId string, messageType websocket.MessageType
 			return
 		}
 		switch payload.Type {
-		case utils.Movement:
-			mouseEvent, err := utils.FromJsonB[utils.MouseEvent](payload.Body)
+		case utils.MovementMessageType:
+			inputEvent, err := utils.FromJsonB[utils.InputEvent](payload.Body)
 			if err != nil {
 				return
 			}
 			inputComponent := e.storage.GetComponentByEntityIdAndName(entityId, utils.InputComponent).(*component.Input)
-			inputComponent.Coordinates.X = mouseEvent.Coordinate.X
-			inputComponent.Coordinates.Y = mouseEvent.Coordinate.Y
 			networkComponent := e.storage.GetComponentByEntityIdAndName(entityId, utils.NetworkComponent).(*component.Network)
-			networkComponent.MessageSequence = mouseEvent.Seq
-		case utils.SpeedBoost:
-			speedBoostEvent, err := utils.FromJsonB[utils.SpeedBoostEvent](payload.Body)
-			if err != nil {
-				return
-			}
-			inputComponent := e.storage.GetComponentByEntityIdAndName(entityId, utils.InputComponent).(*component.Input)
-			inputComponent.Boost = speedBoostEvent.Enabled
-		case utils.PingMessage:
-			pingEvent, err := utils.FromJsonB[utils.PingEvent](payload.Body)
+			networkComponent.MessageSequence = inputEvent.Seq
+			inputComponent.Coordinates.X = inputEvent.Coordinate.X
+			inputComponent.Coordinates.Y = inputEvent.Coordinate.Y
+			inputComponent.Boost = inputEvent.Boost
+		case utils.PingMessageType:
+			pingEvent, err := utils.FromJsonB[types.PingEvent](payload.Body)
+			pingEvent.PlayerId = playerId
 			if err != nil {
 				return
 			}
 			networkComponent := e.storage.GetComponentByEntityIdAndName(entityId, utils.NetworkComponent).(*component.Network)
-			networkComponent.RequestInitiateTimestamp = pingEvent.Timestamp
+			networkComponent.RequestInitiateTimestamp = pingEvent.RequestInitiateTimestamp
 			networkComponent.RequestAckTimestamp = uint64(time.Now().UnixMilli())
 		}
 	}

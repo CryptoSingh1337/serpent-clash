@@ -17,3 +17,8 @@ type JoinEvent struct {
 	PlayerId   string
 	Username   string
 }
+
+type PingEvent struct {
+	PlayerId                 string
+	RequestInitiateTimestamp uint64 `json:"reqInit"`
+}

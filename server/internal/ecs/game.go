@@ -25,6 +25,7 @@ func NewGame() *Game {
 
 func (g *Game) Start() {
 	ticker := time.NewTicker(1000 / utils.TickRate * time.Millisecond)
+	g.Engine.Start()
 	go func() {
 		for {
 			select {

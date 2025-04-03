@@ -8,6 +8,7 @@ import (
 // Common constants
 const (
 	TickRate             = 60
+	PingCooldown         = 30
 	PlayerSpeed          = 5
 	PlayerBoostSpeed     = 3
 	MaxTurnRate          = 0.03
@@ -21,13 +22,12 @@ const (
 
 // Message types
 const (
-	HelloMessage     = "hello"
-	PingMessage      = "ping"
-	PongMessage      = "pong"
-	GameStateMessage = "game_state"
-	Movement         = "movement"
-	SpeedBoost       = "boost"
-	Kill             = "kill"
+	HelloMessageType     = "hello"
+	PingMessageType      = "ping"
+	PongMessageType      = "pong"
+	GameStateMessageType = "game_state"
+	MovementMessageType  = "movement"
+	KillMessageType      = "kill"
 )
 
 // Entity types
@@ -59,42 +59,24 @@ func (p Payload) String() string {
 	return fmt.Sprintf("{type=%v, body=%v}", p.Type, string(p.Body))
 }
 
-type MouseEvent struct {
+type InputEvent struct {
 	Seq        uint64     `json:"seq"`
 	Coordinate Coordinate `json:"coordinate"`
+	Boost      bool       `json:"boost"`
 }
 
-type SpeedBoostEvent struct {
-	Seq     uint64 `json:"seq"`
-	Enabled bool   `json:"enabled"`
+type PongMessage struct {
+	RequestInitiateTimestamp  uint64 `json:"reqInit"`
+	RequestAckTimestamp       uint64 `json:"reqAck"`
+	ResponseInitiateTimestamp uint64 `json:"resInit"`
 }
 
-type PingEvent struct {
-	Timestamp uint64 `json:"timestamp"`
-}
-
-type PingMessageEvent struct {
-	Timestamp                 uint64 `json:"timestamp"`
-	RequestInitiateTimestamp  uint64 `json:"req_init"`
-	RequestAckTimestamp       uint64 `json:"req_ack"`
-	ResponseInitiateTimestamp uint64 `json:"res_init"`
-}
-
-type DeathEvent struct {
-	PlayerId string `json:"playerId"`
-}
-
-type PlayerState struct {
+type PlayerStateMessage struct {
 	Color    string       `json:"color"`
 	Segments []Coordinate `json:"positions"`
 	Seq      uint64       `json:"seq"`
 }
 
-type GameState struct {
-	PlayerStates map[string]PlayerState `json:"playerStates"`
-}
-
-type ChatMessage struct {
-	Username string `json:"username"`
-	Message  string `json:"message"`
+type GameStateMessage struct {
+	PlayerStates map[string]PlayerStateMessage `json:"playerStates"`
 }

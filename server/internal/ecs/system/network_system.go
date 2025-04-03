@@ -21,9 +21,9 @@ func NewNetworkSystem(storage storage.Storage) *NetworkSystem {
 func (n *NetworkSystem) Update() {
 	gameState := n.createGameState()
 	body, _ := utils.ToJsonB(gameState)
-	payload, _ := utils.ToJsonB(utils.Payload{Type: utils.GameStateMessage, Body: body})
+	payload, _ := utils.ToJsonB(utils.Payload{Type: utils.GameStateMessageType, Body: body})
 	networkComponents := n.storage.GetAllComponentByName("network").([]*component.Network)
-	pingEvent := utils.PingMessageEvent{}
+	pongMessage := utils.PongMessage{}
 	for _, networkComponent := range networkComponents {
 		if networkComponent.Connected {
 			err := networkComponent.Connection.WriteMessage(websocket.TextMessage, payload)
@@ -31,17 +31,20 @@ func (n *NetworkSystem) Update() {
 				networkComponent.Connected = false
 				// TODO: call engine player remove method
 			}
-			networkComponent.ResponseInitiateTimestamp = uint64(time.Now().UnixMilli())
-			pingEvent.Timestamp = networkComponent.RequestInitiateTimestamp
-			pingEvent.RequestInitiateTimestamp = networkComponent.RequestInitiateTimestamp
-			pingEvent.RequestAckTimestamp = networkComponent.RequestAckTimestamp
-			pingEvent.ResponseInitiateTimestamp = networkComponent.ResponseInitiateTimestamp
-			body, _ = utils.ToJsonB(pingEvent)
-			pingPayload, _ := utils.ToJsonB(utils.Payload{Type: utils.PongMessage, Body: body})
-			err = networkComponent.Connection.WriteMessage(websocket.TextMessage, pingPayload)
-			if err != nil {
-				networkComponent.Connected = false
-				// TODO: call engine player remove method
+			networkComponent.PingCooldown -= 1
+			if networkComponent.PingCooldown <= 0 {
+				networkComponent.ResponseInitiateTimestamp = uint64(time.Now().UnixMilli())
+				pongMessage.RequestInitiateTimestamp = networkComponent.RequestInitiateTimestamp
+				pongMessage.RequestAckTimestamp = networkComponent.RequestAckTimestamp
+				pongMessage.ResponseInitiateTimestamp = networkComponent.ResponseInitiateTimestamp
+				body, _ = utils.ToJsonB(pongMessage)
+				pingPayload, _ := utils.ToJsonB(utils.Payload{Type: utils.PongMessageType, Body: body})
+				err = networkComponent.Connection.WriteMessage(websocket.TextMessage, pingPayload)
+				if err != nil {
+					networkComponent.Connected = false
+					// TODO: call engine player remove method
+				}
+				networkComponent.PingCooldown = utils.PingCooldown
 			}
 		}
 	}
@@ -51,10 +54,10 @@ func (n *NetworkSystem) Stop() {
 
 }
 
-func (n *NetworkSystem) createGameState() utils.GameState {
+func (n *NetworkSystem) createGameState() utils.GameStateMessage {
 	playerEntityIds := n.storage.GetAllEntitiesByType("player")
-	gameState := utils.GameState{
-		PlayerStates: make(map[string]utils.PlayerState),
+	gameState := utils.GameStateMessage{
+		PlayerStates: make(map[string]utils.PlayerStateMessage),
 	}
 	for _, entityId := range playerEntityIds {
 		c := n.storage.GetComponentByEntityIdAndName(entityId, "playerInfo")
@@ -72,7 +75,7 @@ func (n *NetworkSystem) createGameState() utils.GameState {
 			continue
 		}
 		networkComponent := c.(*component.Network)
-		playerState := utils.PlayerState{
+		playerState := utils.PlayerStateMessage{
 			Color:    snakeComponent.Color,
 			Segments: snakeComponent.Segments,
 			Seq:      networkComponent.MessageSequence,

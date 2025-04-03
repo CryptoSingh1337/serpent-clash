@@ -22,6 +22,9 @@ func initHandler(e *echo.Echo, app *App, game *services.GameDriver) {
 	e.POST("/player/:playerId/teleport", func(c echo.Context) error {
 		return handlePlayerTeleport(c, game)
 	})
+	e.GET("/healthz", func(c echo.Context) error {
+		return c.JSON(http.StatusOK, nil)
+	})
 	e.GET("/*", handleCatchAll)
 }
 

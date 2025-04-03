@@ -45,6 +45,7 @@ Future Enhancements:
 - [x] Detect collision with world boundary
 - [ ] Re-design the whole backend system using Entity-Component system
 - [ ] Improve collision detection logic, right now always considered as a head to head collision
+- [ ] Create dashboard and API for server metrics
 - [ ] Compensate snake speed by decreasing snake length
 - [ ] Generate food on random coordinates
 - [ ] Food consumption logic and snake growth logic

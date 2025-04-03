@@ -139,34 +139,34 @@ func (s *SimpleStorage) GetComponentByEntityIdAndName(entityId types.Id, compone
 func (s *SimpleStorage) AddComponent(entityId types.Id, componentName string, com any) {
 	switch componentName {
 	case utils.InputComponent:
-		c := com.(component.Input)
-		s.inputComponents.Add(entityId, &c)
+		c := com.(*component.Input)
+		s.inputComponents.Add(entityId, c)
 	case utils.NetworkComponent:
-		c := com.(component.Network)
-		s.networkComponents.Add(entityId, &c)
+		c := com.(*component.Network)
+		s.networkComponents.Add(entityId, c)
 	case utils.PlayerInfoComponent:
-		c := com.(component.PlayerInfo)
-		s.playerInfoComponents.Add(entityId, &c)
+		c := com.(*component.PlayerInfo)
+		s.playerInfoComponents.Add(entityId, c)
 	case utils.SnakeComponent:
-		c := com.(component.Snake)
-		s.snakeComponents.Add(entityId, &c)
+		c := com.(*component.Snake)
+		s.snakeComponents.Add(entityId, c)
 	}
 }
 
 func (s *SimpleStorage) ReplaceComponent(entityId types.Id, componentName string, com any) {
 	switch componentName {
 	case utils.InputComponent:
-		c := com.(component.Input)
-		s.inputComponents.Replace(entityId, &c)
+		c := com.(*component.Input)
+		s.inputComponents.Replace(entityId, c)
 	case utils.NetworkComponent:
-		c := com.(component.Network)
-		s.networkComponents.Replace(entityId, &c)
+		c := com.(*component.Network)
+		s.networkComponents.Replace(entityId, c)
 	case utils.PlayerInfoComponent:
-		c := com.(component.PlayerInfo)
-		s.playerInfoComponents.Replace(entityId, &c)
+		c := com.(*component.PlayerInfo)
+		s.playerInfoComponents.Replace(entityId, c)
 	case utils.SnakeComponent:
-		c := com.(component.Snake)
-		s.snakeComponents.Replace(entityId, &c)
+		c := com.(*component.Snake)
+		s.snakeComponents.Replace(entityId, c)
 	}
 }
 

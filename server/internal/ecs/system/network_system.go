@@ -37,8 +37,8 @@ func (n *NetworkSystem) Update() {
 			pingEvent.RequestAckTimestamp = networkComponent.RequestAckTimestamp
 			pingEvent.ResponseInitiateTimestamp = networkComponent.ResponseInitiateTimestamp
 			body, _ = utils.ToJsonB(pingEvent)
-			payload, _ = utils.ToJsonB(utils.Payload{Type: utils.PongMessage, Body: body})
-			err = networkComponent.Connection.WriteMessage(websocket.TextMessage, payload)
+			pingPayload, _ := utils.ToJsonB(utils.Payload{Type: utils.PongMessage, Body: body})
+			err = networkComponent.Connection.WriteMessage(websocket.TextMessage, pingPayload)
 			if err != nil {
 				networkComponent.Connected = false
 				// TODO: call engine player remove method

@@ -2,6 +2,7 @@ package ecs
 
 import (
 	"errors"
+	"fmt"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/component"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/storage"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/system"
@@ -64,10 +65,10 @@ func (e *Engine) AddPlayer(joinEvent *types.JoinEvent) error {
 	networkComponent := component.NewNetworkComponent(joinEvent.Connection)
 	playerInfoComponent := component.NewPlayerInfoComponent(joinEvent.PlayerId, joinEvent.Username)
 	snakeComponent := component.NewSnakeComponent()
-	e.storage.AddComponent(entityId, utils.InputComponent, inputComponent)
-	e.storage.AddComponent(entityId, utils.NetworkComponent, networkComponent)
-	e.storage.AddComponent(entityId, utils.PlayerInfoComponent, playerInfoComponent)
-	e.storage.AddComponent(entityId, utils.SnakeComponent, snakeComponent)
+	e.storage.AddComponent(entityId, utils.InputComponent, &inputComponent)
+	e.storage.AddComponent(entityId, utils.NetworkComponent, &networkComponent)
+	e.storage.AddComponent(entityId, utils.PlayerInfoComponent, &playerInfoComponent)
+	e.storage.AddComponent(entityId, utils.SnakeComponent, &snakeComponent)
 	c := e.storage.GetComponentByEntityIdAndName(entityId, utils.InputComponent)
 	if c == nil {
 		utils.Logger.Error().Msgf("Input component is nil")
@@ -84,7 +85,15 @@ func (e *Engine) AddPlayer(joinEvent *types.JoinEvent) error {
 	if c == nil {
 		utils.Logger.Error().Msgf("Snake component is nil")
 	}
-	return nil
+	if networkComponent.Connection == nil {
+		utils.Logger.Error().Msgf("connection is nil")
+	}
+	body := fmt.Sprintf(`{"id":%q}`, joinEvent.PlayerId)
+	payload, err := utils.ToJsonB(utils.Payload{Type: utils.HelloMessage, Body: []byte(body)})
+	if err != nil {
+		return err
+	}
+	return networkComponent.Connection.WriteMessage(websocket.TextMessage, payload)
 }
 
 func (e *Engine) RemovePlayer(playerId string) error {

@@ -112,6 +112,7 @@ func (e *Engine) RemovePlayer(playerId string) error {
 	e.storage.DeleteComponent(entityId, utils.PlayerInfoComponent)
 	e.storage.DeleteComponent(entityId, utils.SnakeComponent)
 	e.storage.DeleteComponent(entityId, utils.NetworkComponent)
+	delete(e.playerIdToEntityId, playerId)
 	return nil
 }
 

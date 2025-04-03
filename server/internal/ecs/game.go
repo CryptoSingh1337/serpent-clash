@@ -7,24 +7,29 @@ import (
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/lesismal/nbio/nbhttp/websocket"
+	"runtime"
 	"strings"
 	"time"
 )
 
 type Game struct {
-	Engine *Engine
-	Done   chan bool
+	Done             chan bool
+	Engine           *Engine
+	GameServerMetric *GameServerMetric
 }
 
 func NewGame() *Game {
 	return &Game{
-		Engine: NewEngine(),
-		Done:   make(chan bool),
+		Done:             make(chan bool),
+		Engine:           NewEngine(),
+		GameServerMetric: NewGameServerMetric(),
 	}
 }
 
 func (g *Game) Start() {
 	ticker := time.NewTicker(1000 / utils.TickRate * time.Millisecond)
+	engineTicker := make(chan time.Time)
+	metricTicker := make(chan time.Time)
 	g.Engine.Start()
 	go func() {
 		for {
@@ -32,8 +37,25 @@ func (g *Game) Start() {
 			case <-g.Done:
 				ticker.Stop()
 				return
-			case _ = <-ticker.C:
+			case t := <-ticker.C:
+				engineTicker <- t
+				metricTicker <- t
+			}
+		}
+	}()
+	go func() {
+		for {
+			select {
+			case _ = <-engineTicker:
 				g.processTick()
+			}
+		}
+	}()
+	go func() {
+		for {
+			select {
+			case _ = <-metricTicker:
+				g.processMetric()
 			}
 		}
 	}()
@@ -50,6 +72,13 @@ func (g *Game) processTick() {
 	g.Engine.UpdateSystems()
 	//end := time.Now().UnixMilli()
 	//utils.Logger.Debug().Msgf("Time taken to process tick: %d ms", end-start)
+}
+
+func (g *Game) processMetric() {
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+	g.GameServerMetric.MemoryUsage = m.Sys / 1024 / 1024
+	g.GameServerMetric.PlayerCount = uint8(len(g.Engine.playerIdToEntityId))
 }
 
 func (g *Game) AddPlayer(c echo.Context) error {

@@ -22,7 +22,7 @@ func (n *NetworkSystem) Update() {
 	gameState := n.createGameState()
 	body, _ := utils.ToJsonB(gameState)
 	payload, _ := utils.ToJsonB(utils.Payload{Type: utils.GameStateMessage, Body: body})
-	networkComponents := n.storage.GetAllComponentByName("network").([]component.Network)
+	networkComponents := n.storage.GetAllComponentByName("network").([]*component.Network)
 	pingEvent := utils.PingMessageEvent{}
 	for _, networkComponent := range networkComponents {
 		if networkComponent.Connected {
@@ -56,9 +56,21 @@ func (n *NetworkSystem) createGameState() utils.GameState {
 		PlayerStates: make(map[string]utils.PlayerState),
 	}
 	for _, entityId := range playerEntityIds {
-		playerInfoComponent := n.storage.GetComponentByEntityIdAndName(entityId, "playerInfo").(component.PlayerInfo)
-		snakeComponent := n.storage.GetComponentByEntityIdAndName(entityId, "snake").(component.Snake)
-		networkComponent := n.storage.GetComponentByEntityIdAndName(entityId, "network").(component.Network)
+		c := n.storage.GetComponentByEntityIdAndName(entityId, "playerInfo")
+		if c == nil {
+			continue
+		}
+		playerInfoComponent := c.(*component.PlayerInfo)
+		c = n.storage.GetComponentByEntityIdAndName(entityId, "snake")
+		if c == nil {
+			continue
+		}
+		snakeComponent := c.(*component.Snake)
+		c = n.storage.GetComponentByEntityIdAndName(entityId, "network")
+		if c == nil {
+			continue
+		}
+		networkComponent := c.(*component.Network)
 		playerState := utils.PlayerState{
 			Color:    snakeComponent.Color,
 			Segments: snakeComponent.Segments,

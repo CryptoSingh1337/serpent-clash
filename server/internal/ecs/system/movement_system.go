@@ -20,8 +20,16 @@ func NewMovementSystem(storage storage.Storage) *MovementSystem {
 func (m *MovementSystem) Update() {
 	playerEntityIds := m.storage.GetAllEntitiesByType("player")
 	for _, playerEntityId := range playerEntityIds {
-		snakeComponent := m.storage.GetComponentByEntityIdAndName(playerEntityId, "snake").(component.Snake)
-		inputComponent := m.storage.GetComponentByEntityIdAndName(playerEntityId, "input").(component.Input)
+		c := m.storage.GetComponentByEntityIdAndName(playerEntityId, "input")
+		if c == nil {
+			continue
+		}
+		inputComponent := c.(*component.Input)
+		c = m.storage.GetComponentByEntityIdAndName(playerEntityId, "snake")
+		if c == nil {
+			continue
+		}
+		snakeComponent := c.(*component.Snake)
 		mouseCoordinate := inputComponent.Coordinates
 		head := snakeComponent.Segments[0]
 		angle := snakeComponent.Angle

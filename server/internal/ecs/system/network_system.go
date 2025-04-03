@@ -32,6 +32,7 @@ func (n *NetworkSystem) Update() {
 				// TODO: call engine player remove method
 			}
 			networkComponent.ResponseInitiateTimestamp = uint64(time.Now().UnixMilli())
+			pingEvent.Timestamp = networkComponent.RequestInitiateTimestamp
 			pingEvent.RequestInitiateTimestamp = networkComponent.RequestInitiateTimestamp
 			pingEvent.RequestAckTimestamp = networkComponent.RequestAckTimestamp
 			pingEvent.ResponseInitiateTimestamp = networkComponent.ResponseInitiateTimestamp

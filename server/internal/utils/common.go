@@ -74,6 +74,7 @@ type PingEvent struct {
 }
 
 type PingMessageEvent struct {
+	Timestamp                 uint64 `json:"timestamp"`
 	RequestInitiateTimestamp  uint64 `json:"req_init"`
 	RequestAckTimestamp       uint64 `json:"req_ack"`
 	ResponseInitiateTimestamp uint64 `json:"res_init"`

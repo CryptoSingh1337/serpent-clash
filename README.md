@@ -13,7 +13,6 @@ Key Features:
 - Authoritative server design ensuring fair and consistent game state across all clients
 - Server Reconciliation to handle server-side lag for better synchronization
 - Player Movement Interpolation for smooth display of other players' actions
-- Expanding the Game World to create larger, more immersive arenas
 - Camera Logic for more intuitive navigation
 
 Future Enhancements:

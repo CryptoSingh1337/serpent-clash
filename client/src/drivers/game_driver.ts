@@ -64,21 +64,26 @@ export class GameDriver {
     }
   }
 
-  initMouseControls(): void {
-    const resetDefault = (): void => {
-      console.log("Reset default")
-      if (this.currentPlayer) {
-        this.currentPlayer.speedBoost = false
-      }
+  mouseDownHandler (e: Event): void {
+    console.log("Mouse down")
+    if (this.currentPlayer) {
+      this.currentPlayer.speedBoost = true
     }
-    this.ctx.canvas.addEventListener("mouseleave", resetDefault, true)
-    this.ctx.canvas.addEventListener("mouseup", resetDefault, true)
-    window.addEventListener("mousedown", (): void => {
-      console.log("Mouse down")
-      if (this.currentPlayer) {
-        this.currentPlayer.speedBoost = true
-      }
-    }, true)
+  }
+
+  resetDefault(e: Event): void {
+    console.log("Reset default")
+    if (this.currentPlayer) {
+      this.currentPlayer.speedBoost = false
+    }
+  }
+
+  initMouseControls(): void {
+    this.mouseDownHandler = this.mouseDownHandler.bind(this)
+    this.resetDefault = this.resetDefault.bind(this)
+    this.ctx.canvas.addEventListener("mouseleave", this.resetDefault, true)
+    this.ctx.canvas.addEventListener("mouseup", this.resetDefault, true)
+    this.ctx.canvas.addEventListener("mousedown", this.mouseDownHandler, true)
     setInterval(
       (): void => {
         if (

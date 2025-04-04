@@ -1,6 +1,7 @@
 import { CustomStats } from "@/classes/custom_stats.ts"
 import { ref, type Ref } from "vue"
 import { DisplayDriver } from "@/drivers/display_driver.ts"
+import type {Coordinate} from "@/utils/types";
 
 export class StatsDriver {
   displayDriver: DisplayDriver
@@ -36,8 +37,8 @@ export class StatsDriver {
     this._stats.updateStatus(status)
   }
 
-  updateMouseCoordinate(x: number, y: number): void {
-    this._stats.updateMouseCoordinate(x, y)
+  updateMouseCoordinate(coordinate: Coordinate): void {
+    this._stats.updateMouseCoordinate(coordinate.x, coordinate.y)
   }
 
   updateHeadCoordinate(x: number, y: number): void {

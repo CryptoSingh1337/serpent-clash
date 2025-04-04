@@ -199,7 +199,9 @@ export class GameDriver {
                 this.inputs.forEach((input: ReconcileEvent) => {
                   const { coordinate, boost } = input.event
                   if (coordinate) {
-                    this.updateMouseCoordinate(coordinate.x, coordinate.y)
+                    this.mouseCoordinate.x = coordinate.x
+                    this.mouseCoordinate.y = coordinate.y
+                    this.statsDriver.updateMouseCoordinate(this.mouseCoordinate)
                     const worldCoordinate =
                       this.displayDriver.getCameraScreenToWorldCoordinates(
                         coordinate.x,
@@ -273,7 +275,7 @@ export class GameDriver {
   updateMouseCoordinate(x: number, y: number): void {
     this.mouseCoordinate.x = x
     this.mouseCoordinate.y = y
-    this.statsDriver.updateMouseCoordinate(x, y)
+    this.statsDriver.updateMouseCoordinate(this.mouseCoordinate)
   }
 
   disconnect(): void {

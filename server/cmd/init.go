@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/CryptoSingh1337/serpent-clash/server/internal/services"
+	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/utils"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -88,7 +88,7 @@ func LoadConfig() *Config {
 	return &config
 }
 
-func initHTTPServer(app *App, game *services.GameDriver) *nbhttp.Engine {
+func initHTTPServer(app *App, game *ecs.Game) *nbhttp.Engine {
 	e := echo.New()
 	e.Use(middleware.Recover())
 	// Register app (*App) to be injected into all HTTP handlers.

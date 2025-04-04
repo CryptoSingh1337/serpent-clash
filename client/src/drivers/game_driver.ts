@@ -1,11 +1,10 @@
 import { type Ref, type ShallowRef } from "vue"
-import { Constants } from "@/utils/constants.ts"
+import { Constants, WsMessageType } from "@/utils/constants.ts"
 import type {
   BackendPlayer,
   Coordinate,
   Players,
-  ReconcileEvent,
-  SpeedBoost
+  ReconcileEvent
 } from "@/utils/types"
 import { Player } from "@/classes/entity.ts"
 import { clamp } from "@/utils/helper.ts"
@@ -65,86 +64,33 @@ export class GameDriver {
     }
   }
 
-  initMouseControls(): void {
-    const resetDefault = (): void => {
-      if (
-        this.socketDriver &&
-        this.socketDriver.getReadyState() === WebSocket.OPEN
-      ) {
-        if (this.currentPlayer) {
-          this.currentPlayer.speedBoost = false
-        }
-        const event: SpeedBoost = {
-          enabled: false
-        }
-        this.inputs.push({
-          seq: ++this.seq,
-          event: event
-        })
-        this.socketDriver.send(
-          JSON.stringify({
-            type: "boost",
-            body: event
-          })
-        )
-      }
+  mouseDownHandler (e: Event): void {
+    console.log("Mouse down")
+    if (this.currentPlayer) {
+      this.currentPlayer.speedBoost = true
     }
-    this.ctx.canvas.addEventListener("mouseleave", resetDefault)
-    this.ctx.canvas.addEventListener("mousedown", (): void => {
-      if (
-        this.socketDriver &&
-        this.socketDriver.getReadyState() === WebSocket.OPEN
-      ) {
-        if (this.currentPlayer) {
-          this.currentPlayer.speedBoost = true
-        }
-        const event: SpeedBoost = {
-          enabled: true
-        }
-        this.inputs.push({
-          seq: ++this.seq,
-          event: event
-        })
-        this.socketDriver.send(
-          JSON.stringify({
-            type: "boost",
-            body: event
-          })
-        )
-      }
-    })
-    this.ctx.canvas.addEventListener("mouseup", (): void => {
-      if (
-        this.socketDriver &&
-        this.socketDriver.getReadyState() === WebSocket.OPEN
-      ) {
-        if (this.currentPlayer) {
-          this.currentPlayer.speedBoost = false
-        }
-        const event: SpeedBoost = {
-          enabled: false
-        }
-        this.inputs.push({
-          seq: ++this.seq,
-          event: event
-        })
-        this.socketDriver.send(
-          JSON.stringify({
-            type: "boost",
-            body: {
-              seq: this.seq,
-              event
-            }
-          })
-        )
-      }
-    })
+  }
+
+  resetDefault(e: Event): void {
+    console.log("Reset default")
+    if (this.currentPlayer) {
+      this.currentPlayer.speedBoost = false
+    }
+  }
+
+  initMouseControls(): void {
+    this.mouseDownHandler = this.mouseDownHandler.bind(this)
+    this.resetDefault = this.resetDefault.bind(this)
+    this.ctx.canvas.addEventListener("mouseleave", this.resetDefault, true)
+    this.ctx.canvas.addEventListener("mouseup", this.resetDefault, true)
+    this.ctx.canvas.addEventListener("mousedown", this.mouseDownHandler, true)
     setInterval(
       (): void => {
         if (
           this.socketDriver &&
           this.socketDriver.getReadyState() === WebSocket.OPEN
         ) {
+          const boost = this.currentPlayer?.speedBoost || false
           const worldCoordinate =
             this.displayDriver.getCameraScreenToWorldCoordinates(
               this.mouseCoordinate.x,
@@ -160,19 +106,24 @@ export class GameDriver {
             Constants.worldBoundary.minY,
             Constants.worldBoundary.maxY
           )
-          this.inputs.push({
+          const event: ReconcileEvent = {
             seq: ++this.seq,
             event: {
-              x: this.mouseCoordinate.x,
-              y: this.mouseCoordinate.y
+              coordinate: {
+                x: this.mouseCoordinate.x,
+                y: this.mouseCoordinate.y
+              },
+              boost
             }
-          })
+          }
+          this.inputs.push(event)
           this.socketDriver.send(
             JSON.stringify({
-              type: "movement",
+              type: WsMessageType.Movement,
               body: {
                 seq: this.seq,
-                coordinate: worldCoordinate
+                coordinate: worldCoordinate,
+                boost
               }
             })
           )
@@ -205,16 +156,20 @@ export class GameDriver {
       data = JSON.parse(data.data)
       const body = data.body
       switch (data.type) {
-        case "hello": {
+        case WsMessageType.hello: {
           this.playerId = body.id
           this.statsDriver.updatePlayerId(this.playerId)
           break
         }
-        case "pong": {
-          this.statsDriver.updatePing(performance.now() - body.timestamp)
+        case WsMessageType.Pong: {
+          const ping = Math.max(
+            body.reqAck - body.reqInit + Date.now() - body.resInit,
+            0
+          )
+          this.statsDriver.updatePing(ping)
           break
         }
-        case "game_state": {
+        case WsMessageType.GameState: {
           const backendPlayers = body.playerStates as {
             [id: string]: BackendPlayer
           }
@@ -227,7 +182,8 @@ export class GameDriver {
                 radius: 10,
                 positions: backendPlayer.positions
               })
-              if (this.playerId === id) {
+              if (!this.currentPlayer && this.playerId === id) {
+                console.log("Current player changed")
                 this.currentPlayer = this.frontendPlayers[id]
               }
             } else {
@@ -241,13 +197,15 @@ export class GameDriver {
                   this.inputs.splice(0, lastProcessedInput + 1)
                 }
                 this.inputs.forEach((input: ReconcileEvent) => {
-                  const { event } = input
-                  if ("x" in event && "y" in event) {
-                    this.updateMouseCoordinate(event.x, event.y)
+                  const { coordinate, boost } = input.event
+                  if (coordinate) {
+                    this.mouseCoordinate.x = coordinate.x
+                    this.mouseCoordinate.y = coordinate.y
+                    this.statsDriver.updateMouseCoordinate(this.mouseCoordinate)
                     const worldCoordinate =
                       this.displayDriver.getCameraScreenToWorldCoordinates(
-                        event.x,
-                        event.y
+                        coordinate.x,
+                        coordinate.y
                       )
                     if (this.currentPlayer) {
                       this.currentPlayer.move(
@@ -255,9 +213,8 @@ export class GameDriver {
                         worldCoordinate.y
                       )
                     }
-                  } else if ("enabled" in event) {
                     if (this.currentPlayer) {
-                      this.currentPlayer.speedBoost = event.enabled
+                      this.currentPlayer.speedBoost = boost
                     }
                   }
                 })
@@ -296,9 +253,9 @@ export class GameDriver {
     ) {
       this.socketDriver.send(
         JSON.stringify({
-          type: "ping",
+          type: WsMessageType.Ping,
           body: {
-            timestamp: performance.now()
+            reqInit: Date.now()
           }
         })
       )
@@ -318,7 +275,7 @@ export class GameDriver {
   updateMouseCoordinate(x: number, y: number): void {
     this.mouseCoordinate.x = x
     this.mouseCoordinate.y = y
-    this.statsDriver.updateMouseCoordinate(x, y)
+    this.statsDriver.updateMouseCoordinate(this.mouseCoordinate)
   }
 
   disconnect(): void {

@@ -66,19 +66,17 @@ export class GameDriver {
 
   initMouseControls(): void {
     const resetDefault = (): void => {
+      console.log("Reset default")
       if (this.currentPlayer) {
         this.currentPlayer.speedBoost = false
       }
     }
-    this.ctx.canvas.addEventListener("mouseleave", resetDefault)
-    this.ctx.canvas.addEventListener("mousedown", (): void => {
+    window.addEventListener("mouseleave", resetDefault)
+    window.addEventListener("mouseup", resetDefault)
+    window.addEventListener("mousedown", (): void => {
+      console.log("Mouse down")
       if (this.currentPlayer) {
         this.currentPlayer.speedBoost = true
-      }
-    })
-    this.ctx.canvas.addEventListener("mouseup", (): void => {
-      if (this.currentPlayer) {
-        this.currentPlayer.speedBoost = false
       }
     })
     setInterval(
@@ -87,6 +85,7 @@ export class GameDriver {
           this.socketDriver &&
           this.socketDriver.getReadyState() === WebSocket.OPEN
         ) {
+          const boost = this.currentPlayer?.speedBoost || false
           const worldCoordinate =
             this.displayDriver.getCameraScreenToWorldCoordinates(
               this.mouseCoordinate.x,
@@ -109,7 +108,7 @@ export class GameDriver {
                 x: this.mouseCoordinate.x,
                 y: this.mouseCoordinate.y
               },
-              boost: this.currentPlayer?.speedBoost || false
+              boost
             }
           }
           this.inputs.push(event)
@@ -119,7 +118,7 @@ export class GameDriver {
               body: {
                 seq: this.seq,
                 coordinate: worldCoordinate,
-                boost: this.currentPlayer?.speedBoost || false
+                boost
               }
             })
           )
@@ -178,7 +177,8 @@ export class GameDriver {
                 radius: 10,
                 positions: backendPlayer.positions
               })
-              if (this.playerId === id) {
+              if (!this.currentPlayer && this.playerId === id) {
+                console.log("Current player changed")
                 this.currentPlayer = this.frontendPlayers[id]
               }
             } else {
@@ -319,7 +319,6 @@ export class GameDriver {
     this.update()
     this.render()
     this.statsDriver.reducePingCooldown()
-    console.log("Ping cooldown", this.statsDriver.getPingCooldown())
     if (this.statsDriver.getPingCooldown() <= 0) {
       this.sendPingPayload()
     }

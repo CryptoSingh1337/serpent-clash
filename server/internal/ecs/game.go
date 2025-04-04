@@ -13,23 +13,22 @@ import (
 )
 
 type Game struct {
-	Done             chan bool
-	Engine           *Engine
-	GameServerMetric *GameServerMetric
+	Done              chan bool
+	Engine            *Engine
+	GameServerMetrics *GameServerMetrics
 }
 
 func NewGame() *Game {
 	return &Game{
-		Done:             make(chan bool),
-		Engine:           NewEngine(),
-		GameServerMetric: NewGameServerMetric(),
+		Done:              make(chan bool),
+		Engine:            NewEngine(),
+		GameServerMetrics: NewGameServerMetrics(),
 	}
 }
 
 func (g *Game) Start() {
 	ticker := time.NewTicker(1000 / utils.TickRate * time.Millisecond)
-	engineTicker := make(chan time.Time)
-	metricTicker := make(chan time.Time)
+	metricsTicker := time.NewTicker(5 * time.Second)
 	g.Engine.Start()
 	go func() {
 		for {
@@ -37,16 +36,7 @@ func (g *Game) Start() {
 			case <-g.Done:
 				ticker.Stop()
 				return
-			case t := <-ticker.C:
-				engineTicker <- t
-				metricTicker <- t
-			}
-		}
-	}()
-	go func() {
-		for {
-			select {
-			case _ = <-engineTicker:
+			case _ = <-ticker.C:
 				g.processTick()
 			}
 		}
@@ -54,8 +44,11 @@ func (g *Game) Start() {
 	go func() {
 		for {
 			select {
-			case _ = <-metricTicker:
-				g.processMetric()
+			case <-g.Done:
+				metricsTicker.Stop()
+				return
+			case _ = <-metricsTicker.C:
+				g.processMetrics()
 			}
 		}
 	}()
@@ -74,11 +67,12 @@ func (g *Game) processTick() {
 	//utils.Logger.Debug().Msgf("Time taken to process tick: %d ms", end-start)
 }
 
-func (g *Game) processMetric() {
+func (g *Game) processMetrics() {
+	utils.Logger.Debug().Msgf("Updating server metrics")
 	var m runtime.MemStats
 	runtime.ReadMemStats(&m)
-	g.GameServerMetric.MemoryUsage = m.Sys / 1024 / 1024
-	g.GameServerMetric.PlayerCount = uint8(len(g.Engine.playerIdToEntityId))
+	g.GameServerMetrics.MemoryUsage = m.Sys / 1024 / 1024
+	g.GameServerMetrics.PlayerCount = uint8(len(g.Engine.playerIdToEntityId))
 }
 
 func (g *Game) AddPlayer(c echo.Context) error {

@@ -17,8 +17,8 @@ func initHandler(e *echo.Echo, app *App, game *ecs.Game) {
 	//e.POST("/player/:playerId/teleport", func(c echo.Context) error {
 	//	return handlePlayerTeleport(c, game)
 	//})
-	e.GET("/metric", func(c echo.Context) error {
-		return c.JSON(http.StatusOK, game.GameServerMetric)
+	e.GET("/metrics", func(c echo.Context) error {
+		return c.JSON(http.StatusOK, game.GameServerMetrics)
 	})
 	e.GET("/healthz", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, nil)

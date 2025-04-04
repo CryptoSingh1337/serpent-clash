@@ -71,14 +71,14 @@ export class GameDriver {
         this.currentPlayer.speedBoost = false
       }
     }
-    window.addEventListener("mouseleave", resetDefault)
-    window.addEventListener("mouseup", resetDefault)
+    this.ctx.canvas.addEventListener("mouseleave", resetDefault, true)
+    this.ctx.canvas.addEventListener("mouseup", resetDefault, true)
     window.addEventListener("mousedown", (): void => {
       console.log("Mouse down")
       if (this.currentPlayer) {
         this.currentPlayer.speedBoost = true
       }
-    })
+    }, true)
     setInterval(
       (): void => {
         if (

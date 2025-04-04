@@ -16,3 +16,11 @@ export const Constants = {
     maxY: 3000
   }
 }
+
+export enum WsMessageType {
+  GameState = "game_state",
+  Ping = "ping",
+  Pong = "pong",
+  hello = "hello",
+  Movement = "movement"
+}

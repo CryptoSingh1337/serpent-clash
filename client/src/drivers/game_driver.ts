@@ -1,5 +1,5 @@
 import { type Ref, type ShallowRef } from "vue"
-import { Constants } from "@/utils/constants.ts"
+import { Constants, WsMessageType } from "@/utils/constants.ts"
 import type {
   BackendPlayer,
   Coordinate,
@@ -114,7 +114,7 @@ export class GameDriver {
           this.inputs.push(event)
           this.socketDriver.send(
             JSON.stringify({
-              type: "movement",
+              type: WsMessageType.Movement,
               body: {
                 seq: this.seq,
                 coordinate: worldCoordinate,
@@ -151,12 +151,12 @@ export class GameDriver {
       data = JSON.parse(data.data)
       const body = data.body
       switch (data.type) {
-        case "hello": {
+        case WsMessageType.hello: {
           this.playerId = body.id
           this.statsDriver.updatePlayerId(this.playerId)
           break
         }
-        case "pong": {
+        case WsMessageType.Pong: {
           const ping = Math.max(
             body.reqAck - body.reqInit + Date.now() - body.resInit,
             0
@@ -164,7 +164,7 @@ export class GameDriver {
           this.statsDriver.updatePing(ping)
           break
         }
-        case "game_state": {
+        case WsMessageType.GameState: {
           const backendPlayers = body.playerStates as {
             [id: string]: BackendPlayer
           }
@@ -246,7 +246,7 @@ export class GameDriver {
     ) {
       this.socketDriver.send(
         JSON.stringify({
-          type: "ping",
+          type: WsMessageType.Ping,
           body: {
             reqInit: Date.now()
           }

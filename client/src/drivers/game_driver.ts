@@ -197,7 +197,7 @@ export class GameDriver {
                   this.inputs.splice(0, lastProcessedInput + 1)
                 }
                 this.inputs.forEach((input: ReconcileEvent) => {
-                  const { coordinate} = input.event
+                  const { coordinate } = input.event
                   if (coordinate) {
                     this.mouseCoordinate.x = coordinate.x
                     this.mouseCoordinate.y = coordinate.y

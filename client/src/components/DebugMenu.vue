@@ -141,8 +141,8 @@ async function teleport(): Promise<void> {
             {{ stats && stats.value && stats.value.playerId }}
           </span>
           <span
-              v-if="subField.tag === 'span' && subField.label === 'Events:'"
-              :id="subField.id"
+            v-if="subField.tag === 'span' && subField.label === 'Events:'"
+            :id="subField.id"
           >
             {{ subField.label }}
             {{ stats && stats.value && stats.value.reconcileEvents }}

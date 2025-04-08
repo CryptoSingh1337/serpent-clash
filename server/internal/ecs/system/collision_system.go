@@ -66,7 +66,8 @@ func (c *CollisionSystem) Update() {
 			}
 			distance := utils.EuclideanDistance(point.X, point.Y, head.X, head.Y)
 			if distance <= utils.SnakeSegmentDiameter {
-				utils.Logger.Debug().Msgf("Collision :: playerId: %v, player head: %v, point: %v", playerId, head, point)
+				utils.Logger.Debug().Msgf("Collision :: playerId: %v, player head: %v, point: %v",
+					playerId, head, point)
 				switch point.PointType {
 				case "head":
 					utils.Logger.Debug().Msgf("Head to head collision")

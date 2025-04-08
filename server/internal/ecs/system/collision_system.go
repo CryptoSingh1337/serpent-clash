@@ -26,7 +26,7 @@ func (c *CollisionSystem) Update() {
 		snakeComponent := comp.(*component.Snake)
 		head := snakeComponent.Segments[0]
 		distanceFromOrigin := utils.EuclideanDistance(0, 0, head.X, head.Y)
-		if distanceFromOrigin >= utils.WorldBoundaryRadius {
+		if distanceFromOrigin+utils.SnakeSegmentDiameter/2 >= utils.WorldBoundaryRadius {
 			comp = c.storage.GetComponentByEntityIdAndName(playerId, utils.NetworkComponent)
 			if comp == nil {
 				continue

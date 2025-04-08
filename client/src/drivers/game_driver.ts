@@ -179,7 +179,6 @@ export class GameDriver {
               this.frontendPlayers[id] = new Player({
                 id: id,
                 color: backendPlayer.color,
-                radius: 10,
                 positions: backendPlayer.positions
               })
               if (!this.currentPlayer && this.playerId === id) {

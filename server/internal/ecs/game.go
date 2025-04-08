@@ -12,10 +12,6 @@ import (
 	"time"
 )
 
-var (
-	upgrader = websocket.NewUpgrader()
-)
-
 type Game struct {
 	Done              chan bool
 	Engine            *Engine
@@ -23,7 +19,6 @@ type Game struct {
 }
 
 func NewGame() *Game {
-	upgrader.EnableCompression(true)
 	return &Game{
 		Done:              make(chan bool),
 		Engine:            NewEngine(),
@@ -53,6 +48,8 @@ func (g *Game) Start() {
 				metricsTicker.Stop()
 				return
 			case _ = <-metricsTicker.C:
+				utils.Logger.Debug().Msgf("Player id to entity id: %v", g.Engine.playerIdToEntityId)
+				g.Engine.storage.PrintState()
 				g.processMetrics()
 			}
 		}
@@ -88,11 +85,13 @@ func (g *Game) AddPlayer(c echo.Context) error {
 	}
 	w := c.Response()
 	r := c.Request()
+	upgrader := websocket.NewUpgrader()
+	upgrader.EnableCompression(false)
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		return err
 	}
-	playerId := uuid.New().String()
+	playerId := uuid.NewString()
 	conn.OnMessage(func(c *websocket.Conn, messageType websocket.MessageType, data []byte) {
 		g.Engine.ProcessEvent(playerId, messageType, data)
 	})

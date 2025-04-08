@@ -80,7 +80,7 @@ an **authoritative server** model to maintain a fair and synchronized game state
 - [ ] Client UI design improvements
 - [ ] Integrate Prometheus for monitoring & metrics
 
-### Optimizations
+### ⚡ Optimizations
 - [ ] Switch to binary data formats instead of JSON for faster network communication
 - [ ] Pause rendering when browser tab is inactive
 - [ ] Move game logic to a separate goroutine to improve tick-rate stability

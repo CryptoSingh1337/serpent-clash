@@ -7,7 +7,7 @@ export const Constants = {
   maxTurnRate: 0.03,
   snakeSegmentDistance: 15,
   snakeSegmentDiameter: 50,
-  pingCooldown: 15,
+  pingCooldown: 75,
   worldBoundary: {
     radius: 2750,
     minX: -3000,
@@ -15,4 +15,12 @@ export const Constants = {
     minY: -3000,
     maxY: 3000
   }
+}
+
+export enum WsMessageType {
+  GameState = "game_state",
+  Ping = "ping",
+  Pong = "pong",
+  hello = "hello",
+  Movement = "movement"
 }

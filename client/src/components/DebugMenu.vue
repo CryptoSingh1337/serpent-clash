@@ -39,6 +39,11 @@ const menuItems = [
         tag: "span",
         id: "player-id",
         label: "Player id:"
+      },
+      {
+        tag: "span",
+        id: "reconcile-events",
+        label: "Events:"
       }
     ]
   },
@@ -135,11 +140,18 @@ async function teleport(): Promise<void> {
             {{ subField.label }}
             {{ stats && stats.value && stats.value.playerId }}
           </span>
+          <span
+              v-if="subField.tag === 'span' && subField.label === 'Events:'"
+              :id="subField.id"
+          >
+            {{ subField.label }}
+            {{ stats && stats.value && stats.value.reconcileEvents }}
+          </span>
           <label v-if="subField.tag === 'input'" :for="subField.id">
             {{ subField.label }}
           </label>
           <input
-            class="text-black ml-1"
+            class="ml-1"
             v-if="subField.tag === 'input' && subField.id === 'teleport-x'"
             v-model="teleportX"
             :id="subField.id"
@@ -147,7 +159,7 @@ async function teleport(): Promise<void> {
             :style="subField.style"
           />
           <input
-            class="text-black ml-1"
+            class="ml-1"
             v-else-if="subField.tag === 'input' && subField.id === 'teleport-y'"
             v-model="teleportY"
             :id="subField.id"
@@ -155,7 +167,7 @@ async function teleport(): Promise<void> {
             :style="subField.style"
           />
           <input
-            class="text-black ml-1"
+            class="ml-1"
             v-else-if="subField.tag === 'input'"
             :id="subField.id"
             :type="subField.type"

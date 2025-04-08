@@ -2,7 +2,7 @@ import type { Player } from "@/classes/entity"
 
 export type ReconcileEvent = {
   seq: number
-  event: Coordinate | SpeedBoost
+  event: { coordinate: Coordinate; boost: boolean }
 }
 
 export type Coordinate = {
@@ -26,8 +26,4 @@ export type CameraCoordinates = {
   y: number
   width: number
   height: number
-}
-
-export type SpeedBoost = {
-  enabled: boolean
 }

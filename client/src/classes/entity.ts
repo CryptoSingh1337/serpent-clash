@@ -6,7 +6,6 @@ import type { Camera } from "@/classes/camera"
 export class Player {
   id: string
   positions: Coordinate[]
-  radius: number
   color: string
   angle: number = 0
   lastUpdatedTime: number = 0
@@ -16,17 +15,14 @@ export class Player {
   constructor({
     id,
     color,
-    radius,
     positions
   }: {
     id: string
     color: string
-    radius: number
     positions: Coordinate[]
   }) {
     this.id = id
     this.color = color
-    this.radius = radius
     this.positions = positions
     this.lastServerUpdateTime = performance.now()
   }

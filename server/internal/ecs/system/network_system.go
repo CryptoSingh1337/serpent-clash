@@ -29,7 +29,7 @@ func (n *NetworkSystem) Update() {
 			err := networkComponent.Connection.WriteMessage(websocket.TextMessage, payload)
 			if err != nil {
 				networkComponent.Connected = false
-				// TODO: call engine player remove method
+				_ = networkComponent.Connection.Close()
 			}
 			networkComponent.PingCooldown -= 1
 			if networkComponent.PingCooldown <= 0 {

@@ -53,6 +53,10 @@ export class StatsDriver {
     this._stats.updateCameraWidthAndHeight(width, height)
   }
 
+  updateReconcileEvent(n: number): void {
+    this._stats.updateReconcileEvent(n)
+  }
+
   getPingCooldown(): number {
     return this._stats.pingCooldown
   }

@@ -17,6 +17,7 @@ export class CustomStats {
   }
   playerId: string = ""
   status: string = "offline"
+  reconcileEvents: number = 0
 
   // internal
   pingCooldown: number = Constants.pingCooldown
@@ -53,6 +54,10 @@ export class CustomStats {
     this.cameraCoordinate.height = height
   }
 
+  updateReconcileEvent(n: number): void {
+    this.reconcileEvents = n
+  }
+
   resetPingCooldown(): void {
     this.pingCooldown = Constants.pingCooldown
   }
@@ -61,5 +66,6 @@ export class CustomStats {
     this.status = "offline"
     this.ping = 0
     this.pingCooldown = Constants.pingCooldown
+    this.reconcileEvents = 0
   }
 }

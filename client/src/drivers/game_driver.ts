@@ -114,6 +114,7 @@ export class GameDriver {
             }
           }
           this.inputs.push(event)
+          this.statsDriver.updateReconcileEvent(this.inputs.length)
           this.socketDriver.send(
             JSON.stringify({
               type: WsMessageType.Movement,

@@ -39,6 +39,11 @@ const menuItems = [
         tag: "span",
         id: "player-id",
         label: "Player id:"
+      },
+      {
+        tag: "span",
+        id: "reconcile-events",
+        label: "Events:"
       }
     ]
   },
@@ -134,6 +139,13 @@ async function teleport(): Promise<void> {
           >
             {{ subField.label }}
             {{ stats && stats.value && stats.value.playerId }}
+          </span>
+          <span
+              v-if="subField.tag === 'span' && subField.label === 'Events:'"
+              :id="subField.id"
+          >
+            {{ subField.label }}
+            {{ stats && stats.value && stats.value.reconcileEvents }}
           </span>
           <label v-if="subField.tag === 'input'" :for="subField.id">
             {{ subField.label }}

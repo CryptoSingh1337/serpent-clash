@@ -17,6 +17,7 @@ type Storage interface {
 	AddComponent(entityId types.Id, componentName string, component any)
 	ReplaceComponent(entityId types.Id, componentName string, component any)
 	DeleteComponent(entityId types.Id, componentName string)
+	PrintState()
 }
 
 type SimpleStorage struct {
@@ -49,25 +50,25 @@ func (s *SimpleStorage) AddEntity(entityId types.Id, entityType string) {
 }
 
 func (s *SimpleStorage) RemoveEntity(entityId types.Id, entityType string) {
-	entityIdIdx := -1
 	for idx, id := range s.entities {
 		if id == entityId {
-			entityIdIdx = idx
+			s.entities = utils.RemoveFromSlice(s.entities, idx)
+			break
 		}
 	}
-	if entityIdIdx != -1 {
-		utils.RemoveFromSlice(s.entities, entityIdIdx)
-		entityIds := s.entityGroup[entityType]
-		entityIdIdx = -1
+
+	if entityIds, exists := s.entityGroup[entityType]; exists {
 		for idx, id := range entityIds {
 			if id == entityId {
-				entityIdIdx = idx
+				s.entityGroup[entityType] = utils.RemoveFromSlice(entityIds, idx)
+				break
 			}
 		}
-		if entityIdIdx != -1 {
-			utils.RemoveFromSlice(entityIds, entityIdIdx)
-		}
 	}
+	s.inputComponents.Remove(entityId)
+	s.networkComponents.Remove(entityId)
+	s.playerInfoComponents.Remove(entityId)
+	s.snakeComponents.Remove(entityId)
 }
 
 func (s *SimpleStorage) GetAllEntities() map[string][]types.Id {
@@ -181,4 +182,12 @@ func (s *SimpleStorage) DeleteComponent(entityId types.Id, componentName string)
 	case utils.SnakeComponent:
 		s.snakeComponents.Remove(entityId)
 	}
+}
+
+func (s *SimpleStorage) PrintState() {
+	utils.Logger.Debug().Msgf("Entities: %v, EntityGroup: %v", s.entities, s.entityGroup)
+	s.inputComponents.PrintState(utils.InputComponent)
+	s.networkComponents.PrintState(utils.NetworkComponent)
+	s.playerInfoComponents.PrintState(utils.PlayerInfoComponent)
+	s.snakeComponents.PrintState(utils.SnakeComponent)
 }

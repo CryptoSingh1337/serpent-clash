@@ -27,7 +27,6 @@ export class GameDriver {
   mouseCoordinate: Coordinate
   frontendPlayers: Players = {}
   currentPlayer: Player | null = null
-  boost: boolean = false
   inputs: ReconcileEvent[] = []
   seq: number = 0
 
@@ -67,12 +66,16 @@ export class GameDriver {
 
   mouseDownHandler(e: Event): void {
     console.log("Mouse down")
-    this.boost = true
+    if (this.currentPlayer) {
+      this.currentPlayer.boost = true
+    }
   }
 
   resetDefault(e: Event): void {
     console.log("Reset default")
-    this.boost = false
+    if (this.currentPlayer) {
+      this.currentPlayer.boost = false
+    }
   }
 
   initMouseControls(): void {
@@ -87,7 +90,7 @@ export class GameDriver {
           this.socketDriver &&
           this.socketDriver.getReadyState() === WebSocket.OPEN
         ) {
-          const boost = this.boost
+          const boost = this.currentPlayer?.boost || false
           const worldCoordinate =
             this.displayDriver.getCameraScreenToWorldCoordinates(
               this.mouseCoordinate.x,

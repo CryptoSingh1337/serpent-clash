@@ -10,7 +10,7 @@ export class Player {
   angle: number = 0
   lastUpdatedTime: number = 0
   lastServerUpdateTime: number = 0
-  speedBoost: boolean = false
+  boost: boolean = false
 
   constructor({
     id,
@@ -42,7 +42,7 @@ export class Player {
 
     // Move target head
     let speed = Constants.playerSpeed
-    if (this.speedBoost) {
+    if (this.boost) {
       speed += Constants.playerSpeedBoost
     }
     head.x += Math.cos(angle) * speed

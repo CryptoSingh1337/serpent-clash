@@ -2,13 +2,13 @@ package storage
 
 import (
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/types"
+	"github.com/CryptoSingh1337/serpent-clash/server/internal/utils"
 )
 
 type Pool[T types.Component] struct {
 	pool          []*T
 	entityToIndex map[types.Id]int
 	indexToEntity map[int]types.Id
-	nextIndex     int
 }
 
 func NewPool[T types.Component]() *Pool[T] {
@@ -16,7 +16,6 @@ func NewPool[T types.Component]() *Pool[T] {
 		pool:          make([]*T, 0, 10),
 		entityToIndex: make(map[types.Id]int),
 		indexToEntity: make(map[int]types.Id),
-		nextIndex:     0,
 	}
 }
 
@@ -25,10 +24,9 @@ func (p *Pool[T]) Add(entityId types.Id, component *T) {
 		p.pool[idx] = component
 		return
 	}
+	p.entityToIndex[entityId] = len(p.pool)
+	p.indexToEntity[len(p.pool)] = entityId
 	p.pool = append(p.pool, component)
-	p.entityToIndex[entityId] = p.nextIndex
-	p.indexToEntity[p.nextIndex] = entityId
-	p.nextIndex++
 }
 
 func (p *Pool[T]) Get(entityId types.Id) (*T, bool) {
@@ -57,14 +55,18 @@ func (p *Pool[T]) Remove(entityId types.Id) {
 	if !exists {
 		return
 	}
-	delete(p.entityToIndex, entityId)
-	delete(p.indexToEntity, idx)
-	if idx < len(p.pool)-1 {
-		p.pool[idx] = p.pool[len(p.pool)-1]
-		lastEntityId := p.indexToEntity[len(p.pool)-1]
+	lastIdx := len(p.pool) - 1
+	lastEntityId := p.indexToEntity[lastIdx]
+	if idx != lastIdx {
+		p.pool[idx] = p.pool[lastIdx]
 		p.entityToIndex[lastEntityId] = idx
 		p.indexToEntity[idx] = lastEntityId
 	}
-	p.pool = p.pool[:len(p.pool)-1]
-	p.nextIndex--
+	delete(p.entityToIndex, entityId)
+	delete(p.indexToEntity, lastIdx)
+	p.pool = p.pool[:lastIdx]
+}
+
+func (p *Pool[T]) PrintState(name string) {
+	utils.Logger.Debug().Msgf("%v: Entity to index: %v, Index to Entity: %v", name, p.entityToIndex, p.indexToEntity)
 }

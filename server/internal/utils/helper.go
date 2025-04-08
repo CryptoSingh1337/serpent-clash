@@ -83,7 +83,8 @@ func EuclideanDistance(a, b, x, y float64) float64 {
 	return math.Sqrt(dy*dy + dx*dx)
 }
 
-func RemoveFromSlice[T any](slice []T, index int) {
+func RemoveFromSlice[T any](slice []T, index int) []T {
 	slice[index] = slice[len(slice)-1]
 	slice = slice[:len(slice)-1]
+	return slice
 }

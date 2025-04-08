@@ -108,10 +108,6 @@ func (e *Engine) RemovePlayer(playerId string) error {
 	networkComponent := e.storage.GetComponentByEntityIdAndName(entityId, utils.NetworkComponent).(*component.Network)
 	networkComponent.Connected = false
 	e.storage.RemoveEntity(entityId, utils.PlayerEntity)
-	e.storage.DeleteComponent(entityId, utils.InputComponent)
-	e.storage.DeleteComponent(entityId, utils.PlayerInfoComponent)
-	e.storage.DeleteComponent(entityId, utils.SnakeComponent)
-	e.storage.DeleteComponent(entityId, utils.NetworkComponent)
 	delete(e.playerIdToEntityId, playerId)
 	return nil
 }

@@ -65,7 +65,7 @@ export class GameDriver {
     }
   }
 
-  mouseDownHandler (e: Event): void {
+  mouseDownHandler(e: Event): void {
     console.log("Mouse down")
     this.boost = true
   }

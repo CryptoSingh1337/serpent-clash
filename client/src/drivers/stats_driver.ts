@@ -1,7 +1,7 @@
 import { CustomStats } from "@/classes/custom_stats.ts"
 import { ref, type Ref } from "vue"
 import { DisplayDriver } from "@/drivers/display_driver.ts"
-import type {Coordinate} from "@/utils/types";
+import type { Coordinate } from "@/utils/types"
 
 export class StatsDriver {
   displayDriver: DisplayDriver

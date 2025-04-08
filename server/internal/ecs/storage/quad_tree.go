@@ -1,16 +1,15 @@
-package ecs
+package storage
 
 import (
-	"fmt"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/types"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/utils"
 	"math"
 )
 
 type Point struct {
-	X, Y       float64
-	EntityId   types.Id
-	EntityType string
+	X, Y      float64
+	EntityId  types.Id
+	PointType string
 }
 
 type BBox struct {
@@ -129,7 +128,7 @@ func (qt *QuadTree) Print() {
 	nodeId := 1
 	for len(queue) > 0 {
 		node := queue[0]
-		fmt.Printf("Node: %d, Boundary: %v, points: %v\n", nodeId, node.Boundary, node.Points)
+		utils.Logger.Info().Msgf("Node: %d, Boundary: %v, points: %v\n", nodeId, node.Boundary, node.Points)
 		if node.Divided {
 			queue = append(queue, node.NW)
 			queue = append(queue, node.NE)

@@ -18,6 +18,8 @@ const (
 	SnakeSegmentDiameter = 50
 	MaxPlayerAllowed     = 10
 	WorldBoundaryRadius  = 2750
+	WorldHeight          = 2750
+	WorldWeight          = 2750
 )
 
 // Message types

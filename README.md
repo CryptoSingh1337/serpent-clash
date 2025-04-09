@@ -20,9 +20,9 @@ an **authoritative server** model to maintain a fair and synchronized game state
 
 ### 🚀 Future Enhancements
 - 🍎 **Food Generation & Snake Growth**
-  Introduce dynamic elements where snakes grow by consuming food, adding a new layer of strategy and progression.
+<br>Introduce dynamic elements where snakes grow by consuming food, adding a new layer of strategy and progression.
 - 🏆 **Leaderboard & UI Enhancements**
-  Improve the overall player experience with a more interactive UI and detailed leaderboard statistics to showcase top players.
+<br>Improve the overall player experience with a more interactive UI and detailed leaderboard statistics to showcase top players.
 
 ### 🧱 Backend ECS Architecture
 

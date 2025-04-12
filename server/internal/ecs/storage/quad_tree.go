@@ -1,9 +1,14 @@
 package storage
 
 import (
+	"fmt"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/types"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/utils"
 	"math"
+)
+
+const (
+	maxDepth = 5
 )
 
 type Point struct {
@@ -55,6 +60,7 @@ type QuadTree struct {
 	Capacity       int
 	Points         []Point
 	Divided        bool
+	Depth          int
 	NW, NE, SW, SE *QuadTree
 }
 
@@ -66,7 +72,7 @@ func (qt *QuadTree) Insert(p Point) bool {
 	if !qt.Boundary.Contains(p) {
 		return false
 	}
-	if len(qt.Points) < qt.Capacity {
+	if len(qt.Points) < qt.Capacity || qt.Depth >= maxDepth {
 		qt.Points = append(qt.Points, p)
 		return true
 	}
@@ -119,21 +125,30 @@ func (qt *QuadTree) subDivide() {
 	qt.NE = NewQuadTree(BBox{X: x + w/2, Y: y + h/2, W: w / 2, H: h / 2}, qt.Capacity)
 	qt.SW = NewQuadTree(BBox{X: x - w/2, Y: y - h/2, W: w / 2, H: h / 2}, qt.Capacity)
 	qt.SE = NewQuadTree(BBox{X: x + w/2, Y: y - h/2, W: w / 2, H: h / 2}, qt.Capacity)
+	qt.NW.Depth = qt.Depth + 1
+	qt.NE.Depth = qt.Depth + 1
+	qt.SW.Depth = qt.Depth + 1
+	qt.SE.Depth = qt.Depth + 1
 	qt.Divided = true
 }
 
-func (qt *QuadTree) Print() {
+func (qt *QuadTree) Print(test bool) {
 	var queue []*QuadTree
 	queue = append(queue, qt)
 	nodeId := 1
 	for len(queue) > 0 {
-		node := queue[0]
-		utils.Logger.Info().Msgf("Node: %d, Boundary: %v, points: %v\n", nodeId, node.Boundary, node.Points)
-		if node.Divided {
-			queue = append(queue, node.NW)
-			queue = append(queue, node.NE)
-			queue = append(queue, node.SW)
-			queue = append(queue, node.SE)
+		q := queue[0]
+		msg := fmt.Sprintf("QT: %d, level: %d, Boundary: %v, points: %v\n", nodeId, q.Depth, q.Boundary, q.Points)
+		if test {
+			fmt.Printf(msg)
+		} else {
+			utils.Logger.Info().Msgf(msg)
+		}
+		if q.Divided {
+			queue = append(queue, q.NW)
+			queue = append(queue, q.NE)
+			queue = append(queue, q.SW)
+			queue = append(queue, q.SE)
 		}
 		queue = queue[1:]
 		nodeId++

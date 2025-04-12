@@ -14,7 +14,6 @@ type Storage interface {
 	DeleteSharedResource(resourceName string)
 	GetAllEntitiesByType(componentType string) []types.Id
 	GetAllComponentByName(componentName string) any
-	GetComponentByEntityIdAndNames(entityId types.Id, componentNames ...string) map[string]any
 	GetComponentByEntityIdAndName(entityId types.Id, componentName string) any
 	AddComponent(entityId types.Id, componentName string, component any)
 	DeleteComponent(entityId types.Id, componentName string)
@@ -110,28 +109,6 @@ func (s *SimpleStorage) GetAllComponentByName(componentName string) any {
 		return s.snakeComponents.GetAll()
 	}
 	return nil
-}
-
-func (s *SimpleStorage) GetComponentByEntityIdAndNames(entityId types.Id, componentNames ...string) map[string]any {
-	components := make(map[string]any)
-	for _, name := range componentNames {
-		var c any
-		exists := false
-		switch name {
-		case utils.InputComponent:
-			c, exists = s.inputComponents.Get(entityId)
-		case utils.NetworkComponent:
-			c, exists = s.networkComponents.Get(entityId)
-		case utils.PlayerInfoComponent:
-			c, exists = s.playerInfoComponents.Get(entityId)
-		case utils.SnakeComponent:
-			c, exists = s.snakeComponents.Get(entityId)
-		}
-		if exists {
-			components[name] = c
-		}
-	}
-	return components
 }
 
 func (s *SimpleStorage) GetComponentByEntityIdAndName(entityId types.Id, componentName string) any {

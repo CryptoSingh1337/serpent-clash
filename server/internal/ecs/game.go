@@ -49,7 +49,7 @@ func (g *Game) Start() {
 				return
 			case _ = <-metricsTicker.C:
 				utils.Logger.Debug().Msgf("Player id to entity id: %v", g.Engine.playerIdToEntityId)
-				g.Engine.storage.PrintState()
+				g.Engine.storage.LogState()
 				g.processMetrics()
 			}
 		}

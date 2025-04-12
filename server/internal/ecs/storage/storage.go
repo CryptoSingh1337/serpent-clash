@@ -18,7 +18,7 @@ type Storage interface {
 	GetComponentByEntityIdAndName(entityId types.Id, componentName string) any
 	AddComponent(entityId types.Id, componentName string, component any)
 	DeleteComponent(entityId types.Id, componentName string)
-	PrintState()
+	LogState()
 }
 
 type SimpleStorage struct {
@@ -200,10 +200,10 @@ func (s *SimpleStorage) DeleteComponent(entityId types.Id, componentName string)
 	}
 }
 
-func (s *SimpleStorage) PrintState() {
+func (s *SimpleStorage) LogState() {
 	utils.Logger.Debug().Msgf("EntityGroup: %v", s.entityGroup)
-	s.inputComponents.PrintState(utils.InputComponent)
-	s.networkComponents.PrintState(utils.NetworkComponent)
-	s.playerInfoComponents.PrintState(utils.PlayerInfoComponent)
-	s.snakeComponents.PrintState(utils.SnakeComponent)
+	utils.Logger.Debug().Msgf(s.inputComponents.String(utils.InputComponent))
+	utils.Logger.Debug().Msgf(s.networkComponents.String(utils.NetworkComponent))
+	utils.Logger.Debug().Msgf(s.playerInfoComponents.String(utils.PlayerInfoComponent))
+	utils.Logger.Debug().Msgf(s.snakeComponents.String(utils.SnakeComponent))
 }

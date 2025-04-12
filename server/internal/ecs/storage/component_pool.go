@@ -1,8 +1,8 @@
 package storage
 
 import (
+	"fmt"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/types"
-	"github.com/CryptoSingh1337/serpent-clash/server/internal/utils"
 )
 
 type Pool[T types.Component] struct {
@@ -67,6 +67,6 @@ func (p *Pool[T]) Remove(entityId types.Id) {
 	p.pool = p.pool[:lastIdx]
 }
 
-func (p *Pool[T]) PrintState(name string) {
-	utils.Logger.Debug().Msgf("%v: Entity to index: %v, Index to Entity: %v", name, p.entityToIndex, p.indexToEntity)
+func (p *Pool[T]) String(name string) string {
+	return fmt.Sprintf("%v: Entity to index: %v, Index to Entity: %v", name, p.entityToIndex, p.indexToEntity)
 }

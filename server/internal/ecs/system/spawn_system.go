@@ -68,8 +68,10 @@ func (s *SpawnSystem) Update() {
 					angle -= 2 * math.Pi
 				}
 				segments := GenerateSnakeSegments(utils.Coordinate{
-					X: spawnRegionDistanceFromOrigin - spawnRegionRadius + (rand.Float64()*spawnRegionDistanceFromOrigin + spawnRegionRadius) + 150*math.Cos(angle),
-					Y: spawnRegionDistanceFromOrigin - spawnRegionRadius + (rand.Float64()*spawnRegionDistanceFromOrigin + spawnRegionRadius) + 150*math.Sin(angle),
+					X: spawnRegionDistanceFromOrigin - spawnRegionRadius +
+						(rand.Float64()*spawnRegionDistanceFromOrigin + spawnRegionRadius) + 150*math.Cos(angle),
+					Y: spawnRegionDistanceFromOrigin - spawnRegionRadius +
+						(rand.Float64()*spawnRegionDistanceFromOrigin + spawnRegionRadius) + 150*math.Sin(angle),
 				}, utils.DefaultSnakeLength)
 				c := s.storage.GetComponentByEntityIdAndName(playerId, utils.SnakeComponent)
 				if c == nil {

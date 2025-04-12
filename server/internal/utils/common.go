@@ -7,19 +7,20 @@ import (
 
 // Common constants
 const (
-	TickRate             = 60
-	PingCooldown         = 30
-	PlayerSpeed          = 5
-	PlayerBoostSpeed     = 3
-	MaxTurnRate          = 0.03
-	DefaultSnakeLength   = 10
-	DefaultGrowthFactor  = 2
-	SnakeSegmentDistance = 15
-	SnakeSegmentDiameter = 50
-	MaxPlayerAllowed     = 10
-	WorldBoundaryRadius  = 2750
-	WorldHeight          = 2750
-	WorldWeight          = 2750
+	TickRate                  = 60
+	PingCooldown              = 30
+	PlayerSpeed               = 5
+	PlayerBoostSpeed          = 3
+	MaxTurnRate               = 0.03
+	DefaultSnakeLength        = 10
+	DefaultGrowthFactor       = 2
+	SnakeSegmentDistance      = 15
+	SnakeSegmentDiameter      = 50
+	DefaultFoodSpawnThreshold = 10
+	MaxPlayerAllowed          = 10
+	WorldBoundaryRadius       = 2750
+	WorldHeight               = 2750
+	WorldWeight               = 2750
 )
 
 // Message types
@@ -45,6 +46,11 @@ const (
 	PlayerInfoComponent = "playerInfo"
 	PositionComponent   = "position"
 	SnakeComponent      = "snake"
+)
+
+// QuadTreeResource Shared resources names
+const (
+	QuadTreeResource = "quad_tree"
 )
 
 type Coordinate struct {

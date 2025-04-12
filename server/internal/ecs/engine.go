@@ -15,7 +15,7 @@ import (
 
 const (
 	firstEntity types.Id = 1
-	MaxEntity   types.Id = 1024
+	MaxEntity   types.Id = 10240
 )
 
 type Engine struct {
@@ -31,7 +31,7 @@ type Engine struct {
 func NewEngine() *Engine {
 	simpleStorage := storage.NewSimpleStorage()
 	engine := &Engine{
-		minId:              firstEntity + 1,
+		minId:              firstEntity,
 		maxId:              MaxEntity,
 		storage:            simpleStorage,
 		systems:            make([]system.System, 0),
@@ -39,10 +39,11 @@ func NewEngine() *Engine {
 		JoinQueue:          make(chan *types.JoinEvent, utils.MaxPlayerAllowed),
 		LeaveQueue:         make(chan string, utils.MaxPlayerAllowed),
 	}
-	var networkSystem system.System = system.NewNetworkSystem(simpleStorage)
 	var movementSystem system.System = system.NewMovementSystem(simpleStorage)
+	var spawnSystem system.System = system.NewSpawnSystem(simpleStorage, engine.newId)
 	var collisionSystem system.System = system.NewCollisionSystem(simpleStorage)
-	engine.systems = append(engine.systems, movementSystem, collisionSystem, networkSystem)
+	var networkSystem system.System = system.NewNetworkSystem(simpleStorage)
+	engine.systems = append(engine.systems, movementSystem, collisionSystem, spawnSystem, networkSystem)
 	return engine
 }
 
@@ -51,6 +52,7 @@ func (e *Engine) Start() {
 
 func (e *Engine) AddPlayer(joinEvent *types.JoinEvent) error {
 	utils.Logger.Info().Msgf("Inside Engine.AddPlayer :: joinEvent: %v", joinEvent)
+	// TODO: add max player validation
 	if joinEvent.PlayerId == "" {
 		return errors.New("invalid player id")
 	}
@@ -113,7 +115,6 @@ func (e *Engine) RemovePlayer(playerId string) error {
 }
 
 func (e *Engine) UpdateSystems() {
-	// Process all players in JoinQueue
 	for {
 		select {
 		case joinEvent := <-e.JoinQueue:
@@ -123,12 +124,10 @@ func (e *Engine) UpdateSystems() {
 				utils.Logger.LogError().Msgf("Error adding player %s: %v", joinEvent.PlayerId, err)
 			}
 		default:
-			// Exit the loop when JoinQueue is empty
 			goto ProcessLeaveQueue
 		}
 	}
 ProcessLeaveQueue:
-	// Process all players in LeaveQueue
 	for {
 		select {
 		case playerId := <-e.LeaveQueue:
@@ -136,7 +135,6 @@ ProcessLeaveQueue:
 				utils.Logger.LogError().Msgf("Error removing player %s: %v", playerId, err)
 			}
 		default:
-			// Exit the loop when JoinQueue is empty
 			goto ProcessSystemUpdates
 		}
 	}

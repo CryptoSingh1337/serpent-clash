@@ -37,20 +37,11 @@ func (c *CollisionSystem) Update() {
 			}
 		}
 	}
-	qt := storage.NewQuadTree(storage.BBox{X: 0, Y: 0, W: utils.WorldWeight, H: utils.WorldHeight}, 15)
-	for _, playerId := range playerEntities {
-		comp := c.storage.GetComponentByEntityIdAndName(playerId, utils.SnakeComponent)
-		if comp == nil {
-			continue
-		}
-		snakeComponent := comp.(*component.Snake)
-		head := snakeComponent.Segments[0]
-		qt.Insert(storage.Point{X: head.X, Y: head.Y, EntityId: playerId, PointType: "head"})
-		for i := 1; i < len(snakeComponent.Segments); i++ {
-			segment := snakeComponent.Segments[i]
-			qt.Insert(storage.Point{X: segment.X, Y: segment.Y, EntityId: playerId, PointType: "segment"})
-		}
+	q := c.storage.GetSharedResource(utils.QuadTreeResource)
+	if q == nil {
+		return
 	}
+	qt := q.(*storage.QuadTree)
 	for _, playerId := range playerEntities {
 		comp := c.storage.GetComponentByEntityIdAndName(playerId, utils.SnakeComponent)
 		if comp == nil {

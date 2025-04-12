@@ -123,6 +123,25 @@ func (qt *QuadTree) QueryBCircle(rangeBCircle BCircle, found *[]Point) {
 	}
 }
 
+func (qt *QuadTree) QueryBCircleByPointType(rangeBCircle BCircle, pointType map[string]bool, found *[]Point) {
+	if !qt.Boundary.IntersectBCircle(rangeBCircle) {
+		return
+	}
+	for _, p := range qt.Points {
+		if _, exists := pointType[p.PointType]; exists {
+			if rangeBCircle.Contains(p) {
+				*found = append(*found, p)
+			}
+		}
+	}
+	if qt.Divided {
+		qt.NW.QueryBCircle(rangeBCircle, found)
+		qt.NE.QueryBCircle(rangeBCircle, found)
+		qt.SW.QueryBCircle(rangeBCircle, found)
+		qt.SE.QueryBCircle(rangeBCircle, found)
+	}
+}
+
 func (qt *QuadTree) subDivide() {
 	x := qt.Boundary.X
 	y := qt.Boundary.Y

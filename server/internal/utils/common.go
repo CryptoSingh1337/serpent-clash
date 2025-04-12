@@ -53,6 +53,11 @@ const (
 	QuadTreeResource = "quad_tree"
 )
 
+const (
+	PlayerHeadPointType    = "head"
+	PlayerSegmentPointType = "segment"
+)
+
 type Coordinate struct {
 	X float64 `json:"x"`
 	Y float64 `json:"y"`

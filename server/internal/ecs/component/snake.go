@@ -16,10 +16,9 @@ type Snake struct {
 
 func NewSnakeComponent() Snake {
 	return Snake{
-		Color:    fmt.Sprintf("hsl(%v, 100%%, 50%%)", rand.Intn(360)),
-		Segments: generateRandomPosition(utils.DefaultSnakeLength),
-		IsAlive:  true,
-		Angle:    0,
+		Color:   fmt.Sprintf("hsl(%v, 100%%, 50%%)", rand.Intn(360)),
+		IsAlive: true,
+		Angle:   0,
 	}
 }
 

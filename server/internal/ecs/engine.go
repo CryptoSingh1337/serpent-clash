@@ -26,6 +26,7 @@ type Engine struct {
 	playerIdToEntityId map[string]types.Id
 	JoinQueue          chan *types.JoinEvent
 	LeaveQueue         chan string
+	SpawnQueue         chan types.Id
 }
 
 func NewEngine() *Engine {
@@ -38,12 +39,13 @@ func NewEngine() *Engine {
 		playerIdToEntityId: make(map[string]types.Id),
 		JoinQueue:          make(chan *types.JoinEvent, utils.MaxPlayerAllowed),
 		LeaveQueue:         make(chan string, utils.MaxPlayerAllowed),
+		SpawnQueue:         make(chan types.Id, utils.MaxPlayerAllowed),
 	}
 	var movementSystem system.System = system.NewMovementSystem(simpleStorage)
-	var spawnSystem system.System = system.NewSpawnSystem(simpleStorage, engine.newId)
+	var spawnSystem system.System = system.NewSpawnSystem(simpleStorage, engine.SpawnQueue, engine.newId)
 	var collisionSystem system.System = system.NewCollisionSystem(simpleStorage)
 	var networkSystem system.System = system.NewNetworkSystem(simpleStorage)
-	engine.systems = append(engine.systems, movementSystem, collisionSystem, spawnSystem, networkSystem)
+	engine.systems = append(engine.systems, movementSystem, spawnSystem, collisionSystem, networkSystem)
 	return engine
 }
 
@@ -70,6 +72,7 @@ func (e *Engine) AddPlayer(joinEvent *types.JoinEvent) error {
 	networkComponent := component.NewNetworkComponent(joinEvent.Connection)
 	playerInfoComponent := component.NewPlayerInfoComponent(joinEvent.PlayerId, joinEvent.Username)
 	snakeComponent := component.NewSnakeComponent()
+	e.SpawnQueue <- entityId
 	e.storage.AddComponent(entityId, utils.InputComponent, &inputComponent)
 	e.storage.AddComponent(entityId, utils.NetworkComponent, &networkComponent)
 	e.storage.AddComponent(entityId, utils.PlayerInfoComponent, &playerInfoComponent)

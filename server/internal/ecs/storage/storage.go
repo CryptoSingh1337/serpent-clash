@@ -9,20 +9,21 @@ import (
 type Storage interface {
 	AddEntity(entityId types.Id, entityType string)
 	RemoveEntity(entityId types.Id, entityType string)
-	GetAllEntities() map[string][]types.Id
+	AddSharedResource(resourceName string, resource any)
+	GetSharedResource(resourceName string) any
+	DeleteSharedResource(resourceName string)
 	GetAllEntitiesByType(componentType string) []types.Id
 	GetAllComponentByName(componentName string) any
 	GetComponentByEntityIdAndNames(entityId types.Id, componentNames ...string) map[string]any
 	GetComponentByEntityIdAndName(entityId types.Id, componentName string) any
 	AddComponent(entityId types.Id, componentName string, component any)
-	ReplaceComponent(entityId types.Id, componentName string, component any)
 	DeleteComponent(entityId types.Id, componentName string)
 	PrintState()
 }
 
 type SimpleStorage struct {
-	entities             []types.Id
 	entityGroup          map[string][]types.Id
+	sharedResources      map[string]any
 	inputComponents      *Pool[component.Input]
 	networkComponents    *Pool[component.Network]
 	playerInfoComponents *Pool[component.PlayerInfo]
@@ -31,8 +32,8 @@ type SimpleStorage struct {
 
 func NewSimpleStorage() Storage {
 	return &SimpleStorage{
-		entities:             make([]types.Id, 0, 10),
 		entityGroup:          make(map[string][]types.Id),
+		sharedResources:      make(map[string]any),
 		inputComponents:      NewPool[component.Input](),
 		networkComponents:    NewPool[component.Network](),
 		playerInfoComponents: NewPool[component.PlayerInfo](),
@@ -41,38 +42,53 @@ func NewSimpleStorage() Storage {
 }
 
 func (s *SimpleStorage) AddEntity(entityId types.Id, entityType string) {
-	s.entities = append(s.entities, entityId)
-	_, exists := s.entityGroup[entityType]
-	if !exists {
-		s.entityGroup[entityType] = make([]types.Id, 0, 5)
+	switch entityType {
+	case utils.PlayerEntity:
+		_, exists := s.entityGroup[entityType]
+		if !exists {
+			s.entityGroup[entityType] = make([]types.Id, 0, 5)
+		}
+		s.entityGroup[entityType] = append(s.entityGroup[entityType], entityId)
+	default:
+		utils.Logger.Error().Msgf("%s: invalid entity type", entityType)
 	}
-	s.entityGroup[entityType] = append(s.entityGroup[entityType], entityId)
 }
 
 func (s *SimpleStorage) RemoveEntity(entityId types.Id, entityType string) {
-	for idx, id := range s.entities {
-		if id == entityId {
-			s.entities = utils.RemoveFromSlice(s.entities, idx)
-			break
-		}
-	}
-
-	if entityIds, exists := s.entityGroup[entityType]; exists {
-		for idx, id := range entityIds {
-			if id == entityId {
-				s.entityGroup[entityType] = utils.RemoveFromSlice(entityIds, idx)
-				break
+	switch entityType {
+	case utils.PlayerEntity:
+		if entityIds, exists := s.entityGroup[entityType]; exists {
+			for idx, id := range entityIds {
+				if id == entityId {
+					s.entityGroup[entityType] = utils.RemoveFromSlice(entityIds, idx)
+					break
+				}
 			}
 		}
+		s.inputComponents.Remove(entityId)
+		s.networkComponents.Remove(entityId)
+		s.playerInfoComponents.Remove(entityId)
+		s.snakeComponents.Remove(entityId)
+	default:
+		utils.Logger.Error().Msgf("%s: invalid entity type", entityType)
 	}
-	s.inputComponents.Remove(entityId)
-	s.networkComponents.Remove(entityId)
-	s.playerInfoComponents.Remove(entityId)
-	s.snakeComponents.Remove(entityId)
 }
 
-func (s *SimpleStorage) GetAllEntities() map[string][]types.Id {
-	return s.entityGroup
+func (s *SimpleStorage) AddSharedResource(resourceName string, resource any) {
+	s.sharedResources[resourceName] = resource
+}
+
+func (s *SimpleStorage) GetSharedResource(resourceName string) any {
+	if resource, exists := s.sharedResources[resourceName]; exists {
+		return resource
+	}
+	return nil
+}
+
+func (s *SimpleStorage) DeleteSharedResource(resourceName string) {
+	if _, exists := s.sharedResources[resourceName]; exists {
+		delete(s.sharedResources, resourceName)
+	}
 }
 
 func (s *SimpleStorage) GetAllEntitiesByType(t string) []types.Id {
@@ -185,7 +201,7 @@ func (s *SimpleStorage) DeleteComponent(entityId types.Id, componentName string)
 }
 
 func (s *SimpleStorage) PrintState() {
-	utils.Logger.Debug().Msgf("Entities: %v, EntityGroup: %v", s.entities, s.entityGroup)
+	utils.Logger.Debug().Msgf("EntityGroup: %v", s.entityGroup)
 	s.inputComponents.PrintState(utils.InputComponent)
 	s.networkComponents.PrintState(utils.NetworkComponent)
 	s.playerInfoComponents.PrintState(utils.PlayerInfoComponent)

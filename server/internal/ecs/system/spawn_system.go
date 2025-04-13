@@ -65,7 +65,7 @@ func (s *SpawnSystem) Update() {
 				}
 				previousRegionDensity = len(p)
 			}
-			utils.Logger.Info().Msgf("Spawn region: %v", minDensityRegion)
+			utils.Logger.Debug().Msgf("Spawn region: %v", minDensityRegion)
 			if playerHeads == nil {
 				angle := math.Atan2(minDensityRegion.Y, minDensityRegion.X) + math.Pi
 				if angle > math.Pi {

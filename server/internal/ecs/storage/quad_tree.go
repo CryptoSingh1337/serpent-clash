@@ -164,7 +164,8 @@ func (qt *QuadTree) Print(test bool) {
 	nodeId := 1
 	for len(queue) > 0 {
 		q := queue[0]
-		msg := fmt.Sprintf("QT: %d, level: %d, Boundary: %v, points: %v\n", nodeId, q.Depth, q.Boundary, q.Points)
+		msg := fmt.Sprintf("QT: %d, level: %d, Boundary: %v, points: %v\n",
+			nodeId, q.Depth, q.Boundary, q.Points)
 		if test {
 			fmt.Printf(msg)
 		} else {

@@ -48,7 +48,10 @@ func (s *SpawnSystem) Update() {
 			var minDensityRegion utils.Coordinate
 			previousRegionDensity := math.MaxInt
 			var playerHeads []storage.Point
-			for _, region := range spawnRegions {
+			regionIdx := rand.IntN(spawnRegionCount)
+			for i := 0; i < spawnRegionCount; i++ {
+				region := spawnRegions[regionIdx]
+				regionIdx = (regionIdx + 1) % spawnRegionCount
 				var p []storage.Point
 				qt.QueryBCircleByPointType(storage.BCircle{
 					X: region.X,
@@ -62,6 +65,7 @@ func (s *SpawnSystem) Update() {
 				}
 				previousRegionDensity = len(p)
 			}
+			utils.Logger.Info().Msgf("Spawn region: %v", minDensityRegion)
 			if playerHeads == nil {
 				angle := math.Atan2(minDensityRegion.Y, minDensityRegion.X) + math.Pi
 				if angle > math.Pi {

@@ -29,7 +29,10 @@ func (n *NetworkSystem) Update() {
 			err := networkComponent.Connection.WriteMessage(websocket.TextMessage, payload)
 			if err != nil {
 				networkComponent.Connected = false
-				_ = networkComponent.Connection.Close()
+				err = networkComponent.Connection.Close()
+				if err != nil {
+					utils.Logger.Err(err).Msgf("error while closing connection for player")
+				}
 			}
 			networkComponent.PingCooldown -= 1
 			if networkComponent.PingCooldown <= 0 {

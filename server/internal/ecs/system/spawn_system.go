@@ -67,7 +67,7 @@ func (s *SpawnSystem) Update() {
 			}
 			utils.Logger.Debug().Msgf("Spawn region: %v", minDensityRegion)
 			if playerHeads == nil {
-				angle := math.Atan2(minDensityRegion.Y, minDensityRegion.X) + math.Pi
+				angle := math.Atan2(minDensityRegion.Y, minDensityRegion.X)
 				if angle > math.Pi {
 					angle -= 2 * math.Pi
 				}
@@ -85,7 +85,7 @@ func (s *SpawnSystem) Update() {
 				snakeComponent.Segments = segments
 			}
 			for _, point := range playerHeads {
-				angle := math.Atan2(point.Y-minDensityRegion.Y, point.X-minDensityRegion.X) + math.Pi
+				angle := math.Atan2(point.Y-minDensityRegion.Y, point.X-minDensityRegion.X)
 				if angle > math.Pi {
 					angle -= 2 * math.Pi
 				}

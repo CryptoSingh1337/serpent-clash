@@ -37,3 +37,8 @@ export type QuadTree = {
   sw: QuadTree
   se: QuadTree
 }
+
+export type SpawnRegions = {
+  radius: number,
+  regions: Coordinate[]
+}

@@ -21,6 +21,7 @@ const (
 	WorldBoundaryRadius       = 2750
 	WorldHeight               = 3000
 	WorldWeight               = 3000
+	SpawnRegionRadius         = WorldBoundaryRadius * 0.175
 )
 
 // Message types
@@ -51,6 +52,7 @@ const (
 // QuadTreeResource Shared resources names
 const (
 	QuadTreeResource = "quad_tree"
+	SpawnRegions     = "spawn_regions"
 )
 
 const (

@@ -89,7 +89,8 @@ function renderSpawnRegions(ctx: CanvasRenderingContext2D): void {
       ctx.textAlign = "center"
       ctx.textBaseline = "middle"
       ctx.stroke()
-      ctx.fillText(`region: ${idx}`, c.x, c.y, 100)
+      ctx.fillText(`region: ${idx}`, c.x, c.y, 50)
+      ctx.fillText(`(${r.x}, ${r.y})`, c.x, c.y + 10, 50)
       ctx.closePath()
     })
   }
@@ -180,7 +181,7 @@ onMounted(() => {
         spawnRegions = body.spawnRegions as SpawnRegions
       }
     }
-  }, 2000)
+  }, 750)
   fpsInterval = 1000 / fps;
   then = Date.now();
   render()

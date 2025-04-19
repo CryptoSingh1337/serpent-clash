@@ -10,8 +10,7 @@ import (
 )
 
 const (
-	spawnRegionDistanceFromOrigin = utils.WorldBoundaryRadius * 0.509
-	spawnRegionRadius             = utils.WorldBoundaryRadius * 0.13
+	spawnRegionDistanceFromOrigin = utils.WorldBoundaryRadius * 0.7
 	spawnRegionCount              = 12
 )
 
@@ -20,17 +19,20 @@ var (
 )
 
 type SpawnSystem struct {
-	storage    storage.Storage
-	spawnQueue <-chan types.Id
-	newId      func() types.Id
+	storage            storage.Storage
+	spawnQueue         <-chan types.Id
+	newId              func() types.Id
+	lastSpawnRegionIdx int
 }
 
 func NewSpawnSystem(storage storage.Storage, spawnQueue <-chan types.Id, newId func() types.Id) *SpawnSystem {
 	spawnRegions = GenerateSpawnPoints(spawnRegionCount)
+	storage.AddSharedResource(utils.SpawnRegions, spawnRegions)
 	return &SpawnSystem{
 		storage,
 		spawnQueue,
 		newId,
+		0,
 	}
 }
 
@@ -48,7 +50,9 @@ func (s *SpawnSystem) Update() {
 			var minDensityRegion utils.Coordinate
 			previousRegionDensity := math.MaxInt
 			var playerHeads []storage.Point
-			regionIdx := rand.IntN(spawnRegionCount)
+			regionIdx := (s.lastSpawnRegionIdx + 1) % spawnRegionCount
+			s.lastSpawnRegionIdx = regionIdx
+			utils.Logger.Info().Msgf("Spawn region: %v", regionIdx)
 			for i := 0; i < spawnRegionCount; i++ {
 				region := spawnRegions[regionIdx]
 				regionIdx = (regionIdx + 1) % spawnRegionCount
@@ -56,7 +60,7 @@ func (s *SpawnSystem) Update() {
 				qt.QueryBCircleByPointType(storage.BCircle{
 					X: region.X,
 					Y: region.Y,
-					R: spawnRegionRadius},
+					R: utils.SpawnRegionRadius},
 					map[string]bool{utils.PlayerHeadPointType: true},
 					&p)
 				if previousRegionDensity > len(p) {
@@ -66,40 +70,33 @@ func (s *SpawnSystem) Update() {
 				previousRegionDensity = len(p)
 			}
 			utils.Logger.Debug().Msgf("Spawn region: %v", minDensityRegion)
+			var segments []utils.Coordinate
 			if playerHeads == nil {
-				angle := math.Atan2(minDensityRegion.Y, minDensityRegion.X)
-				if angle > math.Pi {
-					angle -= 2 * math.Pi
-				}
-				segments := GenerateSnakeSegments(utils.Coordinate{
-					X: spawnRegionDistanceFromOrigin - spawnRegionRadius +
-						(rand.Float64()*spawnRegionDistanceFromOrigin + spawnRegionRadius) + 150*math.Cos(angle),
-					Y: spawnRegionDistanceFromOrigin - spawnRegionRadius +
-						(rand.Float64()*spawnRegionDistanceFromOrigin + spawnRegionRadius) + 150*math.Sin(angle),
+				angle := rand.Float64() * 2 * math.Pi
+				radius := utils.SpawnRegionRadius - 250*math.Sqrt(rand.Float64())
+				segments = GenerateSnakeSegments(utils.Coordinate{
+					X: minDensityRegion.X + radius*math.Cos(angle),
+					Y: minDensityRegion.Y + radius*math.Sin(angle),
 				}, utils.DefaultSnakeLength)
-				c := s.storage.GetComponentByEntityIdAndName(playerId, utils.SnakeComponent)
-				if c == nil {
-					break
+			} else {
+				for _, point := range playerHeads {
+					angle := math.Atan2(point.Y-minDensityRegion.Y, point.X-minDensityRegion.X)
+					if angle > math.Pi {
+						angle -= 2 * math.Pi
+					}
+					segments = GenerateSnakeSegments(utils.Coordinate{
+						X: point.X + math.Cos(angle),
+						Y: point.X + math.Sin(angle),
+					}, utils.DefaultSnakeLength)
 				}
-				snakeComponent := c.(*component.Snake)
-				snakeComponent.Segments = segments
 			}
-			for _, point := range playerHeads {
-				angle := math.Atan2(point.Y-minDensityRegion.Y, point.X-minDensityRegion.X)
-				if angle > math.Pi {
-					angle -= 2 * math.Pi
-				}
-				segments := GenerateSnakeSegments(utils.Coordinate{
-					X: point.X + 150*math.Cos(angle),
-					Y: point.X + 150*math.Sin(angle),
-				}, utils.DefaultSnakeLength)
-				c := s.storage.GetComponentByEntityIdAndName(playerId, utils.SnakeComponent)
-				if c == nil {
-					break
-				}
-				snakeComponent := c.(*component.Snake)
-				snakeComponent.Segments = segments
+			utils.Logger.Info().Msgf("Head: %v", segments[0])
+			c := s.storage.GetComponentByEntityIdAndName(playerId, utils.SnakeComponent)
+			if c == nil {
+				break
 			}
+			snakeComponent := c.(*component.Snake)
+			snakeComponent.Segments = segments
 		default:
 			goto SpawnFood
 		}
@@ -148,8 +145,8 @@ func GenerateSpawnPoints(count int) []utils.Coordinate {
 
 func GenerateSnakeSegments(c utils.Coordinate, length int) []utils.Coordinate {
 	theta := math.Atan2(c.Y, c.X)
-	x := math.Cos(theta)
-	y := math.Sin(theta)
+	x := c.X
+	y := c.Y
 	segments := make([]utils.Coordinate, length)
 	segments[0] = utils.Coordinate{X: x, Y: y}
 	for i := 1; i < len(segments); i++ {

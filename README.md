@@ -69,7 +69,8 @@ an **authoritative server** model to maintain a fair and synchronized game state
 - [x] Re-architect backend using ECS
 - [x] Optimize collision detection using Quad Tree
 - [x] Improve collision detection logic (beyond head-to-head only)
-- [ ] Create spawn system for food and snake with world-awareness
+- [x] Create spawn system for snake with world-awareness
+- [ ] Implement food spawning functionality with world-awareness
 - [ ] Create dashboard & API for server metrics
 - [ ] Compensate speed boosts by reducing snake length
 - [ ] Randomized food generation

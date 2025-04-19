@@ -27,3 +27,13 @@ export type CameraCoordinates = {
   width: number
   height: number
 }
+
+export type QuadTree = {
+  boundary: {x: number, y: number, w: number, h: number}
+  points: {x: number, y: number, entityId: number, pointType: string}[]
+  divided: boolean
+  nw: QuadTree
+  ne: QuadTree
+  sw: QuadTree
+  se: QuadTree
+}

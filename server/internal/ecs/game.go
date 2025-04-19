@@ -2,6 +2,7 @@ package ecs
 
 import (
 	"errors"
+	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/storage"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/types"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/utils"
 	"github.com/google/uuid"
@@ -28,7 +29,7 @@ func NewGame() *Game {
 
 func (g *Game) Start() {
 	ticker := time.NewTicker(1000 / utils.TickRate * time.Millisecond)
-	metricsTicker := time.NewTicker(5 * time.Second)
+	metricsTicker := time.NewTicker(2 * time.Second)
 	g.Engine.Start()
 	go func() {
 		for {
@@ -75,6 +76,10 @@ func (g *Game) processMetrics() {
 	runtime.ReadMemStats(&m)
 	g.GameServerMetrics.MemoryUsage = m.Sys / 1024 / 1024
 	g.GameServerMetrics.PlayerCount = uint8(len(g.Engine.playerIdToEntityId))
+	r := g.Engine.storage.GetSharedResource(utils.QuadTreeResource)
+	if r != nil {
+		g.GameServerMetrics.QuadTree = r.(*storage.QuadTree)
+	}
 }
 
 func (g *Game) AddPlayer(c echo.Context) error {

@@ -12,13 +12,17 @@ const (
 )
 
 type Point struct {
-	X, Y      float64
-	EntityId  types.Id
-	PointType string
+	X         float64  `json:"x"`
+	Y         float64  `json:"y"`
+	EntityId  types.Id `json:"entityId"`
+	PointType string   `json:"pointType"`
 }
 
 type BBox struct {
-	X, Y, W, H float64
+	X float64 `json:"x"`
+	Y float64 `json:"y"`
+	W float64 `json:"w"`
+	H float64 `json:"h"`
 }
 
 func (r BBox) Contains(p Point) bool {
@@ -56,12 +60,15 @@ func (c BCircle) Contains(p Point) bool {
 }
 
 type QuadTree struct {
-	Boundary       BBox
-	Capacity       int
-	Points         []Point
-	Divided        bool
-	Depth          int
-	NW, NE, SW, SE *QuadTree
+	Boundary BBox      `json:"boundary"`
+	Capacity int       `json:"capacity"`
+	Points   []Point   `json:"points"`
+	Divided  bool      `json:"divided"`
+	Depth    int       `json:"depth"`
+	NW       *QuadTree `json:"nw,omitempty"`
+	NE       *QuadTree `json:"ne,omitempty"`
+	SW       *QuadTree `json:"sw,omitempty"`
+	SE       *QuadTree `json:"se,omitempty"`
 }
 
 func NewQuadTree(boundary BBox, capacity int) *QuadTree {

@@ -19,8 +19,8 @@ const (
 	DefaultFoodSpawnThreshold = 10
 	MaxPlayerAllowed          = 10
 	WorldBoundaryRadius       = 2750
-	WorldHeight               = 2750
-	WorldWeight               = 2750
+	WorldHeight               = 3000
+	WorldWeight               = 3000
 )
 
 // Message types

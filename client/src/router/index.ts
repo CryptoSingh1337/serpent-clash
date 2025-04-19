@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router"
 import HomeView from "@/views/HomeView.vue"
 import MainView from "@/views/MainView.vue"
 import GameView from "@/views/GameView.vue"
+import VisualizeView from "@/views/VisualizeView.vue"
 import ErrorView from "@/views/ErrorView.vue"
 
 const router = createRouter({
@@ -21,6 +22,11 @@ const router = createRouter({
       path: "/play",
       name: "play",
       component: GameView
+    },
+    {
+      path: "/visualize",
+      name: "visualize",
+      component: VisualizeView
     },
     {
       path: "/:pathMatch(.*)*",

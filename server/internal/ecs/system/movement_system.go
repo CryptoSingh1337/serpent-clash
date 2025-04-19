@@ -30,6 +30,9 @@ func (m *MovementSystem) Update() {
 			continue
 		}
 		snakeComponent := c.(*component.Snake)
+		if len(snakeComponent.Segments) == 0 {
+			continue
+		}
 		mouseCoordinate := inputComponent.Coordinates
 		head := snakeComponent.Segments[0]
 		angle := snakeComponent.Angle

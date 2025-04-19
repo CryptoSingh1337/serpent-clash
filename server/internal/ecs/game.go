@@ -29,8 +29,12 @@ func NewGame() *Game {
 
 func (g *Game) Start() {
 	ticker := time.NewTicker(1000 / utils.TickRate * time.Millisecond)
-	metricsTicker := time.NewTicker(2 * time.Second)
 	g.Engine.Start()
+	r := g.Engine.storage.GetSharedResource(utils.SpawnRegions)
+	if r != nil {
+		g.GameServerMetrics.SpawnRegions.Radius = utils.SpawnRegionRadius
+		g.GameServerMetrics.SpawnRegions.Regions = r.([]utils.Coordinate)
+	}
 	go func() {
 		for {
 			select {
@@ -39,18 +43,6 @@ func (g *Game) Start() {
 				return
 			case _ = <-ticker.C:
 				g.processTick()
-			}
-		}
-	}()
-	go func() {
-		for {
-			select {
-			case <-g.Done:
-				metricsTicker.Stop()
-				return
-			case _ = <-metricsTicker.C:
-				utils.Logger.Debug().Msgf("Player id to entity id: %v", g.Engine.playerIdToEntityId)
-				g.Engine.storage.LogState()
 				g.processMetrics()
 			}
 		}
@@ -71,7 +63,6 @@ func (g *Game) processTick() {
 }
 
 func (g *Game) processMetrics() {
-	utils.Logger.Debug().Msgf("Updating server metrics")
 	var m runtime.MemStats
 	runtime.ReadMemStats(&m)
 	g.GameServerMetrics.MemoryUsage = m.Sys / 1024 / 1024

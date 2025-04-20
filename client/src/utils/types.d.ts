@@ -42,3 +42,13 @@ export type SpawnRegions = {
   radius: number
   regions: Coordinate[]
 }
+
+export type ServerMetrics = {
+  cpuUsage: number
+  memoryUsageInMB: number
+  uptimeInSec: number
+  bytesSent: number
+  bytesReceived: number
+  playerCount: number
+  foodCount: number
+}

@@ -8,7 +8,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/lesismal/nbio/nbhttp/websocket"
-	"runtime"
+	"github.com/shirou/gopsutil/v4/host"
+	"github.com/shirou/gopsutil/v4/net"
 	"strings"
 	"time"
 )
@@ -63,10 +64,18 @@ func (g *Game) processTick() {
 }
 
 func (g *Game) processMetrics() {
-	var m runtime.MemStats
-	runtime.ReadMemStats(&m)
-	g.GameServerMetrics.MemoryUsage = m.Sys / 1024 / 1024
-	g.GameServerMetrics.PlayerCount = uint8(len(g.Engine.playerIdToEntityId))
+	cpuPercent, _ := g.GameServerMetrics.proc.CPUPercent()
+	memInfo, _ := g.GameServerMetrics.proc.MemoryInfo()
+	uptime, _ := host.Uptime()
+	netStats, _ := net.IOCounters(false)
+	g.GameServerMetrics.ServerMetrics.CpuUsage = uint64(cpuPercent)
+	g.GameServerMetrics.ServerMetrics.MemoryUsage = memInfo.RSS / (1024 * 1024)
+	g.GameServerMetrics.ServerMetrics.Uptime = uptime
+	if len(netStats) > 0 {
+		g.GameServerMetrics.ServerMetrics.BytesSent = netStats[0].BytesSent
+		g.GameServerMetrics.ServerMetrics.BytesReceived = netStats[0].BytesRecv
+	}
+	g.GameServerMetrics.ServerMetrics.PlayerCount = uint8(len(g.Engine.playerIdToEntityId))
 	r := g.Engine.storage.GetSharedResource(utils.QuadTreeResource)
 	if r != nil {
 		g.GameServerMetrics.QuadTree = r.(*storage.QuadTree)

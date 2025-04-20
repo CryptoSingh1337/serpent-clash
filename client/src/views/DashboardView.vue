@@ -1,15 +1,21 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue"
-import type { QuadTree, SpawnRegions } from "@/utils/types"
+import type {QuadTree, ServerMetrics, SpawnRegions} from "@/utils/types"
 import ServerMetricsPanel from "@/components/ServerMetricsPanel.vue"
 import QuadTreeVisualization from "@/components/QuadTreeVisualization.vue"
 import TabNavigation from "@/components/TabNavigation.vue"
 import SystemMetricsPanel from "@/components/SystemMetricsPanel.vue"
 import PerformanceMetricsPanel from "@/components/PerformanceMetricsPanel.vue"
 
-const playerCount = ref(0)
-const memoryUsage = ref(0)
-const foodCount = ref(0)
+const serverMetrics = ref<ServerMetrics>({
+  cpuUsage: 0,
+  memoryUsageInMB: 0,
+  uptimeInSec: 0,
+  bytesSent: 0,
+  bytesReceived: 0,
+  playerCount: 0,
+  foodCount: 0
+})
 let quadTree = ref<QuadTree | null>(null)
 let spawnRegions = ref<SpawnRegions | null>(null)
 
@@ -56,16 +62,15 @@ onMounted(() => {
       const body = await response.json()
       if (body.quadTree) {
         quadTree.value = body.quadTree as QuadTree
-        foodCount.value = countFoodItems(quadTree.value)
       }
       if (body.spawnRegions) {
         spawnRegions.value = body.spawnRegions as SpawnRegions
       }
-      if (body.playerCount !== undefined) {
-        playerCount.value = body.playerCount
-      }
-      if (body.memoryUsageInMiB !== undefined) {
-        memoryUsage.value = body.memoryUsageInMiB
+      if (body.serverMetrics) {
+        serverMetrics.value = body.serverMetrics
+        if (serverMetrics.value && quadTree.value) {
+          serverMetrics.value.foodCount = countFoodItems(quadTree.value)
+        }
       }
     }
   }, 750)
@@ -113,11 +118,9 @@ onMounted(() => {
             <i class="bi bi-graph-up mr-2"></i>Server Metrics
           </h4>
           <ServerMetricsPanel
-            :player-count="playerCount"
-            :food-count="foodCount"
-            :memory-usage="memoryUsage"
+            :server-metrics="serverMetrics"
           />
-          <SystemMetricsPanel :player-count="playerCount" />
+          <SystemMetricsPanel :server-metrics="serverMetrics" />
         </div>
       </div>
       <div

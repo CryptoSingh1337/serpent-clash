@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import type {ServerMetrics} from "@/utils/types";
+
 defineProps<{
-  playerCount: number
-  foodCount: number
-  memoryUsage: number
+  serverMetrics: ServerMetrics
 }>()
 </script>
 
@@ -15,7 +15,7 @@ defineProps<{
         <div class="text-xl font-bold mb-2 text-gray-200">
           <i class="bi bi-people-fill mr-2 text-green-400"></i>Players
         </div>
-        <div class="text-3xl text-green-500 font-bold">{{ playerCount }}</div>
+        <div class="text-3xl text-green-500 font-bold">{{ serverMetrics.playerCount }}</div>
       </div>
 
       <div
@@ -24,7 +24,7 @@ defineProps<{
         <div class="text-xl font-bold mb-2 text-gray-200">
           <i class="bi bi-circle-fill mr-2 text-blue-400"></i>Food Items
         </div>
-        <div class="text-3xl text-blue-500 font-bold">{{ foodCount }}</div>
+        <div class="text-3xl text-blue-500 font-bold">{{ serverMetrics.foodCount }}</div>
       </div>
 
       <div
@@ -34,7 +34,7 @@ defineProps<{
           <i class="bi bi-memory mr-2 text-yellow-400"></i>Memory Usage
         </div>
         <div class="text-3xl text-yellow-500 font-bold">
-          {{ memoryUsage }} MiB
+          {{ serverMetrics.memoryUsageInMB }} MB
         </div>
       </div>
     </div>

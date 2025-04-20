@@ -636,16 +636,13 @@ onUnmounted(() => {
 
           <iframe
             class="mx-auto aspect-video w-full relative z-10"
-            src="https://www.youtube-nocookie.com/embed/hHJq1ubGmuw"
+            src="https://www.youtube.com/embed/hHJq1ubGmuw?si=MgK2ZgROprw6APTQ"
             title="Serpent Clash Gameplay"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerpolicy="strict-origin-when-cross-origin"
             :allowfullscreen="false"
           ></iframe>
         </div>
-
-        <p class="text-[#fff9c4] mt-6 text-lg italic">
-          Watch the snakes battle it out in this fast-paced multiplayer arena!
-        </p>
       </div>
 
       <div class="flex justify-center">

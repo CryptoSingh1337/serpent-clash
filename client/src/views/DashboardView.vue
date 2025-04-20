@@ -74,7 +74,7 @@ onMounted(() => {
 
 <template>
   <div class="flex bg-gray-900 text-white min-h-screen">
-    <div class="w-60 h-screen bg-gray-800 border-r border-gray-700 shadow-lg">
+    <div class="w-60 min-h-screen bg-gray-800 border-r border-gray-700 shadow-lg">
       <p
         class="flex justify-center text-xl font-bold p-4 pt-6 text-center text-blue-400"
       >

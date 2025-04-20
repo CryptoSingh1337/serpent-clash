@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { DebugDriver } from "@/drivers/debug_driver.ts"
-import { computed, ref } from "vue"
+import { computed, ref, onMounted } from "vue"
 import type { Coordinate } from "@/utils/types"
 
 const props = defineProps<{
@@ -9,10 +9,64 @@ const props = defineProps<{
 const stats = computed(
   () => props.debugMenu && props.debugMenu.game.statsDriver.stats
 )
+
+// For draggable functionality
+const isDragging = ref(false)
+// Position below the connect button in the top-right corner
+const position = ref({ x: window.innerWidth - 330, y: 60 })
+const dragOffset = ref({ x: 0, y: 0 })
+
+
+const startDrag = (event: MouseEvent) => {
+  isDragging.value = true
+  dragOffset.value = {
+    x: event.clientX - position.value.x,
+    y: event.clientY - position.value.y
+  }
+
+  // Add event listeners for drag and end
+  document.addEventListener('mousemove', onDrag)
+  document.addEventListener('mouseup', endDrag)
+}
+
+const onDrag = (event: MouseEvent) => {
+  if (isDragging.value) {
+    position.value = {
+      x: event.clientX - dragOffset.value.x,
+      y: event.clientY - dragOffset.value.y
+    }
+  }
+}
+
+const endDrag = () => {
+  isDragging.value = false
+  document.removeEventListener('mousemove', onDrag)
+  document.removeEventListener('mouseup', endDrag)
+}
+
+// Update position on window resize
+const updatePosition = () => {
+  if (!isDragging.value) {
+    position.value = { x: window.innerWidth - 340, y: 60 }
+  }
+}
+
+// Set up and clean up event listeners
+onMounted(() => {
+  window.addEventListener('resize', updatePosition)
+
+  return () => {
+    document.removeEventListener('mousemove', onDrag)
+    document.removeEventListener('mouseup', endDrag)
+    window.removeEventListener('resize', updatePosition)
+  }
+})
+
 const menuItems = [
   {
     id: "info",
     title: "Info",
+    icon: "ℹ️",
     css: "grid gap-1 items-start",
     subFields: [
       {
@@ -50,35 +104,38 @@ const menuItems = [
   {
     id: "teleport",
     title: "Teleport",
-    css: "grid grid-cols-[auto_auto_50px] gap-1 items-center",
+    icon: "🚀",
+    css: "grid grid-cols-[auto_auto_auto] gap-2 items-center",
     subFields: [
       {
         tag: "input",
         id: "teleport-x",
         label: "X:",
         type: "number",
-        style: "width: 50px"
+        style: "width: 60px"
       },
       {
         tag: "input",
         id: "teleport-y",
         label: "Y:",
         type: "number",
-        style: "width: 50px"
+        style: "width: 60px"
       },
       {
         tag: "button",
         id: "teleport-btn",
-        label: "Update"
+        label: "Teleport"
       }
     ]
   }
 ]
+
 const teleportX = ref<number>(0)
 const teleportY = ref<number>(0)
+
 async function teleport(): Promise<void> {
   if (!props.debugMenu) {
-    console.log("debug menu is initialized")
+    console.log("debug menu is not initialized")
     return
   }
   const coordinate: Coordinate = {
@@ -90,98 +147,102 @@ async function teleport(): Promise<void> {
 </script>
 
 <template>
-  <div class="mt-2 w-72 border rounded-s p-2 backdrop-blur-sm text-xs">
-    <h1 class="text-center">Debug menu</h1>
-    <div class="space-y-1 my-1" :key="item.id" v-for="item in menuItems">
-      <h1 class="border-b font-bold italic">{{ item.title }}</h1>
-      <div :class="item.css">
-        <div :key="subField.id" v-for="subField in item.subFields">
-          <span
-            v-if="subField.tag === 'span' && subField.label === 'Coordinates:'"
-            :id="subField.id"
-          >
-            {{ subField.label }}
-            {{ stats && stats.value && stats.value.headCoordinate }}
-          </span>
-          <span
-            v-if="
-              subField.tag === 'span' && subField.label === 'Mouse coordinates:'
-            "
-            :id="subField.id"
-          >
-            {{ subField.label }}
-            {{ stats && stats.value && stats.value.mouseCoordinate }}
-          </span>
-          <span
-            v-if="
-              subField.tag === 'span' &&
-              subField.label === 'Camera coordinates:'
-            "
-            :id="subField.id"
-          >
-            {{ subField.label }}
-            {{ stats && stats.value && stats.value.cameraCoordinate.x }},
-            {{ stats && stats.value && stats.value.cameraCoordinate.y }}
-          </span>
-          <span
-            v-if="
-              subField.tag === 'span' && subField.label === 'Camera dimensions:'
-            "
-            :id="subField.id"
-          >
-            {{ subField.label }}
-            {{ stats && stats.value && stats.value.cameraCoordinate.width }},
-            {{ stats && stats.value && stats.value.cameraCoordinate.height }}
-          </span>
-          <span
-            v-if="subField.tag === 'span' && subField.label === 'Player id:'"
-            :id="subField.id"
-          >
-            {{ subField.label }}
-            {{ stats && stats.value && stats.value.playerId }}
-          </span>
-          <span
-            v-if="subField.tag === 'span' && subField.label === 'Events:'"
-            :id="subField.id"
-          >
-            {{ subField.label }}
-            {{ stats && stats.value && stats.value.reconcileEvents }}
-          </span>
-          <label v-if="subField.tag === 'input'" :for="subField.id">
-            {{ subField.label }}
-          </label>
-          <input
-            class="ml-1"
-            v-if="subField.tag === 'input' && subField.id === 'teleport-x'"
-            v-model="teleportX"
-            :id="subField.id"
-            :type="subField.type"
-            :style="subField.style"
-          />
-          <input
-            class="ml-1"
-            v-else-if="subField.tag === 'input' && subField.id === 'teleport-y'"
-            v-model="teleportY"
-            :id="subField.id"
-            :type="subField.type"
-            :style="subField.style"
-          />
-          <input
-            class="ml-1"
-            v-else-if="subField.tag === 'input'"
-            :id="subField.id"
-            :type="subField.type"
-            :style="subField.style"
-          />
-          <button
-            v-if="item.id === 'teleport' && subField.tag === 'button'"
-            class="w-full py-1 px-1 text-center bg-blue-500 hover:bg-blue-700"
-            @click.prevent="teleport"
-          >
-            Save
-          </button>
+  <div
+    class="fixed w-80 border border-gray-700 rounded-lg p-3 backdrop-blur-md text-xs bg-gray-900/70 text-gray-200 shadow-lg z-50"
+    :style="{ left: position.x + 'px', top: position.y + 'px' }"
+    @mousedown="startDrag"
+  >
+    <h1 class="text-center text-sm font-bold mb-3 text-blue-400 cursor-move">Debug Menu</h1>
+
+    <div class="space-y-3" :key="item.id" v-for="item in menuItems">
+      <!-- Section Header -->
+      <div
+        class="flex items-center justify-between border-b border-gray-700 pb-1 hover:bg-gray-800/50 rounded px-1"
+      >
+        <h2 class="font-bold flex items-center">
+          <span class="mr-2">{{ item.icon }}</span>
+          <span>{{ item.title }}</span>
+        </h2>
+      </div>
+
+      <!-- Section Content -->
+      <div :class="[item.css, 'pl-2 transition-all duration-200']">
+        <div :key="subField.id" v-for="subField in item.subFields" class="mb-1">
+          <!-- Info Fields -->
+          <template v-if="subField.tag === 'span'">
+            <div class="flex flex-col">
+              <span class="text-blue-300 font-medium">{{ subField.label }}</span>
+              <span class="pl-2 text-gray-300" :id="subField.id">
+                <template v-if="subField.label === 'Coordinates:'">
+                  {{ stats && stats.value && stats.value.headCoordinate }}
+                </template>
+                <template v-else-if="subField.label === 'Mouse coordinates:'">
+                  {{ stats && stats.value && stats.value.mouseCoordinate }}
+                </template>
+                <template v-else-if="subField.label === 'Camera coordinates:'">
+                  {{ stats && stats.value && stats.value.cameraCoordinate.x }},
+                  {{ stats && stats.value && stats.value.cameraCoordinate.y }}
+                </template>
+                <template v-else-if="subField.label === 'Camera dimensions:'">
+                  {{ stats && stats.value && stats.value.cameraCoordinate.width }},
+                  {{ stats && stats.value && stats.value.cameraCoordinate.height }}
+                </template>
+                <template v-else-if="subField.label === 'Player id:'">
+                  {{ stats && stats.value && stats.value.playerId }}
+                </template>
+                <template v-else-if="subField.label === 'Events:'">
+                  {{ stats && stats.value && stats.value.reconcileEvents }}
+                </template>
+              </span>
+            </div>
+          </template>
+
+          <!-- Input Fields -->
+          <template v-else-if="subField.tag === 'input'">
+            <label class="text-blue-300 font-medium" :for="subField.id">
+              {{ subField.label }}
+            </label>
+            <input
+              v-if="subField.id === 'teleport-x'"
+              class="ml-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-white"
+              v-model="teleportX"
+              :id="subField.id"
+              :type="subField.type"
+              :style="subField.style"
+            />
+            <input
+              v-else-if="subField.id === 'teleport-y'"
+              class="ml-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-white"
+              v-model="teleportY"
+              :id="subField.id"
+              :type="subField.type"
+              :style="subField.style"
+            />
+            <input
+              v-else
+              class="ml-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-white"
+              :id="subField.id"
+              :type="subField.type"
+              :style="subField.style"
+            />
+          </template>
+
+          <!-- Button -->
+          <template v-else-if="subField.tag === 'button'">
+            <button
+              class="w-full py-1 px-2 text-center bg-blue-600 hover:bg-blue-700 rounded text-white font-medium transition-colors duration-200"
+              @click.prevent="teleport"
+            >
+              {{ subField.label }}
+            </button>
+          </template>
         </div>
       </div>
+    </div>
+
+    <!-- Drag handle indicator -->
+    <div class="absolute top-0 right-0 p-1 text-gray-500 text-xs">
+      <span title="Drag to move">⋮⋮</span>
     </div>
   </div>
 </template>

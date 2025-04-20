@@ -50,7 +50,7 @@ const networkTraffic = Math.floor(Math.random() * 1000)
           Connections
         </div>
         <div class="text-lg font-semibold text-purple-500">
-          {{ playerCount * 2 }}
+          {{ playerCount }}
         </div>
       </div>
     </div>

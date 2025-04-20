@@ -19,6 +19,7 @@ type Config struct {
 	distDir   string
 	assetDir  string
 	indexFile string
+	favicon   string
 	debugMode bool
 }
 
@@ -51,6 +52,7 @@ func LoadConfig() *Config {
 			config.distDir = env
 			config.assetDir = filepath.Join(config.distDir, "assets")
 			config.indexFile = filepath.Join(config.distDir, "index.html")
+			config.favicon = filepath.Join(config.distDir, "favicon.png")
 		}
 		if env := os.Getenv("DEBUG_MODE"); env != "" {
 			if env == "true" {
@@ -76,6 +78,7 @@ func LoadConfig() *Config {
 				config.distDir = strings.TrimSuffix(env[1], "\r")
 				config.assetDir = filepath.Join(config.distDir, "assets")
 				config.indexFile = filepath.Join(config.distDir, "index.html")
+				config.favicon = filepath.Join(config.distDir, "favicon.png")
 			} else if env[0] == "DEBUG_MODE" {
 				if env[1] == "true" {
 					config.debugMode = true

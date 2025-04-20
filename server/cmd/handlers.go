@@ -7,9 +7,10 @@ import (
 )
 
 func initHandler(e *echo.Echo, app *App, game *ecs.Game) {
-	e.File("/", app.Config.indexFile)
-	e.Static("/assets", app.Config.assetDir)
 	e.Static("/", app.Config.distDir)
+	e.Static("/assets", app.Config.assetDir)
+	e.File("/", app.Config.indexFile)
+	e.File("/favicon.png", app.Config.favicon)
 
 	e.GET("/ws", func(c echo.Context) error {
 		return handleWebsocket(c, game)

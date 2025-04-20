@@ -29,8 +29,8 @@ export type CameraCoordinates = {
 }
 
 export type QuadTree = {
-  boundary: {x: number, y: number, w: number, h: number}
-  points: {x: number, y: number, entityId: number, pointType: string}[]
+  boundary: { x: number; y: number; w: number; h: number }
+  points: { x: number; y: number; entityId: number; pointType: string }[]
   divided: boolean
   nw: QuadTree
   ne: QuadTree
@@ -39,6 +39,6 @@ export type QuadTree = {
 }
 
 export type SpawnRegions = {
-  radius: number,
+  radius: number
   regions: Coordinate[]
 }

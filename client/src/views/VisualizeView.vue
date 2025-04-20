@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import {onMounted, ref, type Ref, useTemplateRef} from "vue"
-import type {QuadTree, SpawnRegions} from "@/utils/types"
+import { onMounted, useTemplateRef } from "vue"
+import type { QuadTree, SpawnRegions } from "@/utils/types"
 import { Constants as constants } from "@/utils/constants.ts"
 
 const canvasRef = useTemplateRef<HTMLCanvasElement>("canvas-ref")
@@ -15,14 +15,18 @@ let panY = 0
 // let dragStartPanY = panY
 let quadTree: QuadTree | null = null
 let spawnRegions: SpawnRegions | null = null
-const canvasWidth = 800;
-const canvasHeight = 800;
-const scale = canvasWidth / (constants.worldBoundary.maxX - constants.worldBoundary.minX);
+const canvasWidth = 800
+const canvasHeight = 800
+const scale =
+  canvasWidth / (constants.worldBoundary.maxX - constants.worldBoundary.minX)
 let fpsInterval = 0
 const fps = 60
 let then: number
 
-function worldToCanvas(worldX: number, worldY: number): {x: number, y: number} {
+function worldToCanvas(
+  worldX: number,
+  worldY: number
+): { x: number; y: number } {
   return {
     x: (worldX - constants.worldBoundary.minX) * scale,
     y: (worldY - constants.worldBoundary.minY) * scale
@@ -41,8 +45,8 @@ function renderQuadTree(ctx: CanvasRenderingContext2D): void {
     const center = worldToCanvas(node.boundary.x, node.boundary.y)
     const w = node.boundary.w * scale
     const h = node.boundary.h * scale
-    const boundary = {x: center.x - w, y: center.y - h, w: w*2, h: h*2}
-    node.points.forEach(p => {
+    const boundary = { x: center.x - w, y: center.y - h, w: w * 2, h: h * 2 }
+    node.points.forEach((p) => {
       const c = worldToCanvas(p.x, p.y)
       ctx.beginPath()
       ctx.arc(c.x, c.y, 1, 0, 2 * Math.PI, true)
@@ -100,10 +104,10 @@ function render(): void {
   requestAnimationFrame(() => {
     render()
   })
-  const now = Date.now();
-  const elapsed = now - then;
+  const now = Date.now()
+  const elapsed = now - then
   if (elapsed > fpsInterval) {
-    then = now - (elapsed % fpsInterval);
+    then = now - (elapsed % fpsInterval)
     const canvas = canvasRef.value
     if (!canvas) {
       return
@@ -111,9 +115,9 @@ function render(): void {
     if (!ctx) {
       return
     }
-    ctx.save();
+    ctx.save()
     ctx.setTransform(zoom, 0, 0, zoom, panX, panY)
-    ctx.scale(zoom, zoom);
+    ctx.scale(zoom, zoom)
     ctx.fillStyle = "#000"
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
     renderQuadTree(ctx)
@@ -182,15 +186,17 @@ onMounted(() => {
       }
     }
   }, 750)
-  fpsInterval = 1000 / fps;
-  then = Date.now();
+  fpsInterval = 1000 / fps
+  then = Date.now()
   render()
 })
 </script>
 
 <template>
   <div class="w-full h-full flex justify-center flex-col">
-    <h3 class="text-center p-5 font-bold text-4xl">Quad Tree - Visualization</h3>
+    <h3 class="text-center p-5 font-bold text-4xl">
+      Quad Tree - Visualization
+    </h3>
     <canvas ref="canvas-ref" class="m-auto"></canvas>
   </div>
 </template>

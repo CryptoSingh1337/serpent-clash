@@ -1,4 +1,4 @@
-# 🎮 Serpent Clash — Multiplayer Snake Game
+# 🎮 Serpent Clash — Multiplayer Snake Game 
 **Serpent Clash** is a **fast-paced**, **multiplayer snake game** where players compete to outmaneuver and 
 outgrow their rivals in a dynamic online arena. Control your serpent with precision, dodge enemies, and strategically 
 cut them off as you slither your way to the top of the leaderboard.
@@ -8,6 +8,8 @@ an **authoritative server** model to maintain a fair and synchronized game state
 **interpolation**, players experience smooth gameplay and accurate movement.
 
 🎥 **Demo** - [https://youtu.be/hHJq1ubGmuw](https://youtu.be/hHJq1ubGmuw)
+
+[![wakatime](https://wakatime.com/badge/user/b9df6102-292d-4e04-8c49-0347a58ded19/project/4163f7f2-76cb-4cdb-8191-38d6039d035b.svg)](https://wakatime.com/badge/user/b9df6102-292d-4e04-8c49-0347a58ded19/project/4163f7f2-76cb-4cdb-8191-38d6039d035b)
 
 ### 🔑 Key Features
 - ⚔️ **Multiplayer** with low-latency WebSocket communication

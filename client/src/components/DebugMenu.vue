@@ -16,7 +16,6 @@ const isDragging = ref(false)
 const position = ref({ x: window.innerWidth - 330, y: 60 })
 const dragOffset = ref({ x: 0, y: 0 })
 
-
 const startDrag = (event: MouseEvent) => {
   isDragging.value = true
   dragOffset.value = {
@@ -25,8 +24,8 @@ const startDrag = (event: MouseEvent) => {
   }
 
   // Add event listeners for drag and end
-  document.addEventListener('mousemove', onDrag)
-  document.addEventListener('mouseup', endDrag)
+  document.addEventListener("mousemove", onDrag)
+  document.addEventListener("mouseup", endDrag)
 }
 
 const onDrag = (event: MouseEvent) => {
@@ -40,8 +39,8 @@ const onDrag = (event: MouseEvent) => {
 
 const endDrag = () => {
   isDragging.value = false
-  document.removeEventListener('mousemove', onDrag)
-  document.removeEventListener('mouseup', endDrag)
+  document.removeEventListener("mousemove", onDrag)
+  document.removeEventListener("mouseup", endDrag)
 }
 
 // Update position on window resize
@@ -53,12 +52,12 @@ const updatePosition = () => {
 
 // Set up and clean up event listeners
 onMounted(() => {
-  window.addEventListener('resize', updatePosition)
+  window.addEventListener("resize", updatePosition)
 
   return () => {
-    document.removeEventListener('mousemove', onDrag)
-    document.removeEventListener('mouseup', endDrag)
-    window.removeEventListener('resize', updatePosition)
+    document.removeEventListener("mousemove", onDrag)
+    document.removeEventListener("mouseup", endDrag)
+    window.removeEventListener("resize", updatePosition)
   }
 })
 
@@ -152,7 +151,9 @@ async function teleport(): Promise<void> {
     :style="{ left: position.x + 'px', top: position.y + 'px' }"
     @mousedown="startDrag"
   >
-    <h1 class="text-center text-sm font-bold mb-3 text-blue-400 cursor-move">Debug Menu</h1>
+    <h1 class="text-center text-sm font-bold mb-3 text-blue-400 cursor-move">
+      Debug Menu
+    </h1>
 
     <div class="space-y-3" :key="item.id" v-for="item in menuItems">
       <!-- Section Header -->
@@ -171,7 +172,9 @@ async function teleport(): Promise<void> {
           <!-- Info Fields -->
           <template v-if="subField.tag === 'span'">
             <div class="flex flex-col">
-              <span class="text-blue-300 font-medium">{{ subField.label }}</span>
+              <span class="text-blue-300 font-medium">{{
+                subField.label
+              }}</span>
               <span class="pl-2 text-gray-300" :id="subField.id">
                 <template v-if="subField.label === 'Coordinates:'">
                   {{ stats && stats.value && stats.value.headCoordinate }}
@@ -184,8 +187,12 @@ async function teleport(): Promise<void> {
                   {{ stats && stats.value && stats.value.cameraCoordinate.y }}
                 </template>
                 <template v-else-if="subField.label === 'Camera dimensions:'">
-                  {{ stats && stats.value && stats.value.cameraCoordinate.width }},
-                  {{ stats && stats.value && stats.value.cameraCoordinate.height }}
+                  {{
+                    stats && stats.value && stats.value.cameraCoordinate.width
+                  }},
+                  {{
+                    stats && stats.value && stats.value.cameraCoordinate.height
+                  }}
                 </template>
                 <template v-else-if="subField.label === 'Player id:'">
                   {{ stats && stats.value && stats.value.playerId }}

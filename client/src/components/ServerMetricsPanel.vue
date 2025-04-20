@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type {ServerMetrics} from "@/utils/types";
+import type { ServerMetrics } from "@/utils/types"
 
 defineProps<{
   serverMetrics: ServerMetrics
@@ -15,7 +15,9 @@ defineProps<{
         <div class="text-xl font-bold mb-2 text-gray-200">
           <i class="bi bi-people-fill mr-2 text-green-400"></i>Players
         </div>
-        <div class="text-3xl text-green-500 font-bold">{{ serverMetrics.playerCount }}</div>
+        <div class="text-3xl text-green-500 font-bold">
+          {{ serverMetrics.playerCount }}
+        </div>
       </div>
 
       <div
@@ -24,7 +26,9 @@ defineProps<{
         <div class="text-xl font-bold mb-2 text-gray-200">
           <i class="bi bi-circle-fill mr-2 text-blue-400"></i>Food Items
         </div>
-        <div class="text-3xl text-blue-500 font-bold">{{ serverMetrics.foodCount }}</div>
+        <div class="text-3xl text-blue-500 font-bold">
+          {{ serverMetrics.foodCount }}
+        </div>
       </div>
 
       <div

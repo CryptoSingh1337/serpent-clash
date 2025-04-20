@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue"
-import type {QuadTree, ServerMetrics, SpawnRegions} from "@/utils/types"
+import type { QuadTree, ServerMetrics, SpawnRegions } from "@/utils/types"
 import ServerMetricsPanel from "@/components/ServerMetricsPanel.vue"
 import QuadTreeVisualization from "@/components/QuadTreeVisualization.vue"
 import TabNavigation from "@/components/TabNavigation.vue"
@@ -79,7 +79,9 @@ onMounted(() => {
 
 <template>
   <div class="flex bg-gray-900 text-white min-h-screen">
-    <div class="w-60 min-h-screen bg-gray-800 border-r border-gray-700 shadow-lg">
+    <div
+      class="w-60 min-h-screen bg-gray-800 border-r border-gray-700 shadow-lg"
+    >
       <p
         class="flex justify-center text-xl font-bold p-4 pt-6 text-center text-blue-400"
       >
@@ -117,9 +119,7 @@ onMounted(() => {
           <h4 class="text-2xl font-bold mb-6 text-center text-blue-400">
             <i class="bi bi-graph-up mr-2"></i>Server Metrics
           </h4>
-          <ServerMetricsPanel
-            :server-metrics="serverMetrics"
-          />
+          <ServerMetricsPanel :server-metrics="serverMetrics" />
           <SystemMetricsPanel :server-metrics="serverMetrics" />
         </div>
       </div>

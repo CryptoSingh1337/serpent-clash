@@ -2,14 +2,14 @@
 import { ref, onMounted } from "vue"
 
 const fps = ref(60)
-const renderTime = ref(5)
+const avgTickProcessingTime = ref(5)
 const networkLatency = ref(50)
 const memoryTrend = ref([50, 52, 55, 53, 58, 60, 62, 65, 63, 67])
 
 onMounted(() => {
   setInterval(() => {
     fps.value = Math.floor(55 + Math.random() * 10)
-    renderTime.value = Math.floor(3 + Math.random() * 5)
+    avgTickProcessingTime.value = Math.floor(3 + Math.random() * 5)
     networkLatency.value = Math.floor(40 + Math.random() * 30)
     memoryTrend.value.shift()
     memoryTrend.value.push(Math.floor(50 + Math.random() * 20))
@@ -47,13 +47,17 @@ onMounted(() => {
           <div
             class="text-sm text-gray-400 mb-1 flex items-center justify-center"
           >
-            <i class="bi bi-stopwatch mr-1"></i>Render Time
+            <i class="bi bi-stopwatch mr-1"></i>Average Tick processing time
           </div>
           <div
             class="text-2xl font-bold"
-            :class="renderTime < 5 ? 'text-green-500' : 'text-yellow-500'"
+            :class="
+              avgTickProcessingTime < 16.66
+                ? 'text-green-500'
+                : 'text-yellow-500'
+            "
           >
-            {{ renderTime }} ms
+            {{ avgTickProcessingTime }} ms
           </div>
         </div>
         <div

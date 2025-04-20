@@ -1,7 +1,12 @@
 <script setup lang="ts">
-import { onMounted, useTemplateRef } from "vue"
+import { onMounted, useTemplateRef, watch } from "vue"
 import type { QuadTree, SpawnRegions } from "@/utils/types"
 import { Constants as constants } from "@/utils/constants.ts"
+
+const props = defineProps<{
+  quadTree: QuadTree | null
+  spawnRegions: SpawnRegions | null
+}>()
 
 const canvasRef = useTemplateRef<HTMLCanvasElement>("canvas-ref")
 let ctx: CanvasRenderingContext2D | null = null
@@ -13,8 +18,6 @@ let panY = 0
 // let dragStartY = 0
 // let dragStartPanX = panX
 // let dragStartPanY = panY
-let quadTree: QuadTree | null = null
-let spawnRegions: SpawnRegions | null = null
 const canvasWidth = 800
 const canvasHeight = 800
 const scale =
@@ -34,11 +37,11 @@ function worldToCanvas(
 }
 
 function renderQuadTree(ctx: CanvasRenderingContext2D): void {
-  if (!quadTree) {
+  if (!props.quadTree) {
     return
   }
   const nodes: QuadTree[] = []
-  nodes.push(quadTree)
+  nodes.push(props.quadTree)
   let nodeId = 1
   while (nodes.length > 0) {
     const node = nodes[0]
@@ -84,9 +87,9 @@ function renderSpawnRegions(ctx: CanvasRenderingContext2D): void {
   ctx.fillStyle = "rgba(255, 255, 255, 0.4)"
   ctx.strokeStyle = "rgba(255, 255, 0, 1)"
   ctx.lineWidth = 0.5
-  if (spawnRegions && spawnRegions.regions) {
-    const radius = spawnRegions.radius * scale
-    spawnRegions.regions.forEach((r, idx) => {
+  if (props.spawnRegions && props.spawnRegions.regions) {
+    const radius = props.spawnRegions.radius * scale
+    props.spawnRegions.regions.forEach((r, idx) => {
       const c = worldToCanvas(r.x, r.y)
       ctx.beginPath()
       ctx.arc(c.x, c.y, radius, 0, 2 * Math.PI, true)
@@ -168,24 +171,11 @@ onMounted(() => {
   //     zoom /= zoomFactor
   //   }
   //   zoom = Math.max(1, zoom)
-  //   console.log("Zoom", zoom)
   // })
   ctx = canvas.getContext("2d", { alpha: false })
   if (!ctx) {
     throw new Error("not able to get context")
   }
-  setInterval(async () => {
-    const response = await fetch("/metrics")
-    if (response.ok) {
-      const body = await response.json()
-      if (body.quadTree) {
-        quadTree = body.quadTree as QuadTree
-      }
-      if (body.spawnRegions) {
-        spawnRegions = body.spawnRegions as SpawnRegions
-      }
-    }
-  }, 750)
   fpsInterval = 1000 / fps
   then = Date.now()
   render()
@@ -193,10 +183,10 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="w-full h-full flex justify-center flex-col">
-    <h3 class="text-center p-5 font-bold text-4xl">
-      Quad Tree - Visualization
-    </h3>
-    <canvas ref="canvas-ref" class="m-auto"></canvas>
+  <div class="flex flex-col p-4">
+    <div class="text-center p-2 font-bold text-2xl">
+      Quad Tree Visualization
+    </div>
+    <canvas ref="canvas-ref" class="border border-gray-700 rounded-lg"></canvas>
   </div>
 </template>

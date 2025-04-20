@@ -25,16 +25,15 @@ messages.value.push(
 
 function handleMessageInputFocus(showChat: boolean) {
   const chat = document.getElementById("chat-menu")
-  chat
-    ? showChat
-      ? chat.classList.remove("opacity-0")
-      : chat.classList.add("opacity-0")
-    : null
-  chat
-    ? showChat
-      ? chat.classList.add("opacity-100")
-      : chat.classList.remove("opacity-100")
-    : null
+  if (chat) {
+    if (showChat) {
+      chat.classList.remove("hidden")
+      chat.classList.add("flex")
+    } else {
+      chat.classList.remove("flex")
+      chat.classList.add("hidden")
+    }
+  }
 }
 </script>
 
@@ -42,7 +41,7 @@ function handleMessageInputFocus(showChat: boolean) {
   <div>
     <div
       id="chat-menu"
-      class="flex flex-col-reverse p-4 h-60 w-96 backdrop-blur-xs overflow-hidden opacity-0 transition-opacity ease-in-out delay-100"
+      class="hidden flex-col-reverse p-4 h-60 w-96 backdrop-blur-xs overflow-hidden transition-opacity ease-in-out delay-100"
     >
       <div id="chat-view" class="overflow-y-scroll">
         <div :key="idx" v-for="(message, idx) in messages" class="flex">

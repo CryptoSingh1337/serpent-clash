@@ -30,14 +30,16 @@ const username = ref<string>("")
       <div class="animate-pulse-slow mb-6">
         <a href="/">
           <img
-              src="@/assets/hero.png"
-              alt="Serpent Clash Logo"
-              class="w-48 mx-auto drop-shadow-[0_0_15px_rgba(76,175,80,0.5)]"
+            src="@/assets/hero.png"
+            alt="Serpent Clash Logo"
+            class="w-48 mx-auto drop-shadow-[0_0_15px_rgba(76,175,80,0.5)]"
           />
         </a>
       </div>
 
-      <h1 class="text-3xl mb-6 font-cherry text-transparent bg-clip-text bg-gradient-to-r from-[#4caf50] to-[#8bc34a]">
+      <h1
+        class="text-3xl mb-6 font-cherry text-transparent bg-clip-text bg-gradient-to-r from-[#4caf50] to-[#8bc34a]"
+      >
         Enter Your Username
       </h1>
 

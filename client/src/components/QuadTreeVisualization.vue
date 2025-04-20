@@ -183,8 +183,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex flex-col p-4">
-    <div class="text-center p-2 font-bold text-2xl">
+  <div class="flex flex-col">
+    <div class="text-center font-bold text-2xl mb-2">
       Quad Tree Visualization
     </div>
     <canvas ref="canvas-ref" class="border border-gray-700 rounded-lg"></canvas>

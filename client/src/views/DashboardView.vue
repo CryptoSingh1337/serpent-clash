@@ -73,10 +73,12 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex">
-    <div class="w-60 h-screen border-r-1">
-      <p class="flex justify-center text-xl font-bold p-4 pt-6 text-center">
-        <i class="bi bi-clipboard-data mr-1"></i> Server dashboard
+  <div class="flex bg-gray-900 text-white min-h-screen">
+    <div class="w-60 h-screen bg-gray-800 border-r border-gray-700 shadow-lg">
+      <p
+        class="flex justify-center text-xl font-bold p-4 pt-6 text-center text-blue-400"
+      >
+        <i class="bi bi-clipboard-data mr-2 text-blue-300"></i> Server Dashboard
       </p>
       <TabNavigation
         :tabs="tabs"
@@ -84,16 +86,32 @@ onMounted(() => {
         @tab-change="handleTabChange"
       />
     </div>
-    <div class="flex flex-1 flex-col items-center p-6">
-      <div v-if="activeTab === 'visualization'" class="tab-content">
-        <QuadTreeVisualization
-          :quad-tree="quadTree"
-          :spawn-regions="spawnRegions"
-        />
+    <div
+      class="flex flex-1 flex-col items-center bg-gradient-to-br from-gray-900 to-gray-800"
+    >
+      <div
+        v-if="activeTab === 'visualization'"
+        class="tab-content animate-fadeIn"
+      >
+        <div
+          class="bg-gray-800 rounded-lg shadow-xl border border-gray-700 p-4 m-4"
+        >
+          <QuadTreeVisualization
+            :quad-tree="quadTree"
+            :spawn-regions="spawnRegions"
+          />
+        </div>
       </div>
-      <div v-if="activeTab === 'metrics'" class="tab-content">
-        <div class="p-4">
-          <h4 class="text-2xl font-bold mb-4 text-center">Server Metrics</h4>
+      <div
+        v-if="activeTab === 'metrics'"
+        class="tab-content w-full animate-fadeIn"
+      >
+        <div
+          class="bg-gray-800 rounded-lg shadow-xl border border-gray-700 p-6"
+        >
+          <h4 class="text-2xl font-bold mb-6 text-center text-blue-400">
+            <i class="bi bi-graph-up mr-2"></i>Server Metrics
+          </h4>
           <ServerMetricsPanel
             :player-count="playerCount"
             :food-count="foodCount"
@@ -102,10 +120,15 @@ onMounted(() => {
           <SystemMetricsPanel :player-count="playerCount" />
         </div>
       </div>
-      <div v-if="activeTab === 'performance'" class="tab-content">
-        <div class="p-4">
-          <h4 class="text-2xl font-bold mb-4 text-center">
-            Performance Monitoring
+      <div
+        v-if="activeTab === 'performance'"
+        class="tab-content w-full animate-fadeIn"
+      >
+        <div
+          class="bg-gray-800 rounded-lg shadow-xl border border-gray-700 p-6"
+        >
+          <h4 class="text-2xl font-bold mb-6 text-center text-blue-400">
+            <i class="bi bi-speedometer2 mr-2"></i>Performance Monitoring
           </h4>
           <PerformanceMetricsPanel />
         </div>
@@ -122,5 +145,9 @@ onMounted(() => {
   to {
     opacity: 1;
   }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-in-out;
 }
 </style>

@@ -9,7 +9,7 @@ an **authoritative server** model to maintain a fair and synchronized game state
 
 🎥 **Demo** - [https://youtu.be/hHJq1ubGmuw](https://youtu.be/hHJq1ubGmuw)
 
-[![wakatime](https://wakatime.com/badge/user/b9df6102-292d-4e04-8c49-0347a58ded19/project/4163f7f2-76cb-4cdb-8191-38d6039d035b.svg)](https://wakatime.com/badge/user/b9df6102-292d-4e04-8c49-0347a58ded19/project/4163f7f2-76cb-4cdb-8191-38d6039d035b)
+[![wakatime](https://wakatime.com/badge/github/CryptoSingh1337/serpent-clash.svg)](https://wakatime.com/badge/github/CryptoSingh1337/serpent-clash)
 
 ### 🔑 Key Features
 - ⚔️ **Multiplayer** with low-latency WebSocket communication

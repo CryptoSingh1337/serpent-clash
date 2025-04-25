@@ -10,6 +10,7 @@ export class Player {
   snake: Snake
   sprite: Sprite[]
   lastUpdatedTime: number
+  animationCounter: number
 
   constructor(game: Game, id: string, snake: Snake) {
     this.id = id
@@ -17,6 +18,7 @@ export class Player {
     this.snake = snake
     this.sprite = []
     this.lastUpdatedTime = 0
+    this.animationCounter = 0
     this.createSprite()
   }
 

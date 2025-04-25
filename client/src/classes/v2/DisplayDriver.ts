@@ -19,11 +19,17 @@ export class DisplayDriver {
 
   render(): void {
     if (this.game.player) {
-      const worldMouseX = this.game.inputManager.mousePosition.x - this.renderer.worldContainer.x
-      const worldMouseY = this.game.inputManager.mousePosition.y - this.renderer.worldContainer.y
-      this.game.player.move(worldMouseX, worldMouseY)
+      const coordinate = this.camera.worldToScreen(
+        this.game.inputManager.mousePosition.x,
+        this.game.inputManager.mousePosition.y
+      )
+      this.game.player.move(coordinate.x, coordinate.y)
       this.game.player.updateSprite()
     }
+  }
+
+  update(): void {
+    this.camera.update()
   }
 
   stop(): void {

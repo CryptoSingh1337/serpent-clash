@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import type { DebugDriver } from "@/drivers/debug_driver.ts"
 import { computed, ref, onMounted } from "vue"
 import type { Coordinate } from "@/utils/types"
+import type {DebugManager} from "@/classes/v2/DebugManager.ts"
 
 const props = defineProps<{
-  debugMenu: DebugDriver | null
+  debugManager: DebugManager | null
 }>()
 const stats = computed(
-  () => props.debugMenu && props.debugMenu.game.statsDriver.stats
+  () => props.debugManager && props.debugManager.game.statsManager.stats
 )
 
 // For draggable functionality
@@ -133,7 +133,7 @@ const teleportX = ref<number>(0)
 const teleportY = ref<number>(0)
 
 async function teleport(): Promise<void> {
-  if (!props.debugMenu) {
+  if (!props.debugManager) {
     console.log("debug menu is not initialized")
     return
   }
@@ -141,7 +141,7 @@ async function teleport(): Promise<void> {
     x: teleportX.value,
     y: teleportY.value
   }
-  await props.debugMenu.teleport(coordinate)
+  await props.debugManager.teleport(coordinate)
 }
 </script>
 

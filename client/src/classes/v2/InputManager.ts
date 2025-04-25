@@ -22,6 +22,7 @@ export class InputManager {
     const rect = this.game.div.getBoundingClientRect()
     this.mousePosition.x = e.clientX - rect.left
     this.mousePosition.y = e.clientY - rect.top
+    this.game.statsManager.updateMouseCoordinate({x: this.mousePosition.x, y: this.mousePosition.y})
   }
 
   onMouseUp() {

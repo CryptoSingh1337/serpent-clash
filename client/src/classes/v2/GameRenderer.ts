@@ -6,15 +6,15 @@ export class GameRenderer {
   app: Application
   game: Game
   worldContainer: Container
-  entityLayer: Container
   background: Background
+  entityLayer: Container
 
   constructor(game: Game) {
     this.app = new Application()
     this.game = game
     this.worldContainer = new Container()
-    this.entityLayer = new Container()
     this.background = new Background(this.game)
+    this.entityLayer = new Container()
   }
 
   async init(): Promise<void> {
@@ -28,9 +28,9 @@ export class GameRenderer {
       antialias: true
     })
     this.background.init()
+    this.app.stage.addChild(this.worldContainer)
     this.worldContainer.addChild(this.background.container)
     this.worldContainer.addChild(this.entityLayer)
-    this.app.stage.addChild(this.worldContainer)
     this.game.div.appendChild(this.app.canvas)
   }
 

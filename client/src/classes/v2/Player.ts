@@ -1,8 +1,9 @@
-import {Graphics, Sprite} from "pixi.js"
-import type {Snake} from "@/classes/v2/Snake.ts"
-import type {Game} from "@/classes/v2/Game.ts"
-import {Constants} from "@/utils/constants.ts"
-import {lerpAngle} from "@/utils/helper.ts"
+import { Graphics, Sprite } from "pixi.js"
+import type { Snake } from "@/classes/v2/Snake.ts"
+import type { Game } from "@/classes/v2/Game.ts"
+import { Constants } from "@/utils/constants.ts"
+import { lerp, lerpAngle } from "@/utils/helper.ts"
+import type { Coordinate } from "@/utils/types"
 
 export class Player {
   game: Game
@@ -19,16 +20,17 @@ export class Player {
     this.sprite = []
     this.lastUpdatedTime = 0
     this.animationCounter = 0
-    this.createSprite()
+    // this.createSprite()
   }
 
   createSprite(): void {
-    const texture = this.game.displayDriver.renderer.app.renderer.generateTexture(
-      new Graphics()
-        .circle(8, 8, Constants.snakeSegmentDiameter)
-        .fill({color: this.snake.color})
-        .stroke({color: 0x000000, width: 1})
-    )
+    const texture =
+      this.game.displayDriver.renderer.app.renderer.generateTexture(
+        new Graphics()
+          .circle(8, 8, Constants.snakeSegmentDiameter)
+          .fill({ color: this.snake.color })
+          .stroke({ color: 0x000000, width: 1 })
+      )
     for (const segment of this.snake.segments) {
       const sprite = new Sprite(texture)
       sprite.position.set(segment.x, segment.y)
@@ -77,6 +79,27 @@ export class Player {
     this.lastUpdatedTime = currentTime
   }
 
+  moveWithInterpolation(positions: Coordinate[]): void {
+    const currentTime = performance.now()
+    const interpolationFactor = Math.min(
+      (currentTime - this.lastUpdatedTime) / Constants.tickRate,
+      1
+    )
+    for (let i = 0; i < this.snake.segments.length; i++) {
+      this.snake.segments[i].x = lerp(
+        this.snake.segments[i].x,
+        positions[i].x,
+        interpolationFactor
+      )
+      this.snake.segments[i].y = lerp(
+        this.snake.segments[i].y,
+        positions[i].y,
+        interpolationFactor
+      )
+    }
+    this.lastUpdatedTime = currentTime
+  }
+
   updateSprite(): void {
     for (let i = 0; i < this.snake.segments.length; i++) {
       const segment = this.snake.segments[i]
@@ -86,7 +109,6 @@ export class Player {
   }
 
   destroy(): void {
-    this.sprite.forEach(sprite => sprite.destroy(true))
-    this.game.removeEntity(this.id, "player")
+    this.sprite.forEach((sprite) => sprite.destroy(true))
   }
 }

@@ -156,83 +156,83 @@ export class GameDriver {
     const onMessage = (data: any) => {
       data = JSON.parse(data.data)
       const body = data.body
-      switch (data.type) {
-        case WsMessageType.hello: {
-          this.playerId = body.id
-          this.statsDriver.updatePlayerId(this.playerId)
-          break
-        }
-        case WsMessageType.Pong: {
-          const ping = Math.max(
-            body.reqAck - body.reqInit + Date.now() - body.resInit,
-            0
-          )
-          this.statsDriver.updatePing(ping)
-          break
-        }
-        case WsMessageType.GameState: {
-          const backendPlayers = body.playerStates as {
-            [id: string]: BackendPlayer
-          }
-          for (const id in backendPlayers) {
-            const backendPlayer = backendPlayers[id]
-            if (!this.frontendPlayers[id]) {
-              this.frontendPlayers[id] = new Player({
-                id: id,
-                color: backendPlayer.color,
-                positions: backendPlayer.positions
-              })
-              if (!this.currentPlayer && this.playerId === id) {
-                console.log("Current player changed")
-                this.currentPlayer = this.frontendPlayers[id]
-              }
-            } else {
-              const frontendPlayer = this.frontendPlayers[id]
-              frontendPlayer.moveWithInterpolation(backendPlayer.positions)
-              if (this.playerId === id) {
-                const lastProcessedInput = this.inputs.findIndex((input) => {
-                  return backendPlayer.seq === input.seq
-                })
-                if (lastProcessedInput > -1) {
-                  this.inputs.splice(0, lastProcessedInput + 1)
-                }
-                this.inputs.forEach((input: ReconcileEvent) => {
-                  const { coordinate } = input.event
-                  if (coordinate) {
-                    this.mouseCoordinate.x = coordinate.x
-                    this.mouseCoordinate.y = coordinate.y
-                    this.statsDriver.updateMouseCoordinate(this.mouseCoordinate)
-                    const worldCoordinate =
-                      this.displayDriver.getCameraScreenToWorldCoordinates(
-                        coordinate.x,
-                        coordinate.y
-                      )
-                    if (this.currentPlayer) {
-                      this.currentPlayer.move(
-                        worldCoordinate.x,
-                        worldCoordinate.y
-                      )
-                    }
-                  }
-                })
-                this.statsDriver.updateHeadCoordinate(
-                  frontendPlayer.positions[0].x,
-                  frontendPlayer.positions[0].y
-                )
-              }
-            }
-          }
-          for (const id in this.frontendPlayers) {
-            if (!backendPlayers[id]) {
-              delete this.frontendPlayers[id]
-            }
-          }
-          break
-        }
-        default: {
-          console.log("invalid message type", data.type)
-        }
-      }
+      // switch (data.type) {
+      //   case WsMessageType.hello: {
+      //     this.playerId = body.id
+      //     this.statsDriver.updatePlayerId(this.playerId)
+      //     break
+      //   }
+      //   case WsMessageType.Pong: {
+      //     const ping = Math.max(
+      //       body.reqAck - body.reqInit + Date.now() - body.resInit,
+      //       0
+      //     )
+      //     this.statsDriver.updatePing(ping)
+      //     break
+      //   }
+      //   case WsMessageType.GameState: {
+      //     const backendPlayers = body.playerStates as {
+      //       [id: string]: BackendPlayer
+      //     }
+      //     for (const id in backendPlayers) {
+      //       const backendPlayer = backendPlayers[id]
+      //       if (!this.frontendPlayers[id]) {
+      //         this.frontendPlayers[id] = new Player({
+      //           id: id,
+      //           color: backendPlayer.color,
+      //           positions: backendPlayer.positions
+      //         })
+      //         if (!this.currentPlayer && this.playerId === id) {
+      //           console.log("Current player changed")
+      //           this.currentPlayer = this.frontendPlayers[id]
+      //         }
+      //       } else {
+      //         const frontendPlayer = this.frontendPlayers[id]
+      //         frontendPlayer.moveWithInterpolation(backendPlayer.positions)
+      //         if (this.playerId === id) {
+      //           const lastProcessedInput = this.inputs.findIndex((input) => {
+      //             return backendPlayer.seq === input.seq
+      //           })
+      //           if (lastProcessedInput > -1) {
+      //             this.inputs.splice(0, lastProcessedInput + 1)
+      //           }
+      //           this.inputs.forEach((input: ReconcileEvent) => {
+      //             const { coordinate } = input.event
+      //             if (coordinate) {
+      //               this.mouseCoordinate.x = coordinate.x
+      //               this.mouseCoordinate.y = coordinate.y
+      //               this.statsDriver.updateMouseCoordinate(this.mouseCoordinate)
+      //               const worldCoordinate =
+      //                 this.displayDriver.getCameraScreenToWorldCoordinates(
+      //                   coordinate.x,
+      //                   coordinate.y
+      //                 )
+      //               if (this.currentPlayer) {
+      //                 this.currentPlayer.move(
+      //                   worldCoordinate.x,
+      //                   worldCoordinate.y
+      //                 )
+      //               }
+      //             }
+      //           })
+      //           this.statsDriver.updateHeadCoordinate(
+      //             frontendPlayer.positions[0].x,
+      //             frontendPlayer.positions[0].y
+      //           )
+      //         }
+      //       }
+      //     }
+      //     for (const id in this.frontendPlayers) {
+      //       if (!backendPlayers[id]) {
+      //         delete this.frontendPlayers[id]
+      //       }
+      //     }
+      //     break
+      //   }
+      //   default: {
+      //     console.log("invalid message type", data.type)
+      //   }
+      // }
     }
     this.socketDriver = new SocketDriver(
       this.username,

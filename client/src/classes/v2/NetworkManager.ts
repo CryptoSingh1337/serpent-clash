@@ -1,124 +1,132 @@
-import type {Game} from "@/classes/v2/Game.ts"
-import {Player} from "@/classes/entity.ts"
-import type {BackendPlayer, ReconcileEvent} from "@/utils/types"
-import {getServerBaseUrl} from "@/utils/helper.ts"
-import {WsMessageType} from "@/utils/constants.ts"
-import type {Ref} from "vue";
+import type { Game } from "@/classes/v2/Game.ts"
+import { Player } from "@/classes/v2/Player.ts"
+import type { BackendPlayer, ReconcileEvent } from "@/utils/types"
+import { getServerBaseUrl } from "@/utils/helper.ts"
+import { WsMessageType } from "@/utils/constants.ts"
+import { Snake } from "@/classes/v2/Snake.ts"
 
 export class NetworkManager {
-  clientStatus: Ref
   game: Game
   socket: WebSocket
 
-  constructor(game: Game, clientStatus: Ref, username: string) {
-    this.clientStatus = clientStatus
+  constructor(game: Game, username: string) {
     this.game = game
     this.socket = this.init(username)
   }
 
-  init(
-    username: string
-  ): WebSocket {
+  init(username: string): WebSocket {
     const baseUrl = getServerBaseUrl(true)
     const socket = new WebSocket(`${baseUrl}/ws?username=${username}`)
     socket.onopen = () => {
       console.log("Socket opened")
-      // this.clientStatus.value = "Disconnect"
-      // this.statsDriver.updateStatus("online")
     }
     socket.onclose = () => {
       console.log("Socket closed")
-      // this.clientStatus.value = "Connect"
-      // this.statsDriver.reset()
-      // this.currentPlayer = null
-      // for (const id in this.frontendPlayers) {
-      //   delete this.frontendPlayers[id]
-      // }
+      this.game.player = null
+      this.game.displayDriver.camera.target = null
+      for (const id in this.game.playerEntities) {
+        this.game.playerEntities[id].destroy()
+        delete this.game.playerEntities[id]
+      }
     }
     socket.onerror = (err: any) => {
-      // this.clientStatus.value = "Connect"
       throw err
     }
     socket.onmessage = (data: any) => {
       data = JSON.parse(data.data)
       const body = data.body
-      // switch (data.type) {
-      //   case WsMessageType.hello: {
-      //     this.game.player = body.id
-      //     this.statsDriver.updatePlayerId(this.playerId)
-      //     break
-      //   }
-      //   case WsMessageType.Pong: {
-      //     const ping = Math.max(
-      //       body.reqAck - body.reqInit + Date.now() - body.resInit,
-      //       0
-      //     )
-      //     this.statsDriver.updatePing(ping)
-      //     break
-      //   }
-      //   case WsMessageType.GameState: {
-      //     const backendPlayers = body.playerStates as {
-      //       [id: string]: BackendPlayer
-      //     }
-      //     for (const id in backendPlayers) {
-      //       const backendPlayer = backendPlayers[id]
-      //       if (!this.frontendPlayers[id]) {
-      //         this.frontendPlayers[id] = new Player({
-      //           id: id,
-      //           color: backendPlayer.color,
-      //           positions: backendPlayer.positions
-      //         })
-      //         if (!this.currentPlayer && this.playerId === id) {
-      //           console.log("Current player changed")
-      //           this.currentPlayer = this.frontendPlayers[id]
-      //         }
-      //       } else {
-      //         const frontendPlayer = this.frontendPlayers[id]
-      //         frontendPlayer.moveWithInterpolation(backendPlayer.positions)
-      //         if (this.playerId === id) {
-      //           const lastProcessedInput = this.inputs.findIndex((input) => {
-      //             return backendPlayer.seq === input.seq
-      //           })
-      //           if (lastProcessedInput > -1) {
-      //             this.inputs.splice(0, lastProcessedInput + 1)
-      //           }
-      //           this.inputs.forEach((input: ReconcileEvent) => {
-      //             const { coordinate } = input.event
-      //             if (coordinate) {
-      //               this.mouseCoordinate.x = coordinate.x
-      //               this.mouseCoordinate.y = coordinate.y
-      //               this.statsDriver.updateMouseCoordinate(this.mouseCoordinate)
-      //               const worldCoordinate =
-      //                 this.displayDriver.getCameraScreenToWorldCoordinates(
-      //                   coordinate.x,
-      //                   coordinate.y
-      //                 )
-      //               if (this.currentPlayer) {
-      //                 this.currentPlayer.move(
-      //                   worldCoordinate.x,
-      //                   worldCoordinate.y
-      //                 )
-      //               }
-      //             }
-      //           })
-      //           this.statsDriver.updateHeadCoordinate(
-      //             frontendPlayer.positions[0].x,
-      //             frontendPlayer.positions[0].y
-      //           )
-      //         }
-      //       }
-      //     }
-      //     for (const id in this.frontendPlayers) {
-      //       if (!backendPlayers[id]) {
-      //         delete this.frontendPlayers[id]
-      //       }
-      //     }
-      //     break
-      //   }
-      //   default: {
-      //     console.log("invalid message type", data.type)
-      //   }
-      // }
+      switch (data.type) {
+        case WsMessageType.hello: {
+          this.game.player = new Player(
+            this.game,
+            body.id,
+            new Snake([], 0xffffff)
+          )
+          this.game.statsManager.updatePlayerId(this.game.player.id)
+          break
+        }
+        case WsMessageType.Pong: {
+          const ping = Math.max(
+            body.reqAck - body.reqInit + Date.now() - body.resInit,
+            0
+          )
+          this.game.statsManager.updatePing(ping)
+          break
+        }
+        case WsMessageType.GameState: {
+          const backendPlayerEntities = body.playerStates as {
+            [id: string]: BackendPlayer
+          }
+          for (const id in backendPlayerEntities) {
+            const backendPlayer = backendPlayerEntities[id]
+            if (!this.game.playerEntities[id]) {
+              if (this.game.player && this.game.player.id === id) {
+                this.game.player.snake.segments = backendPlayer.positions
+                this.game.player.createSprite()
+                this.game.displayDriver.renderer.addEntity(
+                  this.game.player.sprite
+                )
+                this.game.playerEntities[id] = this.game.player
+              } else {
+                this.game.playerEntities[id] = new Player(
+                  this.game,
+                  id,
+                  new Snake(backendPlayer.positions, 0xffffff)
+                )
+                this.game.displayDriver.renderer.addEntity(
+                  this.game.playerEntities[id].sprite
+                )
+              }
+            } else {
+              if (this.game.player && this.game.player.id === id) {
+                const lastProcessedInput =
+                  this.game.inputManager.inputQueue.findIndex((input) => {
+                    return backendPlayer.seq === input.seq
+                  })
+                if (lastProcessedInput > -1) {
+                  this.game.inputManager.inputQueue.splice(
+                    0,
+                    lastProcessedInput + 1
+                  )
+                }
+                this.game.inputManager.inputQueue.forEach(
+                  (input: ReconcileEvent) => {
+                    const { coordinate } = input.event
+                    if (coordinate) {
+                      this.game.inputManager.mousePosition.x = coordinate.x
+                      this.game.inputManager.mousePosition.y = coordinate.y
+                    }
+                    const worldCoordinate =
+                      this.game.displayDriver.camera.screenToWorld(
+                        coordinate.x,
+                        coordinate.y
+                      )
+                    if (this.game.player) {
+                      this.game.player.move(
+                        worldCoordinate.x,
+                        worldCoordinate.y
+                      )
+                    }
+                  }
+                )
+              } else {
+                const playerEntity = this.game.playerEntities[id]
+                playerEntity.moveWithInterpolation(backendPlayer.positions)
+              }
+            }
+          }
+          for (const id in this.game.playerEntities) {
+            if (!backendPlayerEntities[id]) {
+              this.game.playerEntities[id].destroy()
+              delete this.game.playerEntities[id]
+            }
+          }
+          break
+        }
+        default: {
+          console.log("invalid message type", data.type)
+        }
+      }
     }
     return socket
   }

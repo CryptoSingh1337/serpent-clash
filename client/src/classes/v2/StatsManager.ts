@@ -1,16 +1,18 @@
-import {ref, type Ref} from "vue"
-import type {Game} from "@/classes/v2/Game.ts"
-import {CustomStats} from "@/classes/custom_stats.ts"
-import type {Coordinate} from "@/utils/types";
+import { ref, type Ref } from "vue"
+import type { Game } from "@/classes/v2/Game.ts"
+import { CustomStats } from "@/classes/custom_stats.ts"
+import type { Coordinate } from "@/utils/types"
 
 export class StatsManager {
   game: Game
   stats: Ref<CustomStats> | null
   _stats: CustomStats
-  debugMode: boolean = false
+  debugMode: boolean
 
   constructor(game: Game) {
     this.game = game
+    this.debugMode = import.meta.env.VITE_DEBUG_MODE === "true"
+    console.log("Debug mode", this.debugMode)
     if (this.debugMode) {
       this.stats = ref<CustomStats>(new CustomStats())
       this._stats = this.stats.value
@@ -21,7 +23,19 @@ export class StatsManager {
   }
 
   update(): void {
-    this.updateCameraCoordinate(this.game.displayDriver.camera.position.x, this.game.displayDriver.camera.position.y)
+    this.updateCameraCoordinate(
+      this.game.displayDriver.camera.position.x,
+      this.game.displayDriver.camera.position.y
+    )
+    if (this.game.player) {
+      const head = this.game.player.snake.segments[0]
+      this.updateHeadCoordinate(head.x, head.y)
+      this.updateReconcileEvent(this.game.inputManager.inputQueue.length)
+      this.updateMouseCoordinate({
+        x: this.game.inputManager.mousePosition.x,
+        y: this.game.inputManager.mousePosition.y
+      })
+    }
   }
 
   updatePing(ping: number): void {

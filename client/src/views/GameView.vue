@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref, useTemplateRef } from "vue"
+import {onBeforeMount, onBeforeUnmount, onMounted, type Ref, ref, useTemplateRef} from "vue"
 import { useRoute, useRouter } from "vue-router"
 import DebugMenu from "@/components/DebugMenu.vue"
 import ChatMenu from "@/components/ChatMenu.vue"
-import {Game} from "@/classes/v2/Game.ts"
-import {DebugManager} from "@/classes/v2/DebugManager.ts";
+import { Game } from "@/classes/v2/Game.ts"
+import { DebugManager } from "@/classes/v2/DebugManager.ts"
 
 const route = useRoute()
 const router = useRouter()
@@ -18,7 +18,7 @@ const gameCanvas = useTemplateRef<HTMLDivElement>("game-canvas")
 const statsContainer = useTemplateRef<HTMLDivElement>("stats-container")
 const status = ref<string>("Connect")
 let game: Game
-let debug: DebugManager | null = null
+let debugManager = ref<DebugManager>()
 const debugMode: boolean = import.meta.env.VITE_DEBUG_MODE === "true"
 
 if (debugMode) {
@@ -27,32 +27,28 @@ if (debugMode) {
 
 function connectOrDisconnect(): void {
   if (
-      game &&
-      game.networkManager &&
-      game.networkManager.socketState() === WebSocket.CLOSED
+    game &&
+    game.networkManager &&
+    game.networkManager.socketState() === WebSocket.CLOSED
   ) {
     console.debug("Connecting socket connection...")
     game.connect()
   } else if (
-      game &&
-      game.networkManager &&
-      game.networkManager.socketState() === WebSocket.OPEN
+    game &&
+    game.networkManager &&
+    game.networkManager.socketState() === WebSocket.OPEN
   ) {
     console.debug("Disconnecting socket connection...")
     game.disconnect()
   }
 }
 
-onMounted(async () => {
-  game = new Game(
-      gameCanvas.value,
-      statsContainer,
-      status,
-      username
-  )
-  debug = new DebugManager(game)
-  await game.init()
-  game.start()
+onMounted(() => {
+  game = new Game(gameCanvas.value, statsContainer, status, username)
+  debugManager.value = new DebugManager(game)
+  game.init().then(() => {
+    game.start()
+  })
 })
 
 onBeforeUnmount(() => {
@@ -73,10 +69,10 @@ onBeforeUnmount(() => {
           {{ status }}
         </button>
       </div>
-      <DebugMenu v-if="debugMode" :debug-menu="debug" />
+      <DebugMenu v-if="debugMode" :debug-manager="debugManager" />
     </div>
-<!--    <div class="absolute bottom-1 left-1 space-y-2 text-sm">-->
-<!--      <ChatMenu />-->
-<!--    </div>-->
+    <!--    <div class="absolute bottom-1 left-1 space-y-2 text-sm">-->
+    <!--      <ChatMenu />-->
+    <!--    </div>-->
   </div>
 </template>

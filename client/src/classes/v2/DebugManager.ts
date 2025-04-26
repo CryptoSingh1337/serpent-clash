@@ -1,7 +1,7 @@
 import { clamp, getServerBaseUrl } from "@/utils/helper.ts"
 import { Constants } from "@/utils/constants.ts"
 import type { Coordinate } from "@/utils/types"
-import type {Game} from "@/classes/v2/Game.ts";
+import type { Game } from "@/classes/v2/Game.ts"
 
 export class DebugManager {
   game: Game
@@ -26,13 +26,16 @@ export class DebugManager {
       return
     }
     console.log(`Teleporting to (${coordinate})`)
-    await fetch(`${this.serverBaseUrl}/player/${this.game.player?.id}/teleport`, {
-      method: "POST",
-      headers: {
-        "Content-type": "application/json"
-      },
-      body: JSON.stringify(coordinate)
-    })
+    await fetch(
+      `${this.serverBaseUrl}/player/${this.game.player?.id}/teleport`,
+      {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json"
+        },
+        body: JSON.stringify(coordinate)
+      }
+    )
     const { player, displayDriver, statsManager } = this.game
     if (player && statsManager) {
       const head = player.snake.segments[0]

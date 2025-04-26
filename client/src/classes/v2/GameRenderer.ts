@@ -1,6 +1,6 @@
-import {Application, Container, type Sprite} from "pixi.js"
-import type {Game} from "@/classes/v2/Game.ts"
-import {Background} from "@/classes/v2/Background.ts"
+import { Application, Container, type Sprite } from "pixi.js"
+import type { Game } from "@/classes/v2/Game.ts"
+import { Background } from "@/classes/v2/Background.ts"
 
 export class GameRenderer {
   app: Application
@@ -35,11 +35,11 @@ export class GameRenderer {
   }
 
   addEntity(sprites: Sprite[]) {
-    sprites.forEach(sprite => this.entityLayer.addChild(sprite))
+    sprites.forEach((sprite) => this.entityLayer.addChild(sprite))
   }
 
   removeEntity() {
-    this.entityLayer.removeChildAt(0)
+    this.entityLayer.children.forEach((object) => object.destroy())
   }
 
   stop(): void {

@@ -9,16 +9,16 @@ import (
 const (
 	TickRate                  = 60
 	PingCooldown              = 30
-	PlayerSpeed               = 6
+	PlayerSpeed               = 5
 	PlayerBoostSpeed          = 3
 	MaxTurnRate               = 0.03
 	DefaultSnakeLength        = 10
 	DefaultGrowthFactor       = 2
-	SnakeSegmentDistance      = 20
-	SnakeSegmentDiameter      = 50
+	SnakeSegmentDistance      = 23
+	SnakeSegmentDiameter      = 27
 	DefaultFoodSpawnThreshold = 10
 	MaxPlayerAllowed          = 10
-	WorldBoundaryRadius       = 2750
+	WorldBoundaryRadius       = 2850
 	WorldHeight               = 3000
 	WorldWeight               = 3000
 	SpawnRegionRadius         = WorldBoundaryRadius * 0.175

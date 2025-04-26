@@ -1,4 +1,4 @@
-import type {Coordinate} from "@/utils/types"
+import type { Coordinate } from "@/utils/types"
 
 export class Snake {
   angle: number

@@ -76,8 +76,8 @@ onBeforeUnmount(() => {
         :debug-manager="debugManager"
       />
     </div>
-    <!--    <div class="absolute bottom-1 left-1 space-y-2 text-sm">-->
-    <!--      <ChatMenu />-->
-    <!--    </div>-->
+    <div class="absolute bottom-1 left-1 space-y-2 text-sm">
+      <ChatMenu />
+    </div>
   </div>
 </template>

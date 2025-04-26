@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import {ref, onMounted, computed} from "vue"
+import { ref, onMounted, computed } from "vue"
 import type { Coordinate } from "@/utils/types"
 import type { DebugManager } from "@/classes/v2/DebugManager.ts"
 
 const props = defineProps<{
-  debugManager: DebugManager|undefined
+  debugManager: DebugManager
 }>()
 const stats = computed(
   () => props.debugManager && props.debugManager.game.statsManager.stats
@@ -46,8 +46,6 @@ const updatePosition = () => {
 }
 
 onMounted(() => {
-  console.log("Debug manager", props.debugManager)
-  console.log("Stats", stats.value)
   window.addEventListener("resize", updatePosition)
   return () => {
     document.removeEventListener("mousemove", onDrag)

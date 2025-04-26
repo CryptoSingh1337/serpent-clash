@@ -127,6 +127,20 @@ export class NetworkManager {
     this.socket.send(data)
   }
 
+  sendPingPayload(): void {
+    if (this.socket && this.socketState() === WebSocket.OPEN) {
+      this.socket.send(
+        JSON.stringify({
+          type: WsMessageType.Ping,
+          body: {
+            reqInit: Date.now()
+          }
+        })
+      )
+      this.game.statsManager.resetPingCooldown()
+    }
+  }
+
   close(): void {
     this.socket.close()
   }

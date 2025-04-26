@@ -18,6 +18,7 @@ export class Game {
   statsManager: StatsManager
   clientStatusRef: Ref<string>
   stats: Stats | null = null
+  pingPanel: Stats.Panel = new Stats.Panel("Ping (ms)", "#ff8", "#221")
   username: string
   player: Player | null = null
   playerEntities: Players = {}
@@ -37,6 +38,7 @@ export class Game {
     this.username = username
     if (debugMode && statsContainer && statsContainer.value) {
       this.stats = new Stats()
+      this.stats.addPanel(this.pingPanel)
       this.stats.showPanel(0)
       statsContainer.value.appendChild(this.stats.dom)
     }
@@ -58,6 +60,11 @@ export class Game {
       if (this.stats != null) {
         this.stats.begin()
       }
+      this.statsManager.reducePingCooldown()
+      if (this.statsManager.getPingCooldown() <= 0 && this.networkManager) {
+        this.networkManager.sendPingPayload()
+      }
+      this.pingPanel.update(this.statsManager._stats.ping, 500)
       this.displayDriver.update()
       this.statsManager.update()
       if (this.stats != null) {

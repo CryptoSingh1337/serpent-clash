@@ -73,6 +73,11 @@ const menuItems = [
       },
       {
         tag: "span",
+        id: "world-mouse-coordinates",
+        label: "World Mouse coordinates:"
+      },
+      {
+        tag: "span",
         id: "camera-coordinates",
         label: "Camera coordinates:"
       },
@@ -169,6 +174,11 @@ async function teleport(): Promise<void> {
                 </template>
                 <template v-else-if="subField.label === 'Mouse coordinates:'">
                   {{ stats && stats.value && stats.value.mouseCoordinate }}
+                </template>
+                <template
+                  v-else-if="subField.label === 'World Mouse coordinates:'"
+                >
+                  {{ stats && stats.value && stats.value.worldMouseCoordinate }}
                 </template>
                 <template v-else-if="subField.label === 'Camera coordinates:'">
                   {{ stats && stats.value && stats.value.cameraCoordinate.x }},

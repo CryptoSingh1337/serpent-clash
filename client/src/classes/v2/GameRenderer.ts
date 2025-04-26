@@ -34,6 +34,13 @@ export class GameRenderer {
     this.game.div.appendChild(this.app.canvas)
   }
 
+  render(): void {
+    for (const id in this.game.playerEntities) {
+      const player = this.game.playerEntities[id]
+      player.updateSprite()
+    }
+  }
+
   addEntity(sprites: Sprite[]) {
     sprites.forEach((sprite) => this.entityLayer.addChild(sprite))
   }

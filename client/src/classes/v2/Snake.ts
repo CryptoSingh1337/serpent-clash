@@ -10,8 +10,4 @@ export class Snake {
     this.segments = segments
     this.color = color
   }
-
-  setSegments(segments: Coordinate[]): void {
-    this.segments = segments
-  }
 }

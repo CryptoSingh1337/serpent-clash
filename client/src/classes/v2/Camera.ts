@@ -19,14 +19,14 @@ export class Camera {
   }
 
   update(): void {
-    if (!this.target) {
+    if (!this.target || this.target.snake.segments.length <= 0) {
       return
     }
     const targetX =
-      -this.target.sprite[0].x +
+      -this.target.snake.segments[0].x +
       this.game.displayDriver.renderer.app.screen.width / 2
     const targetY =
-      -this.target.sprite[0].y +
+      -this.target.snake.segments[0].y +
       this.game.displayDriver.renderer.app.screen.height / 2
     const app = this.game.displayDriver.renderer.app
     const world = this.game.displayDriver.renderer.worldContainer
@@ -51,15 +51,15 @@ export class Camera {
 
   worldToScreen(worldX: number, worldY: number): Coordinate {
     return {
-      x: Math.floor(worldX - this.position.x),
-      y: Math.floor(worldY - this.position.y)
+      x: Math.floor(worldX + this.position.x),
+      y: Math.floor(worldY + this.position.y)
     }
   }
 
   screenToWorld(screenX: number, screenY: number): Coordinate {
     return {
-      x: Math.floor(screenX + this.position.x),
-      y: Math.floor(screenY + this.position.y)
+      x: Math.floor(screenX - this.position.x),
+      y: Math.floor(screenY - this.position.y)
     }
   }
 }

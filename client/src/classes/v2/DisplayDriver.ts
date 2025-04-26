@@ -18,18 +18,12 @@ export class DisplayDriver {
   }
 
   render(): void {
-    if (this.game.player) {
-      const coordinate = this.camera.worldToScreen(
-        this.game.inputManager.mousePosition.x,
-        this.game.inputManager.mousePosition.y
-      )
-      this.game.player.move(coordinate.x, coordinate.y)
-      this.game.player.updateSprite()
-    }
+    this.renderer.render()
   }
 
   update(): void {
     this.camera.update()
+    this.render()
   }
 
   stop(): void {

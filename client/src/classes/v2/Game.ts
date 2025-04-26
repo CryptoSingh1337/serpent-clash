@@ -58,7 +58,6 @@ export class Game {
       if (this.stats != null) {
         this.stats.begin()
       }
-      this.displayDriver.render()
       this.displayDriver.update()
       this.statsManager.update()
       if (this.stats != null) {

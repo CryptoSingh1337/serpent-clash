@@ -35,6 +35,14 @@ export class StatsManager {
         x: this.game.inputManager.mousePosition.x,
         y: this.game.inputManager.mousePosition.y
       })
+      const worldMouseCoordinate = this.game.displayDriver.camera.screenToWorld(
+        this.game.inputManager.mousePosition.x,
+        this.game.inputManager.mousePosition.y
+      )
+      this.updateWorldMouseCoordinate(
+        worldMouseCoordinate.x,
+        worldMouseCoordinate.y
+      )
     }
   }
 
@@ -52,6 +60,10 @@ export class StatsManager {
 
   updateMouseCoordinate(coordinate: Coordinate): void {
     this._stats.updateMouseCoordinate(coordinate.x, coordinate.y)
+  }
+
+  updateWorldMouseCoordinate(x: number, y: number): void {
+    this._stats.updateWorldMouseCoordinate(x, y)
   }
 
   updateHeadCoordinate(x: number, y: number): void {

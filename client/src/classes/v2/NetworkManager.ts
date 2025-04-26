@@ -73,11 +73,14 @@ export class NetworkManager {
                   id,
                   new Snake(backendPlayer.positions, 0xffffff)
                 )
+                this.game.playerEntities[id].createSprite()
                 this.game.displayDriver.renderer.addEntity(
                   this.game.playerEntities[id].sprite
                 )
               }
             } else {
+              const playerEntity = this.game.playerEntities[id]
+              playerEntity.moveWithInterpolation(backendPlayer.positions)
               if (this.game.player && this.game.player.id === id) {
                 const lastProcessedInput =
                   this.game.inputManager.inputQueue.findIndex((input) => {
@@ -92,26 +95,11 @@ export class NetworkManager {
                 this.game.inputManager.inputQueue.forEach(
                   (input: ReconcileEvent) => {
                     const { coordinate } = input.event
-                    if (coordinate) {
-                      this.game.inputManager.mousePosition.x = coordinate.x
-                      this.game.inputManager.mousePosition.y = coordinate.y
-                    }
-                    const worldCoordinate =
-                      this.game.displayDriver.camera.screenToWorld(
-                        coordinate.x,
-                        coordinate.y
-                      )
-                    if (this.game.player) {
-                      this.game.player.move(
-                        worldCoordinate.x,
-                        worldCoordinate.y
-                      )
+                    if (coordinate && this.game.player) {
+                      this.game.player.move(coordinate.x, coordinate.y)
                     }
                   }
                 )
-              } else {
-                const playerEntity = this.game.playerEntities[id]
-                playerEntity.moveWithInterpolation(backendPlayer.positions)
               }
             }
           }

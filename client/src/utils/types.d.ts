@@ -1,4 +1,4 @@
-import type { Player } from "@/classes/v2/Player.ts"
+import type { Player } from "@/classes/Player.ts"
 
 export type ReconcileEvent = {
   seq: number

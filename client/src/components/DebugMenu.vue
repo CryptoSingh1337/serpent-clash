@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from "vue"
 import type { Coordinate } from "@/utils/types"
-import type { DebugManager } from "@/classes/v2/DebugManager.ts"
+import type { DebugManager } from "@/classes/DebugManager.ts"
 
 const props = defineProps<{
   debugManager: DebugManager

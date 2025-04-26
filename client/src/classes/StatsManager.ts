@@ -1,6 +1,6 @@
 import { ref, type Ref } from "vue"
-import type { Game } from "@/classes/v2/Game.ts"
-import { CustomStats } from "@/classes/custom_stats.ts"
+import type { Game } from "@/classes/Game.ts"
+import { CustomStats } from "@/classes/CustomStats.ts"
 import type { Coordinate } from "@/utils/types"
 
 export class StatsManager {

@@ -1,6 +1,6 @@
-import type { Game } from "@/classes/v2/Game.ts"
-import { GameRenderer } from "@/classes/v2/GameRenderer.ts"
-import { Camera } from "@/classes/v2/Camera.ts"
+import type { Game } from "@/classes/Game.ts"
+import { GameRenderer } from "@/classes/GameRenderer.ts"
+import { Camera } from "@/classes/Camera.ts"
 
 export class DisplayDriver {
   game: Game

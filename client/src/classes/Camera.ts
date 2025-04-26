@@ -1,5 +1,5 @@
-import type { Game } from "@/classes/v2/Game.ts"
-import type { Player } from "@/classes/v2/Player.ts"
+import type { Game } from "@/classes/Game.ts"
+import type { Player } from "@/classes/Player.ts"
 import { Constants } from "@/utils/constants.ts"
 import type { Coordinate } from "@/utils/types"
 

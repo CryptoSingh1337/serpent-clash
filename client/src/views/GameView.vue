@@ -3,8 +3,8 @@ import { onBeforeUnmount, onMounted, ref, useTemplateRef } from "vue"
 import { useRoute, useRouter } from "vue-router"
 import DebugMenu from "@/components/DebugMenu.vue"
 import ChatMenu from "@/components/ChatMenu.vue"
-import { Game } from "@/classes/v2/Game.ts"
-import { DebugManager } from "@/classes/v2/DebugManager.ts"
+import { Game } from "@/classes/Game.ts"
+import { DebugManager } from "@/classes/DebugManager.ts"
 
 const route = useRoute()
 const router = useRouter()

@@ -1,4 +1,4 @@
-import type { Game } from "@/classes/v2/Game.ts"
+import type { Game } from "@/classes/Game.ts"
 import type { ReconcileEvent } from "@/utils/types"
 import { clamp } from "@/utils/helper.ts"
 import { Constants, WsMessageType } from "@/utils/constants.ts"

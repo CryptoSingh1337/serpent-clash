@@ -1,5 +1,5 @@
 import { Container, Graphics, Point } from "pixi.js"
-import type { Game } from "@/classes/v2/Game.ts"
+import type { Game } from "@/classes/Game.ts"
 import { Constants } from "@/utils/constants.ts"
 
 export class Background {

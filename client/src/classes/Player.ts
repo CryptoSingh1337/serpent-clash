@@ -1,6 +1,6 @@
 import { Graphics, Sprite } from "pixi.js"
-import type { Snake } from "@/classes/v2/Snake.ts"
-import type { Game } from "@/classes/v2/Game.ts"
+import type { Snake } from "@/classes/Snake.ts"
+import type { Game } from "@/classes/Game.ts"
 import { Constants } from "@/utils/constants.ts"
 import { lerp, lerpAngle } from "@/utils/helper.ts"
 import type { Coordinate } from "@/utils/types"

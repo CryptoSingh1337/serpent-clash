@@ -1,6 +1,6 @@
 import { Application, Container, type Sprite } from "pixi.js"
-import type { Game } from "@/classes/v2/Game.ts"
-import { Background } from "@/classes/v2/Background.ts"
+import type { Game } from "@/classes/Game.ts"
+import { Background } from "@/classes/Background.ts"
 
 export class GameRenderer {
   app: Application

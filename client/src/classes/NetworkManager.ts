@@ -1,9 +1,9 @@
-import type { Game } from "@/classes/v2/Game.ts"
-import { Player } from "@/classes/v2/Player.ts"
+import type { Game } from "@/classes/Game.ts"
+import { Player } from "@/classes/Player.ts"
 import type { BackendPlayer, ReconcileEvent } from "@/utils/types"
 import { getServerBaseUrl } from "@/utils/helper.ts"
 import { WsMessageType } from "@/utils/constants.ts"
-import { Snake } from "@/classes/v2/Snake.ts"
+import { Snake } from "@/classes/Snake.ts"
 
 export class NetworkManager {
   game: Game

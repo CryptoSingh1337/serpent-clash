@@ -24,8 +24,7 @@ export class GameRenderer {
     await this.app.init({
       preference: "webgpu",
       resizeTo: window,
-      background: 0x191825,
-      antialias: true
+      background: 0x191825
     })
     this.background.init()
     this.app.stage.addChild(this.worldContainer)

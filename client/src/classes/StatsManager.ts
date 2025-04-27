@@ -28,8 +28,10 @@ export class StatsManager {
       this.game.displayDriver.camera.position.y
     )
     if (this.game.player) {
-      const head = this.game.player.snake.segments[0]
-      this.updateHeadCoordinate(head.x, head.y)
+      if (this.game.player.snake && this.game.player.snake.segments.length > 0) {
+        const head = this.game.player.snake.segments[0]
+        this.updateHeadCoordinate(head.x, head.y)
+      }
       this.updateReconcileEvent(this.game.inputManager.inputQueue.length)
       this.updateMouseCoordinate({
         x: this.game.inputManager.mousePosition.x,

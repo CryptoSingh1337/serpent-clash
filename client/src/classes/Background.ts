@@ -43,6 +43,7 @@ export class Background {
         .circle(0, 0, Constants.worldBoundary.radius)
         .stroke({ color: 0xff0000, width: 2, alpha: 1 })
     )
+    this.container.cacheAsTexture(true)
   }
 
   drawHex(x: number, y: number, hexSize: number): Graphics {

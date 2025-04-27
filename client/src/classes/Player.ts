@@ -20,7 +20,6 @@ export class Player {
     this.sprite = []
     this.lastUpdatedTime = 0
     this.animationCounter = 0
-    // this.createSprite()
   }
 
   createSprite(): void {
@@ -31,8 +30,11 @@ export class Player {
           .fill({ color: this.snake.color })
           .stroke({ color: 0x000000, width: 1 })
       )
-    for (const segment of this.snake.segments) {
+
+    for (let i = 0; i < this.snake.segments.length; i++) {
+      const segment = this.snake.segments[i]
       const sprite = new Sprite(texture)
+      sprite.zIndex = i === 0 ? 999 : 998 - i
       sprite.position.set(segment.x, segment.y)
       this.sprite.push(sprite)
     }

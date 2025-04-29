@@ -305,8 +305,7 @@ onUnmounted(() => {
         <span class="mr-1">🎮</span>
         <span
           class="font-bold text-transparent bg-clip-text font-cherry bg-gradient-to-r from-[#4caf50] to-[#8bc34a]"
-        >
-          Multiplayer Snake Battle Arena
+          >Multiplayer Snake Battle Arena
         </span>
       </h1>
       <p class="text-xl mb-8 max-w-2xl mx-auto text-[#fff9c4] leading-relaxed">

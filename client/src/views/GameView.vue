@@ -16,7 +16,7 @@ if (!username || username.length === 0) {
 
 const gameCanvas = useTemplateRef<HTMLDivElement>("game-canvas")
 const statsContainer = useTemplateRef<HTMLDivElement>("stats-container")
-const status = ref<string>("Connect")
+const status = ref("Connect")
 const isGameReady = ref(false)
 let game: Game
 let debugManager: DebugManager

@@ -19,9 +19,11 @@ export class NetworkManager {
     const socket = new WebSocket(`${baseUrl}/ws?username=${username}`)
     socket.onopen = () => {
       console.log("Socket opened")
+      this.game.clientStatusRef.value = "Disconnect"
     }
     socket.onclose = () => {
       console.log("Socket closed")
+      this.game.clientStatusRef.value = "Connect"
       this.game.player = null
       this.game.displayDriver.camera.target = null
       for (const id in this.game.playerEntities) {
@@ -30,6 +32,7 @@ export class NetworkManager {
       }
     }
     socket.onerror = (err: any) => {
+      this.game.clientStatusRef.value = "Connect"
       throw err
     }
     socket.onmessage = (data: any) => {

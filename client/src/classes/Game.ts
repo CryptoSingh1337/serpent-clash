@@ -16,7 +16,7 @@ export class Game {
   inputManager: InputManager
   networkManager: NetworkManager | null = null
   statsManager: StatsManager
-  clientStatusRef: Ref<string>
+  clientStatusRef: Ref
   stats: Stats | null = null
   pingPanel: Stats.Panel = new Stats.Panel("Ping (ms)", "#ff8", "#221")
   username: string
@@ -26,7 +26,7 @@ export class Game {
   constructor(
     div: HTMLDivElement | null,
     statsContainer: Readonly<ShallowRef<HTMLDivElement | null>> | null,
-    clientStatusRef: Ref<string>,
+    clientStatusRef: Ref,
     username: string
   ) {
     this.div = div
@@ -90,7 +90,6 @@ export class Game {
     ) {
       this.networkManager = new NetworkManager(this, this.username)
       if (this.networkManager.socketState() === WebSocket.OPEN) {
-        this.clientStatusRef.value = "Disconnect"
         this.statsManager.updateStatus("Online")
       }
     }
@@ -103,7 +102,6 @@ export class Game {
     ) {
       this.networkManager.close()
       if (this.networkManager.socketState() === WebSocket.CLOSED) {
-        this.clientStatusRef.value = "Connect"
         this.statsManager.reset()
       }
     }

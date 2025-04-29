@@ -14,8 +14,8 @@ const (
 	MaxTurnRate               = 0.03
 	DefaultSnakeLength        = 10
 	DefaultGrowthFactor       = 2
-	SnakeSegmentDistance      = 23
-	SnakeSegmentDiameter      = 27
+	SnakeSegmentDistance      = 20
+	SnakeSegmentDiameter      = 50
 	DefaultFoodSpawnThreshold = 10
 	MaxPlayerAllowed          = 10
 	WorldBoundaryRadius       = 2850

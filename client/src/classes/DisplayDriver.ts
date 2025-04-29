@@ -17,13 +17,9 @@ export class DisplayDriver {
     await this.renderer.init()
   }
 
-  render(): void {
-    this.renderer.render()
-  }
-
   update(): void {
     this.camera.update()
-    this.render()
+    this.renderer.render()
   }
 
   stop(): void {

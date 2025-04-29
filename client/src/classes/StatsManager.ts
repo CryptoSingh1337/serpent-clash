@@ -28,7 +28,10 @@ export class StatsManager {
       this.game.displayDriver.camera.position.y
     )
     if (this.game.player) {
-      if (this.game.player.snake && this.game.player.snake.segments.length > 0) {
+      if (
+        this.game.player.snake &&
+        this.game.player.snake.segments.length > 0
+      ) {
         const head = this.game.player.snake.segments[0]
         this.updateHeadCoordinate(head.x, head.y)
       }

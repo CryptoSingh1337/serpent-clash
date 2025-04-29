@@ -60,13 +60,13 @@ export class Game {
       if (this.stats != null) {
         this.stats.begin()
       }
+      this.displayDriver.update()
+      this.statsManager.update()
       this.statsManager.reducePingCooldown()
       if (this.statsManager.getPingCooldown() <= 0 && this.networkManager) {
         this.networkManager.sendPingPayload()
       }
       this.pingPanel.update(this.statsManager._stats.ping, 300)
-      this.displayDriver.update()
-      this.statsManager.update()
       if (this.stats != null) {
         this.stats.end()
       }

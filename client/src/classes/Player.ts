@@ -34,6 +34,7 @@ export class Player {
     for (let i = 0; i < this.snake.segments.length; i++) {
       const segment = this.snake.segments[i]
       const sprite = new Sprite(texture)
+      sprite.anchor.set(0.5, 0.5)
       sprite.zIndex = i === 0 ? 999 : 998 - i
       sprite.position.set(segment.x, segment.y)
       this.sprite.push(sprite)

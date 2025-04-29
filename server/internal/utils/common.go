@@ -9,7 +9,7 @@ import (
 const (
 	TickRate                  = 60
 	PingCooldown              = 30
-	PlayerSpeed               = 5
+	PlayerSpeed               = 6
 	PlayerBoostSpeed          = 3
 	MaxTurnRate               = 0.03
 	DefaultSnakeLength        = 10

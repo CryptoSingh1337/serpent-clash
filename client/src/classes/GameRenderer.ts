@@ -22,14 +22,15 @@ export class GameRenderer {
       throw Error("invalid canvas")
     }
     await this.app.init({
-      preference: "webgpu",
+      preference: "webgl",
       resizeTo: window,
-      background: 0x191825
+      background: 0x191825,
+      antialias: true
     })
     this.background.init()
-    this.app.stage.addChild(this.worldContainer)
     this.worldContainer.addChild(this.background.container)
     this.worldContainer.addChild(this.entityLayer)
+    this.app.stage.addChild(this.worldContainer)
     this.game.div.appendChild(this.app.canvas)
   }
 

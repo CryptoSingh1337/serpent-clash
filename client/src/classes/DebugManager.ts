@@ -1,7 +1,7 @@
+import type { Game } from "@/classes/Game.ts"
 import { clamp, getServerBaseUrl } from "@/utils/helper.ts"
 import { Constants } from "@/utils/constants.ts"
 import type { Coordinate } from "@/utils/types"
-import type { Game } from "@/classes/Game.ts"
 
 export class DebugManager {
   game: Game

@@ -85,7 +85,7 @@ an **authoritative server** model to maintain a fair and synchronized game state
 
 ### ⚡ Optimizations
 - [ ] Switch to binary data formats instead of JSON for faster network communication
-- [x] Explore PixiJS to improve performance
+- [x] Explore Pixi.js to improve performance
 
 ### 📚 Resources
 - [https://www.gabrielgambetta.com/client-server-game-architecture.html](https://www.gabrielgambetta.com/client-server-game-architecture.html)

@@ -1,4 +1,4 @@
-import { Container, Graphics, Point } from "pixi.js"
+import { Container, Graphics, Point, Sprite } from "pixi.js"
 import type { Game } from "@/classes/Game.ts"
 import { Constants } from "@/utils/constants.ts"
 
@@ -13,27 +13,32 @@ export class Background {
 
   init() {
     const hexSize = 50
-    const hexHeight = hexSize * 2
-    const hexWidth = Math.sqrt(25) * hexSize
+    const hexWidth = 5 * hexSize
+    const hexHeight = 2 * hexSize
     const verticalSpacing = (hexHeight * 6) / 4.5
     const horizontalSpacing = hexWidth / 2
 
     // Create hex in honeycomb pattern
+    const hexTexture =
+      this.game.displayDriver.renderer.app.renderer.generateTexture(
+        this.drawHex(0, 0, hexSize)
+      )
     let rowCount = 0
     for (
-      let startY = Constants.worldBoundary.minY;
-      startY <= Constants.worldBoundary.maxY;
-      startY += horizontalSpacing, rowCount++
+      let y = Constants.worldBoundary.minY;
+      y <= Constants.worldBoundary.maxY;
+      y += horizontalSpacing, rowCount++
     ) {
       const rowOffset = rowCount % 2 === 0 ? 0 : verticalSpacing / 2
       for (
-        let startX = Constants.worldBoundary.minX;
-        startX <= Constants.worldBoundary.maxX;
-        startX += verticalSpacing
+        let x = Constants.worldBoundary.minX;
+        x <= Constants.worldBoundary.maxX;
+        x += verticalSpacing
       ) {
-        this.container.addChild(
-          this.drawHex(startX + rowOffset, startY, hexSize)
-        )
+        const hexSprite = new Sprite(hexTexture)
+        hexSprite.position.set(x + rowOffset, y)
+        hexSprite.anchor.set(0.5)
+        this.container.addChild(hexSprite)
       }
     }
 

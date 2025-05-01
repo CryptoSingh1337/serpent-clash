@@ -1,10 +1,11 @@
-import { Constants } from "@/utils/constants"
 import type { CameraCoordinates } from "@/utils/types"
+import { Constants } from "@/utils/constants"
 import { roundOff } from "@/utils/helper.ts"
 
 export class CustomStats {
   ping: number = 0
   mouseCoordinate: { x: number; y: number } = { x: 0, y: 0 }
+  worldMouseCoordinate: { x: number; y: number } = { x: 0, y: 0 }
   headCoordinate: { x: number; y: number } = {
     x: innerWidth / 2,
     y: innerHeight / 2
@@ -37,6 +38,11 @@ export class CustomStats {
   updateMouseCoordinate(x: number, y: number): void {
     this.mouseCoordinate.x = x
     this.mouseCoordinate.y = y
+  }
+
+  updateWorldMouseCoordinate(x: number, y: number): void {
+    this.worldMouseCoordinate.x = x
+    this.worldMouseCoordinate.y = y
   }
 
   updateHeadCoordinate(x: number, y: number): void {

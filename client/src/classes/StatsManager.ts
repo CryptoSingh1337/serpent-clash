@@ -1,17 +1,18 @@
-import { CustomStats } from "@/classes/custom_stats.ts"
 import { ref, type Ref } from "vue"
-import { DisplayDriver } from "@/drivers/display_driver.ts"
+import type { Game } from "@/classes/Game.ts"
+import { CustomStats } from "@/classes/CustomStats.ts"
 import type { Coordinate } from "@/utils/types"
 
-export class StatsDriver {
-  displayDriver: DisplayDriver
+export class StatsManager {
+  game: Game
   stats: Ref<CustomStats> | null
   _stats: CustomStats
-  debugMode: boolean = false
+  debugMode: boolean
 
-  constructor(displayDriver: DisplayDriver) {
-    this.displayDriver = displayDriver
+  constructor(game: Game) {
+    this.game = game
     this.debugMode = import.meta.env.VITE_DEBUG_MODE === "true"
+    console.log("Debug mode", this.debugMode)
     if (this.debugMode) {
       this.stats = ref<CustomStats>(new CustomStats())
       this._stats = this.stats.value
@@ -21,8 +22,33 @@ export class StatsDriver {
     }
   }
 
-  renderStats(): void {
-    this.displayDriver.renderStats(this._stats)
+  update(): void {
+    this.updateCameraCoordinate(
+      this.game.displayDriver.camera.position.x,
+      this.game.displayDriver.camera.position.y
+    )
+    if (this.game.player) {
+      if (
+        this.game.player.snake &&
+        this.game.player.snake.segments.length > 0
+      ) {
+        const head = this.game.player.snake.segments[0]
+        this.updateHeadCoordinate(head.x, head.y)
+      }
+      this.updateReconcileEvent(this.game.inputManager.inputQueue.length)
+      this.updateMouseCoordinate({
+        x: this.game.inputManager.mousePosition.x,
+        y: this.game.inputManager.mousePosition.y
+      })
+      const worldMouseCoordinate = this.game.displayDriver.camera.screenToWorld(
+        this.game.inputManager.mousePosition.x,
+        this.game.inputManager.mousePosition.y
+      )
+      this.updateWorldMouseCoordinate(
+        worldMouseCoordinate.x,
+        worldMouseCoordinate.y
+      )
+    }
   }
 
   updatePing(ping: number): void {
@@ -39,6 +65,10 @@ export class StatsDriver {
 
   updateMouseCoordinate(coordinate: Coordinate): void {
     this._stats.updateMouseCoordinate(coordinate.x, coordinate.y)
+  }
+
+  updateWorldMouseCoordinate(x: number, y: number): void {
+    this._stats.updateWorldMouseCoordinate(x, y)
   }
 
   updateHeadCoordinate(x: number, y: number): void {

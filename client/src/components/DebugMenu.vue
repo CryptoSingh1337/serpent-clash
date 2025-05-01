@@ -1,18 +1,16 @@
 <script setup lang="ts">
-import type { DebugDriver } from "@/drivers/debug_driver.ts"
-import { computed, ref, onMounted } from "vue"
+import { ref, onMounted, computed } from "vue"
 import type { Coordinate } from "@/utils/types"
+import type { DebugManager } from "@/classes/DebugManager.ts"
 
 const props = defineProps<{
-  debugMenu: DebugDriver | null
+  debugManager: DebugManager
 }>()
 const stats = computed(
-  () => props.debugMenu && props.debugMenu.game.statsDriver.stats
+  () => props.debugManager && props.debugManager.game.statsManager.stats
 )
 
-// For draggable functionality
-const isDragging = ref(false)
-// Position below the connect button in the top-right corner
+const isDragging = ref(true)
 const position = ref({ x: window.innerWidth - 330, y: 60 })
 const dragOffset = ref({ x: 0, y: 0 })
 
@@ -22,8 +20,6 @@ const startDrag = (event: MouseEvent) => {
     x: event.clientX - position.value.x,
     y: event.clientY - position.value.y
   }
-
-  // Add event listeners for drag and end
   document.addEventListener("mousemove", onDrag)
   document.addEventListener("mouseup", endDrag)
 }
@@ -43,17 +39,14 @@ const endDrag = () => {
   document.removeEventListener("mouseup", endDrag)
 }
 
-// Update position on window resize
 const updatePosition = () => {
   if (!isDragging.value) {
     position.value = { x: window.innerWidth - 340, y: 60 }
   }
 }
 
-// Set up and clean up event listeners
 onMounted(() => {
   window.addEventListener("resize", updatePosition)
-
   return () => {
     document.removeEventListener("mousemove", onDrag)
     document.removeEventListener("mouseup", endDrag)
@@ -77,6 +70,11 @@ const menuItems = [
         tag: "span",
         id: "mouse-coordinates",
         label: "Mouse coordinates:"
+      },
+      {
+        tag: "span",
+        id: "world-mouse-coordinates",
+        label: "World Mouse coordinates:"
       },
       {
         tag: "span",
@@ -133,7 +131,7 @@ const teleportX = ref<number>(0)
 const teleportY = ref<number>(0)
 
 async function teleport(): Promise<void> {
-  if (!props.debugMenu) {
+  if (!props.debugManager) {
     console.log("debug menu is not initialized")
     return
   }
@@ -141,7 +139,7 @@ async function teleport(): Promise<void> {
     x: teleportX.value,
     y: teleportY.value
   }
-  await props.debugMenu.teleport(coordinate)
+  await props.debugManager.teleport(coordinate)
 }
 </script>
 
@@ -154,9 +152,7 @@ async function teleport(): Promise<void> {
     <h1 class="text-center text-sm font-bold mb-3 text-blue-400 cursor-move">
       Debug Menu
     </h1>
-
     <div class="space-y-3" :key="item.id" v-for="item in menuItems">
-      <!-- Section Header -->
       <div
         class="flex items-center justify-between border-b border-gray-700 pb-1 hover:bg-gray-800/50 rounded px-1"
       >
@@ -165,11 +161,8 @@ async function teleport(): Promise<void> {
           <span>{{ item.title }}</span>
         </h2>
       </div>
-
-      <!-- Section Content -->
       <div :class="[item.css, 'pl-2 transition-all duration-200']">
         <div :key="subField.id" v-for="subField in item.subFields" class="mb-1">
-          <!-- Info Fields -->
           <template v-if="subField.tag === 'span'">
             <div class="flex flex-col">
               <span class="text-blue-300 font-medium">{{
@@ -181,6 +174,11 @@ async function teleport(): Promise<void> {
                 </template>
                 <template v-else-if="subField.label === 'Mouse coordinates:'">
                   {{ stats && stats.value && stats.value.mouseCoordinate }}
+                </template>
+                <template
+                  v-else-if="subField.label === 'World Mouse coordinates:'"
+                >
+                  {{ stats && stats.value && stats.value.worldMouseCoordinate }}
                 </template>
                 <template v-else-if="subField.label === 'Camera coordinates:'">
                   {{ stats && stats.value && stats.value.cameraCoordinate.x }},
@@ -203,8 +201,6 @@ async function teleport(): Promise<void> {
               </span>
             </div>
           </template>
-
-          <!-- Input Fields -->
           <template v-else-if="subField.tag === 'input'">
             <label class="text-blue-300 font-medium" :for="subField.id">
               {{ subField.label }}
@@ -233,8 +229,6 @@ async function teleport(): Promise<void> {
               :style="subField.style"
             />
           </template>
-
-          <!-- Button -->
           <template v-else-if="subField.tag === 'button'">
             <button
               class="w-full py-1 px-2 text-center bg-blue-600 hover:bg-blue-700 rounded text-white font-medium transition-colors duration-200"
@@ -246,8 +240,6 @@ async function teleport(): Promise<void> {
         </div>
       </div>
     </div>
-
-    <!-- Drag handle indicator -->
     <div class="absolute top-0 right-0 p-1 text-gray-500 text-xs">
       <span title="Drag to move">⋮⋮</span>
     </div>

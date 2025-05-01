@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref, useTemplateRef } from "vue"
 import { useRoute, useRouter } from "vue-router"
-import { GameDriver } from "@/drivers/game_driver.ts"
-import { DebugDriver } from "@/drivers/debug_driver.ts"
 import DebugMenu from "@/components/DebugMenu.vue"
 import ChatMenu from "@/components/ChatMenu.vue"
+import { Game } from "@/classes/Game.ts"
+import { DebugManager } from "@/classes/DebugManager.ts"
 
 const route = useRoute()
 const router = useRouter()
@@ -14,12 +14,12 @@ if (!username || username.length === 0) {
   router.push("/menu")
 }
 
-const devicePixelRatio = window.devicePixelRatio || 1
-const canvasRef = useTemplateRef<HTMLCanvasElement>("canvas-ref")
+const gameCanvas = useTemplateRef<HTMLDivElement>("game-canvas")
 const statsContainer = useTemplateRef<HTMLDivElement>("stats-container")
-let game: GameDriver | null = null
-let debug: DebugDriver | null = null
-const status = ref<string>("Connect")
+const status = ref("Connect")
+const isGameReady = ref(false)
+let game: Game
+let debugManager: DebugManager
 const debugMode: boolean = import.meta.env.VITE_DEBUG_MODE === "true"
 
 if (debugMode) {
@@ -29,15 +29,15 @@ if (debugMode) {
 function connectOrDisconnect(): void {
   if (
     game &&
-    game.socketDriver &&
-    game.socketDriver.getReadyState() === WebSocket.CLOSED
+    game.networkManager &&
+    game.networkManager.socketState() === WebSocket.CLOSED
   ) {
     console.debug("Connecting socket connection...")
     game.connect()
   } else if (
     game &&
-    game.socketDriver &&
-    game.socketDriver.getReadyState() === WebSocket.OPEN
+    game.networkManager &&
+    game.networkManager.socketState() === WebSocket.OPEN
   ) {
     console.debug("Disconnecting socket connection...")
     game.disconnect()
@@ -45,56 +45,23 @@ function connectOrDisconnect(): void {
 }
 
 onMounted(() => {
-  const canvas = canvasRef.value
-  if (!canvas) {
-    throw new Error("Can't find canvas element")
-  }
-  const ctx = canvas.getContext("2d", { alpha: false })
-  if (!ctx) {
-    throw new Error("Can't find canvas element")
-  }
-  canvas.width = window.innerWidth * devicePixelRatio
-  canvas.height = window.innerHeight * devicePixelRatio
-  ctx.scale(devicePixelRatio, devicePixelRatio)
-  window.addEventListener("resize", () => {
-    canvas.width = innerWidth * devicePixelRatio
-    canvas.height = innerHeight * devicePixelRatio
-    ctx.scale(devicePixelRatio, devicePixelRatio)
-    if (game) {
-      game.updateCameraWidthAndHeight(canvas.width, canvas.height)
-    }
+  game = new Game(gameCanvas.value, statsContainer, status, username)
+  debugManager = new DebugManager(game)
+  game.init().then(() => {
+    game.start()
+    isGameReady.value = true
   })
-
-  canvas.addEventListener("mousemove", (event) => {
-    const rect = canvas.getBoundingClientRect()
-    const scaleX = canvas.width / rect.width
-    const scaleY = canvas.height / rect.height
-    const screenX = (event.clientX - rect.left) * scaleX
-    const screenY = (event.clientY - rect.top) * scaleY
-    if (game) {
-      game.updateMouseCoordinate(screenX, screenY)
-    }
-  })
-
-  game = new GameDriver({ username, ctx, statsContainer, status })
-  if (!game) {
-    throw new Error("Cannot initialize game object")
-  }
-  debug = new DebugDriver(game)
-  game.start()
 })
 
 onBeforeUnmount(() => {
-  if (game) {
-    game.disconnect()
-  }
+  game.stop()
 })
 </script>
 
 <template>
   <div class="w-full h-full">
     <div v-if="debugMode" ref="stats-container"></div>
-    <canvas ref="canvas-ref"></canvas>
+    <div ref="game-canvas"></div>
     <div class="absolute top-2.5 right-2.5">
       <div class="text-end">
         <button
@@ -104,7 +71,10 @@ onBeforeUnmount(() => {
           {{ status }}
         </button>
       </div>
-      <DebugMenu v-if="debugMode" :debug-menu="debug" />
+      <DebugMenu
+        v-if="debugMode && isGameReady"
+        :debug-manager="debugManager"
+      />
     </div>
     <div class="absolute bottom-1 left-1 space-y-2 text-sm">
       <ChatMenu />

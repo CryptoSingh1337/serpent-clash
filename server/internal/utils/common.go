@@ -18,7 +18,7 @@ const (
 	SnakeSegmentDiameter      = 50
 	DefaultFoodSpawnThreshold = 10
 	MaxPlayerAllowed          = 10
-	WorldBoundaryRadius       = 2750
+	WorldBoundaryRadius       = 2850
 	WorldHeight               = 3000
 	WorldWeight               = 3000
 	SpawnRegionRadius         = WorldBoundaryRadius * 0.175

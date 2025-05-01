@@ -6,7 +6,6 @@ const router = useRouter()
 const snakeBgCanvas = ref<HTMLCanvasElement | null>(null)
 const animationFrameId = ref<number | null>(null)
 
-// Snake and food animation for hero section
 interface SnakeSegment {
   x: number
   y: number
@@ -32,7 +31,6 @@ interface Food {
 const snakes: Snake[] = []
 const foods: Food[] = []
 
-// Colors from our theme
 const colors = {
   primary: "#192231",
   secondary: "#fff9c4",
@@ -45,15 +43,11 @@ const colors = {
   lightPink: "#ffa3fd"
 }
 
-// Initialize snakes and food
 const initAnimation = () => {
   const canvas = snakeBgCanvas.value
   if (!canvas) return
-
   const ctx = canvas.getContext("2d")
   if (!ctx) return
-
-  // Set canvas size to match viewport
   const resizeCanvas = () => {
     if (canvas) {
       canvas.width = window.innerWidth
@@ -63,8 +57,6 @@ const initAnimation = () => {
 
   resizeCanvas()
   window.addEventListener("resize", resizeCanvas)
-
-  // Create snakes
   for (let i = 0; i < 5; i++) {
     const snakeColors = [
       colors.accent1,
@@ -83,28 +75,22 @@ const initAnimation = () => {
       color: snakeColors[i % snakeColors.length],
       size: 8 + Math.floor(Math.random() * 6)
     }
-
-    // Normalize direction vector
     const magnitude = Math.sqrt(snake.direction.x ** 2 + snake.direction.y ** 2)
     snake.direction.x /= magnitude
     snake.direction.y /= magnitude
 
-    // Create initial segments
     const segmentCount = 15 + Math.floor(Math.random() * 10)
     const startX = Math.random() * canvas.width
     const startY = Math.random() * canvas.height
-
     for (let j = 0; j < segmentCount; j++) {
       snake.segments.push({
         x: startX - j * snake.size * 1.5 * snake.direction.x,
         y: startY - j * snake.size * 1.5 * snake.direction.y
       })
     }
-
     snakes.push(snake)
   }
 
-  // Create food items
   for (let i = 0; i < 15; i++) {
     const foodColors = [colors.secondary, colors.red, colors.orange]
     foods.push({
@@ -117,25 +103,17 @@ const initAnimation = () => {
     })
   }
 
-  // Animation loop
   const animate = () => {
     if (!canvas || !ctx) return
-
-    // Clear canvas completely to prevent trail effect
     ctx.fillStyle = "rgba(25, 34, 49, 1.0)"
     ctx.fillRect(0, 0, canvas.width, canvas.height)
-
-    // Update and draw food
     foods.forEach((food) => {
-      // Pulse animation
       food.pulseState += food.pulseDirection
       if (food.pulseState > 1 || food.pulseState < 0) {
         food.pulseDirection *= -1
       }
 
       const currentSize = food.size * (0.8 + food.pulseState * 0.4)
-
-      // Draw food with glow
       ctx.save()
       ctx.beginPath()
       ctx.arc(food.x, food.y, currentSize * 2, 0, Math.PI * 2)
@@ -156,37 +134,30 @@ const initAnimation = () => {
       ctx.closePath()
       ctx.restore()
 
-      // Random movement
       if (Math.random() < 0.01) {
         food.x += (Math.random() * 2 - 1) * 2
         food.y += (Math.random() * 2 - 1) * 2
       }
 
-      // Keep food within bounds
       if (food.x < 0) food.x = canvas.width
       if (food.x > canvas.width) food.x = 0
       if (food.y < 0) food.y = canvas.height
       if (food.y > canvas.height) food.y = 0
     })
 
-    // Update and draw snakes
     snakes.forEach((snake) => {
-      // Move head
       const head = { ...snake.segments[0] }
       head.x += snake.direction.x * snake.speed
       head.y += snake.direction.y * snake.speed
 
-      // Wrap around screen edges
       if (head.x < 0) head.x = canvas.width
       if (head.x > canvas.width) head.x = 0
       if (head.y < 0) head.y = canvas.height
       if (head.y > canvas.height) head.y = 0
 
-      // Add new head and remove tail
       snake.segments.unshift(head)
       snake.segments.pop()
 
-      // Randomly change direction occasionally
       if (Math.random() < 0.005) {
         const angle = (Math.random() * Math.PI) / 4 - Math.PI / 8
         const newX =
@@ -195,31 +166,21 @@ const initAnimation = () => {
         const newY =
           snake.direction.x * Math.sin(angle) +
           snake.direction.y * Math.cos(angle)
-
         snake.direction.x = newX
         snake.direction.y = newY
-
-        // Normalize direction vector
         const magnitude = Math.sqrt(
           snake.direction.x ** 2 + snake.direction.y ** 2
         )
         snake.direction.x /= magnitude
         snake.direction.y /= magnitude
       }
-
-      // Draw snake
       ctx.save()
 
-      // Draw snake body with gradient
       for (let i = 0; i < snake.segments.length; i++) {
         const segment = snake.segments[i]
         const segmentSize = snake.size * (1 - (i / snake.segments.length) * 0.5)
-
-        // Draw segment with glow effect
         ctx.beginPath()
         ctx.arc(segment.x, segment.y, segmentSize, 0, Math.PI * 2)
-
-        // Create gradient for each segment
         const gradient = ctx.createRadialGradient(
           segment.x,
           segment.y,
@@ -228,21 +189,15 @@ const initAnimation = () => {
           segment.y,
           segmentSize
         )
-
         gradient.addColorStop(0, snake.color)
         gradient.addColorStop(1, `${snake.color}80`) // 50% transparency
-
         ctx.fillStyle = gradient
         ctx.fill()
         ctx.closePath()
       }
-
-      // Draw eyes on the head
       const head2 = snake.segments[0]
       const eyeSize = snake.size / 4
       const eyeOffset = snake.size / 2
-
-      // Calculate eye positions based on direction
       const eyeOffsetX = snake.direction.y * eyeOffset
       const eyeOffsetY = -snake.direction.x * eyeOffset
 
@@ -296,10 +251,8 @@ const initAnimation = () => {
       ctx.fillStyle = "black"
       ctx.fill()
       ctx.closePath()
-
       ctx.restore()
     })
-
     animationFrameId.value = requestAnimationFrame(animate)
   }
 
@@ -323,13 +276,10 @@ onUnmounted(() => {
     id="hero"
     class="relative min-h-screen overflow-hidden bg-gradient-to-b from-[#192231] to-[#253649] flex flex-col justify-center items-center"
   >
-    <!-- Animated background -->
     <canvas
       ref="snakeBgCanvas"
       class="absolute top-0 left-0 w-full h-full"
     ></canvas>
-
-    <!-- Decorative elements -->
     <div class="absolute top-0 left-0 w-full h-full">
       <div
         class="absolute top-[10%] left-[5%] w-32 h-32 rounded-full bg-gradient-to-br from-[#4caf5020] to-[#8bc34a20] blur-xl"
@@ -341,8 +291,6 @@ onUnmounted(() => {
         class="absolute top-[40%] right-[15%] w-24 h-24 rounded-full bg-gradient-to-r from-[#ffc10720] to-[#f4433620] blur-xl"
       ></div>
     </div>
-
-    <!-- Hero content -->
     <div
       class="relative z-10 text-center mx-auto px-4 py-8 backdrop-blur-sm bg-[#19223180] rounded-2xl border border-[#ffffff20] shadow-2xl max-w-4xl"
     >
@@ -353,21 +301,18 @@ onUnmounted(() => {
           class="w-[25rem] mx-auto mb-8 drop-shadow-[0_0_15px_rgba(76,175,80,0.5)]"
         />
       </div>
-
       <h1 class="text-4xl mb-4">
-        <span>🎮</span
-        ><span
+        <span class="mr-1">🎮</span>
+        <span
           class="font-bold text-transparent bg-clip-text font-cherry bg-gradient-to-r from-[#4caf50] to-[#8bc34a]"
-          >Multiplayer Snake Battle Arena</span
-        >
+          >Multiplayer Snake Battle Arena
+        </span>
       </h1>
-
       <p class="text-xl mb-8 max-w-2xl mx-auto text-[#fff9c4] leading-relaxed">
         The ultimate multiplayer snake battle arena where strategy meets speed.
         Control your serpent with precision, dodge enemies, and strategically
         cut them off as you slither your way to the top of the leaderboard.
       </p>
-
       <div class="flex justify-center gap-8 mb-6">
         <div
           class="button-container w-40 h-24 transform hover:scale-105 transition-transform"
@@ -380,7 +325,6 @@ onUnmounted(() => {
           </button>
         </div>
       </div>
-
       <div class="flex flex-wrap justify-center gap-4 mt-8">
         <div
           class="px-4 py-2 bg-[#4caf5040] border border-[#4caf50] rounded-full text-[#4caf50] font-semibold"
@@ -409,7 +353,6 @@ onUnmounted(() => {
     id="description"
     class="py-20 bg-gradient-to-b from-[#253649] to-[#192231] text-center relative overflow-hidden"
   >
-    <!-- Decorative elements -->
     <div class="absolute top-0 left-0 w-full h-full">
       <div
         class="absolute top-[20%] right-[5%] w-48 h-48 rounded-full bg-gradient-to-br from-[#4caf5010] to-[#8bc34a10] blur-xl"
@@ -418,8 +361,6 @@ onUnmounted(() => {
         class="absolute bottom-[30%] left-[10%] w-56 h-56 rounded-full bg-gradient-to-tr from-[#865dff10] to-[#e384ff10] blur-xl"
       ></div>
     </div>
-
-    <!-- Snake decorative element -->
     <div class="absolute top-[10%] right-[15%] w-32 h-32 opacity-20">
       <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
         <path
@@ -431,7 +372,6 @@ onUnmounted(() => {
         />
       </svg>
     </div>
-
     <div
       class="absolute bottom-[15%] left-[10%] w-24 h-24 opacity-20 rotate-45"
     >
@@ -445,7 +385,6 @@ onUnmounted(() => {
         />
       </svg>
     </div>
-
     <div class="max-w-5xl mx-auto px-6 relative z-10">
       <div class="inline-block mb-8 relative">
         <h2
@@ -457,7 +396,6 @@ onUnmounted(() => {
           class="h-1 w-32 bg-gradient-to-r from-[#4caf50] to-[#8bc34a] rounded-full mx-auto"
         ></div>
       </div>
-
       <p class="text-xl text-[#fff9c4] mb-12 max-w-3xl mx-auto leading-relaxed">
         Serpent Clash is a
         <span class="text-[#ffc107] font-semibold">fast-paced</span>, real-time
@@ -468,7 +406,6 @@ onUnmounted(() => {
         server reconciliation, you can slither your way to victory in an
         ever-changing battlefield.
       </p>
-
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div
           class="bg-[#19223190] backdrop-blur-sm p-8 rounded-2xl border border-[#4caf5040] shadow-lg transform hover:scale-[1.02] transition-transform group"
@@ -498,7 +435,6 @@ onUnmounted(() => {
             communication for smooth, interactive gameplay with low latency.
           </p>
         </div>
-
         <div
           class="bg-[#19223190] backdrop-blur-sm p-8 rounded-2xl border border-[#865dff40] shadow-lg transform hover:scale-[1.02] transition-transform group"
         >
@@ -527,7 +463,6 @@ onUnmounted(() => {
             competitive environment for all players with server-side validation.
           </p>
         </div>
-
         <div
           class="bg-[#19223190] backdrop-blur-sm p-8 rounded-2xl border border-[#ffc10740] shadow-lg transform hover:scale-[1.02] transition-transform group"
         >
@@ -556,7 +491,6 @@ onUnmounted(() => {
             advanced server reconciliation techniques for smooth gameplay.
           </p>
         </div>
-
         <div
           class="bg-[#19223190] backdrop-blur-sm p-8 rounded-2xl border border-[#e384ff40] shadow-lg transform hover:scale-[1.02] transition-transform group"
         >
@@ -592,7 +526,6 @@ onUnmounted(() => {
     id="play"
     class="py-20 bg-gradient-to-b from-[#192231] to-[#253649] text-center relative overflow-hidden"
   >
-    <!-- Decorative elements -->
     <div class="absolute top-0 left-0 w-full h-full">
       <div
         class="absolute top-[15%] left-[8%] w-40 h-40 rounded-full bg-gradient-to-br from-[#ffc10710] to-[#f4433610] blur-xl"
@@ -601,8 +534,6 @@ onUnmounted(() => {
         class="absolute bottom-[20%] right-[5%] w-64 h-64 rounded-full bg-gradient-to-tr from-[#4caf5010] to-[#8bc34a10] blur-xl"
       ></div>
     </div>
-
-    <!-- Food decorative elements -->
     <div
       class="absolute top-[25%] left-[15%] w-6 h-6 rounded-full bg-[#ffc10730] blur-sm"
     ></div>
@@ -612,7 +543,6 @@ onUnmounted(() => {
     <div
       class="absolute top-[60%] right-[30%] w-5 h-5 rounded-full bg-[#fff9c430] blur-sm"
     ></div>
-
     <div class="max-w-5xl mx-auto px-6 relative z-10">
       <div class="inline-block mb-8 relative">
         <h2
@@ -624,16 +554,13 @@ onUnmounted(() => {
           class="h-1 w-32 bg-gradient-to-r from-[#ffc107] to-[#f44336] rounded-full mx-auto"
         ></div>
       </div>
-
       <div class="mb-10">
         <div
           class="relative rounded-2xl overflow-hidden border-4 border-[#ffffff20] shadow-2xl group"
         >
-          <!-- Animated border effect -->
           <div
             class="absolute inset-0 bg-gradient-to-r from-[#4caf5040] via-[#ffc10740] to-[#865dff40] opacity-0 group-hover:opacity-100 transition-opacity duration-500"
           ></div>
-
           <iframe
             class="mx-auto aspect-video w-full relative z-10"
             src="https://www.youtube.com/embed/hHJq1ubGmuw?si=MgK2ZgROprw6APTQ"
@@ -644,7 +571,6 @@ onUnmounted(() => {
           ></iframe>
         </div>
       </div>
-
       <div class="flex justify-center">
         <a
           href="#features"
@@ -686,7 +612,6 @@ onUnmounted(() => {
     id="features"
     class="py-20 bg-gradient-to-b from-[#253649] to-[#192231] text-center relative overflow-hidden"
   >
-    <!-- Decorative elements -->
     <div class="absolute top-0 left-0 w-full h-full">
       <div
         class="absolute top-[30%] right-[10%] w-48 h-48 rounded-full bg-gradient-to-br from-[#e384ff10] to-[#ffa3fd10] blur-xl"
@@ -695,8 +620,6 @@ onUnmounted(() => {
         class="absolute bottom-[10%] left-[5%] w-56 h-56 rounded-full bg-gradient-to-tr from-[#ffc10710] to-[#f4433610] blur-xl"
       ></div>
     </div>
-
-    <!-- Snake path decorative element -->
     <div class="absolute top-[5%] left-0 w-full h-20 opacity-10">
       <svg viewBox="0 0 1200 100" xmlns="http://www.w3.org/2000/svg">
         <path
@@ -709,7 +632,6 @@ onUnmounted(() => {
         />
       </svg>
     </div>
-
     <div class="absolute bottom-[5%] left-0 w-full h-20 opacity-10">
       <svg viewBox="0 0 1200 100" xmlns="http://www.w3.org/2000/svg">
         <path
@@ -722,7 +644,6 @@ onUnmounted(() => {
         />
       </svg>
     </div>
-
     <div class="max-w-5xl mx-auto px-6 relative z-10">
       <div class="inline-block mb-8 relative">
         <h2
@@ -734,12 +655,10 @@ onUnmounted(() => {
           class="h-1 w-32 bg-gradient-to-r from-[#865dff] to-[#e384ff] rounded-full mx-auto"
         ></div>
       </div>
-
       <p class="text-xl text-[#fff9c4] mb-12 max-w-3xl mx-auto leading-relaxed">
         We're constantly evolving Serpent Clash with exciting new features to
         enhance your gameplay experience:
       </p>
-
       <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
         <div
           class="bg-[#19223190] backdrop-blur-sm p-8 rounded-2xl border-l-4 border-[#ffc107] shadow-lg transform hover:translate-y-[-8px] transition-transform"
@@ -767,7 +686,6 @@ onUnmounted(() => {
             layer of strategy and progression to the gameplay experience.
           </p>
         </div>
-
         <div
           class="bg-[#19223190] backdrop-blur-sm p-8 rounded-2xl border-l-4 border-[#f44336] shadow-lg transform hover:translate-y-[-8px] transition-transform"
         >
@@ -795,7 +713,6 @@ onUnmounted(() => {
             achievements.
           </p>
         </div>
-
         <div
           class="bg-[#19223190] backdrop-blur-sm p-8 rounded-2xl border-l-4 border-[#4caf50] shadow-lg transform hover:translate-y-[-8px] transition-transform"
         >
@@ -823,7 +740,6 @@ onUnmounted(() => {
             during gameplay.
           </p>
         </div>
-
         <div
           class="bg-[#19223190] backdrop-blur-sm p-8 rounded-2xl border-l-4 border-[#865dff] shadow-lg transform hover:translate-y-[-8px] transition-transform"
         >
@@ -855,18 +771,14 @@ onUnmounted(() => {
     </div>
   </section>
   <footer class="py-12 bg-[#192231] text-center relative overflow-hidden">
-    <!-- Decorative elements -->
     <div
       class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#4caf50] via-[#ffc107] to-[#865dff] opacity-70"
     ></div>
-
     <div class="absolute top-0 left-0 w-full h-full">
       <div
         class="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-[#13192380] to-transparent"
       ></div>
     </div>
-
-    <!-- Serpent Clash Logo -->
     <div class="max-w-5xl mx-auto px-6 relative z-10">
       <div class="w-24 h-24 mx-auto mb-6">
         <img
@@ -875,7 +787,6 @@ onUnmounted(() => {
           class="w-full drop-shadow-[0_0_10px_rgba(76,175,80,0.5)]"
         />
       </div>
-
       <div class="flex flex-wrap justify-center gap-8 mb-8">
         <a
           href="#hero"

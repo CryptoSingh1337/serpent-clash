@@ -72,7 +72,7 @@ an **authoritative server** model to maintain a fair and synchronized game state
 - [x] Optimize collision detection using Quad Tree
 - [x] Improve collision detection logic (beyond head-to-head only)
 - [x] Create spawn system for snake with world-awareness
-- [ ] Migrate from HTML 2d canvas to Pixi.js renderer engine
+- [x] Migrate from HTML 2D canvas to Pixi.js renderer engine
 - [ ] Implement food spawning functionality with world-awareness
 - [ ] Create dashboard & API for server metrics
 - [ ] Compensate speed boosts by reducing snake length

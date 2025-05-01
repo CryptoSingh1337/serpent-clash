@@ -49,10 +49,10 @@ export class Background {
         Constants.worldBoundary.minY - Constants.worldBoundary.padding,
         Constants.worldBoundary.maxX -
           Constants.worldBoundary.minX +
-          Constants.worldBoundary.padding,
+          2 * Constants.worldBoundary.padding,
         Constants.worldBoundary.maxY -
           Constants.worldBoundary.minY +
-          Constants.worldBoundary.padding
+          2 * Constants.worldBoundary.padding
       )
       .fill({ color: 0xff0000, alpha: 0.1 })
       .circle(0, 0, Constants.worldBoundary.radius)

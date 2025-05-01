@@ -18,7 +18,7 @@ export class Game {
   statsManager: StatsManager
   clientStatusRef: Ref
   stats: Stats | null = null
-  pingPanel: Stats.Panel = new Stats.Panel("Ping (ms)", "#ff8", "#221")
+  pingPanel: Stats.Panel = new Stats.Panel("Ping", "#ff8", "#221")
   username: string
   player: Player | null = null
   playerEntities: Players = {}

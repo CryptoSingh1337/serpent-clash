@@ -18,7 +18,7 @@ an **authoritative server** model to maintain a fair and synchronized game state
 - ✨ **Player Movement Interpolation** for smooth rendering of remote players
 - 🐍 **Dynamic Snake Rendering** using multiple coordinates and mouse input
 - 🌐 **Efficient Collision Detection** powered by Quad Tree structures
-- 🧩 **Entity Component System (ECS)** Architecture for scalable game logic and maintainability
+- 🧩 **Entity Component System (ECS)** Architecture for efficient resource management and maintainability
 
 ### 🚀 Future Enhancements
 - 🍎 **Food Generation & Snake Growth**

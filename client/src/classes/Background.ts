@@ -37,12 +37,24 @@ export class Background {
       }
     }
 
-    // Create boundary
-    this.container.addChild(
-      new Graphics()
-        .circle(0, 0, Constants.worldBoundary.radius)
-        .stroke({ color: 0xff0000, width: 2, alpha: 1 })
-    )
+    // Create outer mask and boundary
+    const outerMask = new Graphics()
+      .rect(
+        Constants.worldBoundary.minX - Constants.worldBoundary.padding,
+        Constants.worldBoundary.minY - Constants.worldBoundary.padding,
+        Constants.worldBoundary.maxX -
+          Constants.worldBoundary.minX +
+          Constants.worldBoundary.padding,
+        Constants.worldBoundary.maxY -
+          Constants.worldBoundary.minY +
+          Constants.worldBoundary.padding
+      )
+      .fill({ color: 0xff0000, alpha: 0.1 })
+      .circle(0, 0, Constants.worldBoundary.radius)
+      .cut()
+      .circle(0, 0, Constants.worldBoundary.radius)
+      .stroke({ color: 0xff0000, width: 2, alpha: 1 })
+    this.container.addChild(outerMask)
     this.container.cacheAsTexture(true)
   }
 

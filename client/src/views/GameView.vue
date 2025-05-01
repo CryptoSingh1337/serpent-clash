@@ -65,10 +65,13 @@ onBeforeUnmount(() => {
     <div class="absolute top-2.5 right-2.5">
       <div class="text-end">
         <button
-          class="w-32 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full"
+          class="w-32 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full mr-2"
           @click.prevent="connectOrDisconnect"
         >
           {{ status }}
+        </button>
+        <button class="w-44 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full" @click.prevent="router.push('/dashboard')">
+          Server Dashboard
         </button>
       </div>
       <DebugMenu

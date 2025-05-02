@@ -21,7 +21,7 @@ func NewLogger() CustomLogger {
 		return "\x1b[m" + i.(string) + "\x1b[0m"
 	}
 	output.FormatLevel = func(i any) string {
-		return strings.ToUpper(fmt.Sprintf("|%-6s|", i))
+		return strings.ToUpper(fmt.Sprintf("|%-5s|", i))
 	}
 	output.FormatFieldName = func(i any) string {
 		return fmt.Sprintf("%s:", i)
@@ -32,45 +32,28 @@ func NewLogger() CustomLogger {
 	output.FormatErrFieldName = func(i any) string {
 		return fmt.Sprintf("%s: ", i)
 	}
+
 	logger := zerolog.New(output).With().Caller().Timestamp().Logger()
 	Logger = CustomLogger{logger}
 	return Logger
 }
 
-func (l *CustomLogger) LogInfo() *zerolog.Event {
-	return l.Logger.Info()
-}
-
-func (l *CustomLogger) LogError() *zerolog.Event {
-	return l.Logger.Error()
-}
-
-func (l *CustomLogger) LogDebug() *zerolog.Event {
-	return l.Logger.Debug()
-}
-
-func (l *CustomLogger) LogWarn() *zerolog.Event {
-	return l.Logger.Warn()
-}
-
-func (l *CustomLogger) LogFatal() *zerolog.Event {
-	return l.Logger.Fatal()
-}
-
 func LoggingMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		// log the request
 		start := time.Now()
 		err := next(c)
 		stop := time.Now()
-		Logger.LogInfo().Fields(map[string]interface{}{
+		fields := map[string]interface{}{
 			"method":  c.Request().Method,
 			"uri":     c.Request().URL.Path,
-			"query":   c.Request().URL.RawQuery,
 			"latency": stop.Sub(start),
-		}).Msg("Request")
+		}
+		if c.Request().URL.RawQuery != "" {
+			fields["query"] = c.Request().URL.RawQuery
+		}
+		Logger.Info().Fields(fields).Msg("Request")
 		if err != nil {
-			Logger.LogError().Fields(map[string]interface{}{
+			Logger.Error().Fields(map[string]interface{}{
 				"error": err.Error(),
 			}).Msg("Response")
 			return err

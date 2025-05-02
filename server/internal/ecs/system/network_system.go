@@ -3,7 +3,7 @@ package system
 import (
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/component"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/storage"
-	"github.com/CryptoSingh1337/serpent-clash/server/internal/utils"
+	gameutils "github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/utils"
 	"github.com/lesismal/nbio/nbhttp/websocket"
 	"time"
 )
@@ -20,10 +20,10 @@ func NewNetworkSystem(storage storage.Storage) *NetworkSystem {
 
 func (n *NetworkSystem) Update() {
 	gameState := n.createGameState()
-	body, _ := utils.ToJsonB(gameState)
-	payload, _ := utils.ToJsonB(utils.Payload{Type: utils.GameStateMessageType, Body: body})
+	body, _ := gameutils.ToJsonB(gameState)
+	payload, _ := gameutils.ToJsonB(gameutils.Payload{Type: gameutils.GameStateMessageType, Body: body})
 	networkComponents := n.storage.GetAllComponentByName("network").([]*component.Network)
-	pongMessage := utils.PongMessage{}
+	pongMessage := gameutils.PongMessage{}
 	for _, networkComponent := range networkComponents {
 		if networkComponent.Connected {
 			err := networkComponent.Connection.WriteMessage(websocket.TextMessage, payload)
@@ -31,7 +31,7 @@ func (n *NetworkSystem) Update() {
 				networkComponent.Connected = false
 				err = networkComponent.Connection.Close()
 				if err != nil {
-					utils.Logger.Err(err).Msgf("error while closing connection for player")
+					gameutils.Logger.Err(err).Msgf("error while closing connection for player")
 				}
 			}
 			networkComponent.PingCooldown -= 1
@@ -40,14 +40,14 @@ func (n *NetworkSystem) Update() {
 				pongMessage.RequestInitiateTimestamp = networkComponent.RequestInitiateTimestamp
 				pongMessage.RequestAckTimestamp = networkComponent.RequestAckTimestamp
 				pongMessage.ResponseInitiateTimestamp = networkComponent.ResponseInitiateTimestamp
-				body, _ = utils.ToJsonB(pongMessage)
-				pingPayload, _ := utils.ToJsonB(utils.Payload{Type: utils.PongMessageType, Body: body})
+				body, _ = gameutils.ToJsonB(pongMessage)
+				pingPayload, _ := gameutils.ToJsonB(gameutils.Payload{Type: gameutils.PongMessageType, Body: body})
 				err = networkComponent.Connection.WriteMessage(websocket.TextMessage, pingPayload)
 				if err != nil {
 					networkComponent.Connected = false
 					// TODO: call engine player remove method
 				}
-				networkComponent.PingCooldown = utils.PingCooldown
+				networkComponent.PingCooldown = gameutils.PingCooldown
 			}
 		}
 	}
@@ -57,10 +57,10 @@ func (n *NetworkSystem) Stop() {
 
 }
 
-func (n *NetworkSystem) createGameState() utils.GameStateMessage {
+func (n *NetworkSystem) createGameState() gameutils.GameStateMessage {
 	playerEntityIds := n.storage.GetAllEntitiesByType("player")
-	gameState := utils.GameStateMessage{
-		PlayerStates: make(map[string]utils.PlayerStateMessage),
+	gameState := gameutils.GameStateMessage{
+		PlayerStates: make(map[string]gameutils.PlayerStateMessage),
 	}
 	for _, entityId := range playerEntityIds {
 		c := n.storage.GetComponentByEntityIdAndName(entityId, "playerInfo")
@@ -78,8 +78,7 @@ func (n *NetworkSystem) createGameState() utils.GameStateMessage {
 			continue
 		}
 		networkComponent := c.(*component.Network)
-		playerState := utils.PlayerStateMessage{
-			Color:    snakeComponent.Color,
+		playerState := gameutils.PlayerStateMessage{
 			Segments: snakeComponent.Segments,
 			Seq:      networkComponent.MessageSequence,
 		}

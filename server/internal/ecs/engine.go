@@ -6,8 +6,8 @@ import (
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/component"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/storage"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/system"
-	"github.com/CryptoSingh1337/serpent-clash/server/internal/types"
-	"github.com/CryptoSingh1337/serpent-clash/server/internal/utils"
+	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/types"
+	gameutils "github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/utils"
 	"github.com/lesismal/nbio/nbhttp/websocket"
 	"sync/atomic"
 	"time"
@@ -37,9 +37,9 @@ func NewEngine() *Engine {
 		storage:            simpleStorage,
 		systems:            make([]system.System, 0),
 		playerIdToEntityId: make(map[string]types.Id),
-		JoinQueue:          make(chan *types.JoinEvent, utils.MaxPlayerAllowed),
-		LeaveQueue:         make(chan string, utils.MaxPlayerAllowed),
-		SpawnQueue:         make(chan types.Id, utils.MaxPlayerAllowed),
+		JoinQueue:          make(chan *types.JoinEvent, gameutils.MaxPlayerAllowed),
+		LeaveQueue:         make(chan string, gameutils.MaxPlayerAllowed),
+		SpawnQueue:         make(chan types.Id, gameutils.MaxPlayerAllowed),
 	}
 	var movementSystem system.System = system.NewMovementSystem(simpleStorage)
 	var spawnSystem system.System = system.NewSpawnSystem(simpleStorage, engine.SpawnQueue, engine.newId)
@@ -53,7 +53,7 @@ func (e *Engine) Start() {
 }
 
 func (e *Engine) AddPlayer(joinEvent *types.JoinEvent) error {
-	utils.Logger.Info().Msgf("Inside Engine.AddPlayer :: joinEvent: %v", joinEvent)
+	gameutils.Logger.Info().Msgf("Inside Engine.AddPlayer :: joinEvent: %v", joinEvent)
 	// TODO: add max player validation
 	if joinEvent.PlayerId == "" {
 		return errors.New("invalid player id")
@@ -67,37 +67,37 @@ func (e *Engine) AddPlayer(joinEvent *types.JoinEvent) error {
 	}
 	entityId := joinEvent.EntityId
 	e.playerIdToEntityId[joinEvent.PlayerId] = entityId
-	e.storage.AddEntity(entityId, utils.PlayerEntity)
+	e.storage.AddEntity(entityId, gameutils.PlayerEntity)
 	inputComponent := component.NewInputComponent()
 	networkComponent := component.NewNetworkComponent(joinEvent.Connection)
 	playerInfoComponent := component.NewPlayerInfoComponent(joinEvent.PlayerId, joinEvent.Username)
 	snakeComponent := component.NewSnakeComponent()
 	e.SpawnQueue <- entityId
-	e.storage.AddComponent(entityId, utils.InputComponent, &inputComponent)
-	e.storage.AddComponent(entityId, utils.NetworkComponent, &networkComponent)
-	e.storage.AddComponent(entityId, utils.PlayerInfoComponent, &playerInfoComponent)
-	e.storage.AddComponent(entityId, utils.SnakeComponent, &snakeComponent)
-	c := e.storage.GetComponentByEntityIdAndName(entityId, utils.InputComponent)
+	e.storage.AddComponent(entityId, gameutils.InputComponent, &inputComponent)
+	e.storage.AddComponent(entityId, gameutils.NetworkComponent, &networkComponent)
+	e.storage.AddComponent(entityId, gameutils.PlayerInfoComponent, &playerInfoComponent)
+	e.storage.AddComponent(entityId, gameutils.SnakeComponent, &snakeComponent)
+	c := e.storage.GetComponentByEntityIdAndName(entityId, gameutils.InputComponent)
 	if c == nil {
-		utils.Logger.Error().Msgf("Input component is nil")
+		gameutils.Logger.Error().Msgf("Input component is nil")
 	}
-	c = e.storage.GetComponentByEntityIdAndName(entityId, utils.NetworkComponent)
+	c = e.storage.GetComponentByEntityIdAndName(entityId, gameutils.NetworkComponent)
 	if c == nil {
-		utils.Logger.Error().Msgf("Network component is nil")
+		gameutils.Logger.Error().Msgf("Network component is nil")
 	}
-	c = e.storage.GetComponentByEntityIdAndName(entityId, utils.PlayerInfoComponent)
+	c = e.storage.GetComponentByEntityIdAndName(entityId, gameutils.PlayerInfoComponent)
 	if c == nil {
-		utils.Logger.Error().Msgf("Player info component is nil")
+		gameutils.Logger.Error().Msgf("Player info component is nil")
 	}
-	c = e.storage.GetComponentByEntityIdAndName(entityId, utils.SnakeComponent)
+	c = e.storage.GetComponentByEntityIdAndName(entityId, gameutils.SnakeComponent)
 	if c == nil {
-		utils.Logger.Error().Msgf("Snake component is nil")
+		gameutils.Logger.Error().Msgf("Snake component is nil")
 	}
 	if networkComponent.Connection == nil {
-		utils.Logger.Error().Msgf("connection is nil")
+		gameutils.Logger.Error().Msgf("connection is nil")
 	}
 	body := fmt.Sprintf(`{"id":%q}`, joinEvent.PlayerId)
-	payload, err := utils.ToJsonB(utils.Payload{Type: utils.HelloMessageType, Body: []byte(body)})
+	payload, err := gameutils.ToJsonB(gameutils.Payload{Type: gameutils.HelloMessageType, Body: []byte(body)})
 	if err != nil {
 		return err
 	}
@@ -105,14 +105,14 @@ func (e *Engine) AddPlayer(joinEvent *types.JoinEvent) error {
 }
 
 func (e *Engine) RemovePlayer(playerId string) error {
-	utils.Logger.Info().Msgf("Inside Engine.RemovePlayer :: playerId: %v", playerId)
+	gameutils.Logger.Info().Msgf("Inside Engine.RemovePlayer :: playerId: %v", playerId)
 	entityId, exists := e.playerIdToEntityId[playerId]
 	if !exists {
 		return errors.New("player does not exists")
 	}
-	networkComponent := e.storage.GetComponentByEntityIdAndName(entityId, utils.NetworkComponent).(*component.Network)
+	networkComponent := e.storage.GetComponentByEntityIdAndName(entityId, gameutils.NetworkComponent).(*component.Network)
 	networkComponent.Connected = false
-	e.storage.RemoveEntity(entityId, utils.PlayerEntity)
+	e.storage.RemoveEntity(entityId, gameutils.PlayerEntity)
 	delete(e.playerIdToEntityId, playerId)
 	return nil
 }
@@ -124,7 +124,7 @@ func (e *Engine) UpdateSystems() {
 			entityId := e.newId()
 			joinEvent.EntityId = entityId
 			if err := e.AddPlayer(joinEvent); err != nil {
-				utils.Logger.LogError().Msgf("Error adding player %s: %v", joinEvent.PlayerId, err)
+				gameutils.Logger.Error().Msgf("Error adding player %s: %v", joinEvent.PlayerId, err)
 			}
 		default:
 			goto ProcessLeaveQueue
@@ -135,7 +135,7 @@ ProcessLeaveQueue:
 		select {
 		case playerId := <-e.LeaveQueue:
 			if err := e.RemovePlayer(playerId); err != nil {
-				utils.Logger.LogError().Msgf("Error removing player %s: %v", playerId, err)
+				gameutils.Logger.Error().Msgf("Error removing player %s: %v", playerId, err)
 			}
 		default:
 			goto ProcessSystemUpdates
@@ -160,29 +160,29 @@ func (e *Engine) ProcessEvent(playerId string, messageType websocket.MessageType
 	}
 	switch messageType {
 	case websocket.TextMessage:
-		payload, err := utils.FromJsonB[utils.Payload](data)
+		payload, err := gameutils.FromJsonB[gameutils.Payload](data)
 		if err != nil {
 			return
 		}
 		switch payload.Type {
-		case utils.MovementMessageType:
-			inputEvent, err := utils.FromJsonB[utils.InputEvent](payload.Body)
+		case gameutils.MovementMessageType:
+			inputEvent, err := gameutils.FromJsonB[gameutils.InputEvent](payload.Body)
 			if err != nil {
 				return
 			}
-			inputComponent := e.storage.GetComponentByEntityIdAndName(entityId, utils.InputComponent).(*component.Input)
-			networkComponent := e.storage.GetComponentByEntityIdAndName(entityId, utils.NetworkComponent).(*component.Network)
+			inputComponent := e.storage.GetComponentByEntityIdAndName(entityId, gameutils.InputComponent).(*component.Input)
+			networkComponent := e.storage.GetComponentByEntityIdAndName(entityId, gameutils.NetworkComponent).(*component.Network)
 			networkComponent.MessageSequence = inputEvent.Seq
 			inputComponent.Coordinates.X = inputEvent.Coordinate.X
 			inputComponent.Coordinates.Y = inputEvent.Coordinate.Y
 			inputComponent.Boost = inputEvent.Boost
-		case utils.PingMessageType:
-			pingEvent, err := utils.FromJsonB[types.PingEvent](payload.Body)
+		case gameutils.PingMessageType:
+			pingEvent, err := gameutils.FromJsonB[types.PingEvent](payload.Body)
 			pingEvent.PlayerId = playerId
 			if err != nil {
 				return
 			}
-			networkComponent := e.storage.GetComponentByEntityIdAndName(entityId, utils.NetworkComponent).(*component.Network)
+			networkComponent := e.storage.GetComponentByEntityIdAndName(entityId, gameutils.NetworkComponent).(*component.Network)
 			networkComponent.RequestInitiateTimestamp = pingEvent.RequestInitiateTimestamp
 			networkComponent.RequestAckTimestamp = uint64(time.Now().UnixMilli())
 		}

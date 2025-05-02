@@ -16,7 +16,7 @@ export class NetworkManager {
 
   init(username: string): WebSocket {
     const baseUrl = getServerBaseUrl(true)
-    const socket = new WebSocket(`${baseUrl}/ws?username=${username}`)
+    const socket = new WebSocket(`${baseUrl}/game/ws?username=${username}`)
     socket.onopen = () => {
       console.log("Socket opened")
       this.game.clientStatusRef.value = "Disconnect"
@@ -24,12 +24,12 @@ export class NetworkManager {
     socket.onclose = () => {
       console.log("Socket closed")
       this.game.clientStatusRef.value = "Connect"
-      this.game.player = null
       this.game.displayDriver.camera.target = null
       for (const id in this.game.playerEntities) {
         this.game.playerEntities[id].destroy()
         delete this.game.playerEntities[id]
       }
+      this.game.player = null
     }
     socket.onerror = (err: any) => {
       this.game.clientStatusRef.value = "Connect"

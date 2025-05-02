@@ -5,33 +5,12 @@ import (
 	"math"
 )
 
-type Response[T any] struct {
-	Data  T      `json:"data"`
-	Error *Error `json:"error"`
-}
-
-type Error struct {
-	Message string `json:"message"`
-}
-
-func NewError(message string) *Error {
-	return &Error{Message: message}
-}
-
 func ToJsonS(data any) (string, error) {
 	val, err := json.Marshal(data)
 	if err != nil {
 		return "", err
 	}
 	return string(val), nil
-}
-
-func ToJsonB(data any) ([]byte, error) {
-	val, err := json.Marshal(data)
-	if err != nil {
-		return []byte{}, err
-	}
-	return val, nil
 }
 
 func FromJsonS[T any](data string) (T, error) {
@@ -54,15 +33,12 @@ func FromJsonB[T any](data []byte) (T, error) {
 	return result, nil
 }
 
-func CreateResponse[T any](data T, err *Error) Response[T] {
+func ToJsonB(data any) ([]byte, error) {
+	val, err := json.Marshal(data)
 	if err != nil {
-		return Response[T]{
-			Error: err,
-		}
+		return []byte{}, err
 	}
-	return Response[T]{
-		Data: data,
-	}
+	return val, nil
 }
 
 func LerpAngle(a, b, t float64) float64 {

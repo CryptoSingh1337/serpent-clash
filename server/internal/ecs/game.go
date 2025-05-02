@@ -3,8 +3,8 @@ package ecs
 import (
 	"errors"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/storage"
-	"github.com/CryptoSingh1337/serpent-clash/server/internal/types"
-	"github.com/CryptoSingh1337/serpent-clash/server/internal/utils"
+	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/types"
+	gameutils "github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/utils"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/lesismal/nbio/nbhttp/websocket"
@@ -21,6 +21,7 @@ type Game struct {
 }
 
 func NewGame() *Game {
+	gameutils.NewLogger()
 	return &Game{
 		Done:              make(chan bool),
 		Engine:            NewEngine(),
@@ -29,12 +30,12 @@ func NewGame() *Game {
 }
 
 func (g *Game) Start() {
-	ticker := time.NewTicker(1000 / utils.TickRate * time.Millisecond)
+	ticker := time.NewTicker(1000 / gameutils.TickRate * time.Millisecond)
 	g.Engine.Start()
-	r := g.Engine.storage.GetSharedResource(utils.SpawnRegions)
+	r := g.Engine.storage.GetSharedResource(gameutils.SpawnRegions)
 	if r != nil {
-		g.GameServerMetrics.SpawnRegions.Radius = utils.SpawnRegionRadius
-		g.GameServerMetrics.SpawnRegions.Regions = r.([]utils.Coordinate)
+		g.GameServerMetrics.SpawnRegions.Radius = gameutils.SpawnRegionRadius
+		g.GameServerMetrics.SpawnRegions.Regions = r.([]gameutils.Coordinate)
 	}
 	go func() {
 		for {
@@ -60,7 +61,7 @@ func (g *Game) processTick() {
 	//start := time.Now().UnixMilli()
 	g.Engine.UpdateSystems()
 	//end := time.Now().UnixMilli()
-	//utils.Logger.Debug().Msgf("Time taken to process tick: %d ms", end-start)
+	//gameutils.Logger.Debug().Msgf("Time taken to process tick: %d ms", end-start)
 }
 
 func (g *Game) processMetrics() {
@@ -76,7 +77,7 @@ func (g *Game) processMetrics() {
 		g.GameServerMetrics.ServerMetrics.BytesReceived = netStats[0].BytesRecv
 	}
 	g.GameServerMetrics.ServerMetrics.PlayerCount = uint8(len(g.Engine.playerIdToEntityId))
-	r := g.Engine.storage.GetSharedResource(utils.QuadTreeResource)
+	r := g.Engine.storage.GetSharedResource(gameutils.QuadTreeResource)
 	if r != nil {
 		g.GameServerMetrics.QuadTree = r.(*storage.QuadTree)
 	}

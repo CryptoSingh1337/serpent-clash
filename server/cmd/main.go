@@ -1,40 +1,17 @@
 package main
 
-import (
-	"context"
-	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs"
-	"github.com/CryptoSingh1337/serpent-clash/server/internal/utils"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
-)
+import "log"
 
 func main() {
-	config := LoadConfig()
-	app := &App{
-		Config: *config,
-	}
-	game := ecs.NewGame()
-	srv := initHTTPServer(app, game)
-	utils.Logger.LogInfo().Msgf("Loaded config: %v", app.Config)
-
-	err := srv.Start()
-	game.Start()
+	a := NewApp()
+	err := a.Start()
 	if err != nil {
-		utils.Logger.LogFatal().Msgf("nbio.Start failed: %v", err)
+		log.Fatalf("Error while starting app: %v", err)
 	}
-
-	interrupt := make(chan os.Signal, 1)
-	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
-	<-interrupt
-
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
-	defer cancel()
-	game.Stop()
-	err = srv.Shutdown(ctx)
+	sig := <-a.shutdown
+	log.Printf("shutdown signal received: %v\n", sig)
+	err = a.Stop()
 	if err != nil {
-		utils.Logger.LogFatal().Msgf("Shutdown failed: %v", err)
-		return
+		log.Fatalf("Error while shutting down app: %v", err)
 	}
 }

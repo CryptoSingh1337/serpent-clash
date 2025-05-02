@@ -87,7 +87,6 @@ type PongMessage struct {
 }
 
 type PlayerStateMessage struct {
-	Color    string       `json:"color"`
 	Segments []Coordinate `json:"positions"`
 	Seq      uint64       `json:"seq"`
 }

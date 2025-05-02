@@ -2,7 +2,7 @@ package storage
 
 import (
 	"fmt"
-	"github.com/CryptoSingh1337/serpent-clash/server/internal/types"
+	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/types"
 )
 
 type Pool[T types.Component] struct {

@@ -2,7 +2,7 @@ package ecs
 
 import (
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/storage"
-	"github.com/CryptoSingh1337/serpent-clash/server/internal/utils"
+	gameutils "github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/utils"
 	"github.com/shirou/gopsutil/v4/process"
 	"os"
 )
@@ -19,8 +19,8 @@ type GameServerMetrics struct {
 	} `json:"serverMetrics"`
 	QuadTree     *storage.QuadTree `json:"quadTree"`
 	SpawnRegions struct {
-		Radius  float64            `json:"radius"`
-		Regions []utils.Coordinate `json:"regions"`
+		Radius  float64                `json:"radius"`
+		Regions []gameutils.Coordinate `json:"regions"`
 	} `json:"spawnRegions"`
 }
 
@@ -28,7 +28,7 @@ func NewGameServerMetrics() *GameServerMetrics {
 	pid := int32(os.Getpid())
 	proc, err := process.NewProcess(pid)
 	if err != nil {
-		utils.Logger.Err(err).Msgf("error while fetching process metrics")
+		gameutils.Logger.Err(err).Msgf("error while fetching process metrics")
 		panic(err)
 	}
 	metrics := &GameServerMetrics{}

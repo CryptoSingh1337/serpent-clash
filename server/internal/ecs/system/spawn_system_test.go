@@ -2,7 +2,7 @@ package system
 
 import (
 	"fmt"
-	"github.com/CryptoSingh1337/serpent-clash/server/internal/utils"
+	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/utils"
 	"math"
 	"math/rand/v2"
 	"testing"

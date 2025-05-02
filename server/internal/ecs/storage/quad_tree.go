@@ -2,8 +2,8 @@ package storage
 
 import (
 	"fmt"
-	"github.com/CryptoSingh1337/serpent-clash/server/internal/types"
-	"github.com/CryptoSingh1337/serpent-clash/server/internal/utils"
+	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/types"
+	gameutils "github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/utils"
 	"math"
 )
 
@@ -56,7 +56,7 @@ type BCircle struct {
 }
 
 func (c BCircle) Contains(p Point) bool {
-	return utils.EuclideanDistance(c.X, c.Y, p.X, p.Y) <= c.R
+	return gameutils.EuclideanDistance(c.X, c.Y, p.X, p.Y) <= c.R
 }
 
 type QuadTree struct {
@@ -169,7 +169,7 @@ func (qt *QuadTree) Print(test bool) {
 		if test {
 			fmt.Printf(msg)
 		} else {
-			utils.Logger.Info().Msgf(msg)
+			gameutils.Logger.Info().Msgf(msg)
 		}
 		if q.Divided {
 			queue = append(queue, q.NW)

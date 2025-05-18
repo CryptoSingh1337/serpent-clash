@@ -318,7 +318,7 @@ onUnmounted(() => {
           class="button-container w-40 h-24 transform hover:scale-105 transition-transform"
         >
           <button
-            class="text-white font-extrabold tracking-wide text-4xl button-content flex items-center justify-center"
+            class="text-white font-extrabold text-4xl button-content flex items-center justify-center"
             @click.prevent="router.push('/menu')"
           >
             <span class="relative z-10 font-cherry">Play</span>

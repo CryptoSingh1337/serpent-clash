@@ -388,7 +388,7 @@ onUnmounted(() => {
     <div class="max-w-5xl mx-auto px-6 relative z-10">
       <div class="inline-block mb-8 relative">
         <h2
-          class="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#4caf50] to-[#8bc34a] mb-2 font-cherry"
+          class="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#4caf50] to-[#8bc34a] mb-2 p-2 font-cherry"
         >
           What is Serpent Clash?
         </h2>
@@ -546,7 +546,7 @@ onUnmounted(() => {
     <div class="max-w-5xl mx-auto px-6 relative z-10">
       <div class="inline-block mb-8 relative">
         <h2
-          class="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#ffc107] to-[#f44336] mb-2 font-cherry"
+          class="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#ffc107] to-[#f44336] mb-2 p-2 font-cherry"
         >
           Gameplay Preview
         </h2>
@@ -647,7 +647,7 @@ onUnmounted(() => {
     <div class="max-w-5xl mx-auto px-6 relative z-10">
       <div class="inline-block mb-8 relative">
         <h2
-          class="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#865dff] to-[#e384ff] mb-2 font-cherry"
+          class="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#865dff] to-[#e384ff] mb-2 p-2 font-cherry"
         >
           Future Enhancements
         </h2>

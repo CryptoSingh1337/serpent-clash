@@ -18,17 +18,17 @@ var (
 	spawnRegions []gameutils.Coordinate
 )
 
-type SpawnSystem struct {
+type PlayerSpawnSystem struct {
 	storage            storage.Storage
 	spawnQueue         <-chan types.Id
 	newId              func() types.Id
 	lastSpawnRegionIdx int
 }
 
-func NewSpawnSystem(storage storage.Storage, spawnQueue <-chan types.Id, newId func() types.Id) *SpawnSystem {
+func NewSpawnSystem(storage storage.Storage, spawnQueue <-chan types.Id, newId func() types.Id) *PlayerSpawnSystem {
 	spawnRegions = GenerateSpawnPoints(spawnRegionCount)
 	storage.AddSharedResource(gameutils.SpawnRegions, spawnRegions)
-	return &SpawnSystem{
+	return &PlayerSpawnSystem{
 		storage,
 		spawnQueue,
 		newId,
@@ -36,22 +36,22 @@ func NewSpawnSystem(storage storage.Storage, spawnQueue <-chan types.Id, newId f
 	}
 }
 
-func (s *SpawnSystem) Update() {
-	s.buildQuadTree()
-	r := s.storage.GetSharedResource(gameutils.QuadTreeResource)
+func (p *PlayerSpawnSystem) Update() {
+	p.buildQuadTree()
+	r := p.storage.GetSharedResource(gameutils.QuadTreeResource)
 	if r == nil {
 		return
 	}
 	qt := r.(*storage.QuadTree)
 	for {
 		select {
-		case playerId := <-s.spawnQueue:
+		case playerId := <-p.spawnQueue:
 			gameutils.Logger.Info().Msgf("Spawning %v player id", playerId)
 			var minDensityRegion gameutils.Coordinate
 			previousRegionDensity := math.MaxInt
 			var playerHeads []storage.Point
-			regionIdx := (s.lastSpawnRegionIdx + 1) % spawnRegionCount
-			s.lastSpawnRegionIdx = regionIdx
+			regionIdx := (p.lastSpawnRegionIdx + 1) % spawnRegionCount
+			p.lastSpawnRegionIdx = regionIdx
 			gameutils.Logger.Info().Msgf("Spawn region: %v", regionIdx)
 			for i := 0; i < spawnRegionCount; i++ {
 				region := spawnRegions[regionIdx]
@@ -91,7 +91,7 @@ func (s *SpawnSystem) Update() {
 				}
 			}
 			gameutils.Logger.Info().Msgf("Head: %v", segments[0])
-			c := s.storage.GetComponentByEntityIdAndName(playerId, gameutils.SnakeComponent)
+			c := p.storage.GetComponentByEntityIdAndName(playerId, gameutils.SnakeComponent)
 			if c == nil {
 				break
 			}
@@ -105,15 +105,15 @@ SpawnFood:
 	// TODO: spawn/de-spawn food and maintain food threshold
 }
 
-func (s *SpawnSystem) Stop() {
+func (p *PlayerSpawnSystem) Stop() {
 
 }
 
-func (s *SpawnSystem) buildQuadTree() {
-	playerEntities := s.storage.GetAllEntitiesByType(gameutils.PlayerEntity)
+func (p *PlayerSpawnSystem) buildQuadTree() {
+	playerEntities := p.storage.GetAllEntitiesByType(gameutils.PlayerEntity)
 	qt := storage.NewQuadTree(storage.BBox{X: 0, Y: 0, W: gameutils.WorldWeight, H: gameutils.WorldHeight}, 15)
 	for _, playerId := range playerEntities {
-		comp := s.storage.GetComponentByEntityIdAndName(playerId, gameutils.SnakeComponent)
+		comp := p.storage.GetComponentByEntityIdAndName(playerId, gameutils.SnakeComponent)
 		if comp == nil {
 			continue
 		}
@@ -128,7 +128,7 @@ func (s *SpawnSystem) buildQuadTree() {
 			qt.Insert(storage.Point{X: segment.X, Y: segment.Y, EntityId: playerId, PointType: gameutils.PlayerSegmentPointType})
 		}
 	}
-	s.storage.AddSharedResource(gameutils.QuadTreeResource, qt)
+	p.storage.AddSharedResource(gameutils.QuadTreeResource, qt)
 }
 
 func GenerateSpawnPoints(count int) []gameutils.Coordinate {

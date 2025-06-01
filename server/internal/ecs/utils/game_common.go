@@ -58,6 +58,7 @@ const (
 const (
 	PlayerHeadPointType    = "head"
 	PlayerSegmentPointType = "segment"
+	FoodPointType          = "food"
 )
 
 type Coordinate struct {

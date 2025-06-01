@@ -12,7 +12,7 @@ type NetworkSystem struct {
 	storage storage.Storage
 }
 
-func NewNetworkSystem(storage storage.Storage) *NetworkSystem {
+func NewNetworkSystem(storage storage.Storage) System {
 	return &NetworkSystem{
 		storage,
 	}

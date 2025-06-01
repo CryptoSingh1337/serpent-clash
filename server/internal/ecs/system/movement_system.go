@@ -11,7 +11,7 @@ type MovementSystem struct {
 	storage storage.Storage
 }
 
-func NewMovementSystem(storage storage.Storage) *MovementSystem {
+func NewMovementSystem(storage storage.Storage) System {
 	return &MovementSystem{
 		storage,
 	}

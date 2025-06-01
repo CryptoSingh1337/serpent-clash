@@ -10,7 +10,7 @@ type CollisionSystem struct {
 	storage storage.Storage
 }
 
-func NewCollisionSystem(storage storage.Storage) *CollisionSystem {
+func NewCollisionSystem(storage storage.Storage) System {
 	return &CollisionSystem{
 		storage,
 	}

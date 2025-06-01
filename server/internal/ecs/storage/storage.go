@@ -3,7 +3,7 @@ package storage
 import (
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/component"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/types"
-	gameutils "github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/utils"
+	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/utils"
 )
 
 type Storage interface {
@@ -12,7 +12,7 @@ type Storage interface {
 	AddSharedResource(resourceName string, resource any)
 	GetSharedResource(resourceName string) any
 	DeleteSharedResource(resourceName string)
-	GetAllEntitiesByType(componentType string) []types.Id
+	GetAllEntitiesByType(entityType string) []types.Id
 	GetAllComponentByName(componentName string) any
 	GetComponentByEntityIdAndName(entityId types.Id, componentName string) any
 	AddComponent(entityId types.Id, componentName string, component any)
@@ -23,9 +23,11 @@ type Storage interface {
 type SimpleStorage struct {
 	entityGroup          map[string][]types.Id
 	sharedResources      map[string]any
+	expiryComponents     *Pool[component.Expiry]
 	inputComponents      *Pool[component.Input]
 	networkComponents    *Pool[component.Network]
 	playerInfoComponents *Pool[component.PlayerInfo]
+	positionComponents   *Pool[component.Position]
 	snakeComponents      *Pool[component.Snake]
 }
 
@@ -33,43 +35,43 @@ func NewSimpleStorage() Storage {
 	return &SimpleStorage{
 		entityGroup:          make(map[string][]types.Id),
 		sharedResources:      make(map[string]any),
+		expiryComponents:     NewPool[component.Expiry](),
 		inputComponents:      NewPool[component.Input](),
 		networkComponents:    NewPool[component.Network](),
 		playerInfoComponents: NewPool[component.PlayerInfo](),
+		positionComponents:   NewPool[component.Position](),
 		snakeComponents:      NewPool[component.Snake](),
 	}
 }
 
 func (s *SimpleStorage) AddEntity(entityId types.Id, entityType string) {
-	switch entityType {
-	case gameutils.PlayerEntity:
-		_, exists := s.entityGroup[entityType]
-		if !exists {
-			s.entityGroup[entityType] = make([]types.Id, 0, 5)
-		}
-		s.entityGroup[entityType] = append(s.entityGroup[entityType], entityId)
-	default:
-		gameutils.Logger.Error().Msgf("%s: invalid entity type", entityType)
+	_, exists := s.entityGroup[entityType]
+	if !exists {
+		s.entityGroup[entityType] = make([]types.Id, 0, 5)
 	}
+	s.entityGroup[entityType] = append(s.entityGroup[entityType], entityId)
 }
 
 func (s *SimpleStorage) RemoveEntity(entityId types.Id, entityType string) {
-	switch entityType {
-	case gameutils.PlayerEntity:
-		if entityIds, exists := s.entityGroup[entityType]; exists {
-			for idx, id := range entityIds {
-				if id == entityId {
-					s.entityGroup[entityType] = gameutils.RemoveFromSlice(entityIds, idx)
-					break
-				}
+	if entityIds, exists := s.entityGroup[entityType]; exists {
+		for idx, id := range entityIds {
+			if id == entityId {
+				s.entityGroup[entityType] = utils.RemoveFromSlice(entityIds, idx)
+				break
 			}
 		}
+	}
+	switch entityType {
+	case utils.PlayerEntity:
 		s.inputComponents.Remove(entityId)
 		s.networkComponents.Remove(entityId)
 		s.playerInfoComponents.Remove(entityId)
 		s.snakeComponents.Remove(entityId)
+	case utils.FoodEntity:
+		s.positionComponents.Remove(entityId)
+		s.expiryComponents.Remove(entityId)
 	default:
-		gameutils.Logger.Error().Msgf("%s: invalid entity type", entityType)
+		utils.Logger.Error().Msgf("%s: invalid entity type", entityType)
 	}
 }
 
@@ -99,14 +101,18 @@ func (s *SimpleStorage) GetAllEntitiesByType(t string) []types.Id {
 
 func (s *SimpleStorage) GetAllComponentByName(componentName string) any {
 	switch componentName {
-	case gameutils.InputComponent:
+	case utils.InputComponent:
 		return s.inputComponents.GetAll()
-	case gameutils.NetworkComponent:
+	case utils.NetworkComponent:
 		return s.networkComponents.GetAll()
-	case gameutils.PlayerInfoComponent:
+	case utils.PlayerInfoComponent:
 		return s.playerInfoComponents.GetAll()
-	case gameutils.SnakeComponent:
+	case utils.SnakeComponent:
 		return s.snakeComponents.GetAll()
+	case utils.PositionComponent:
+		return s.positionComponents.GetAll()
+	case utils.ExpiryComponent:
+		return s.expiryComponents.GetAll()
 	}
 	return nil
 }
@@ -115,14 +121,18 @@ func (s *SimpleStorage) GetComponentByEntityIdAndName(entityId types.Id, compone
 	var c any
 	exists := false
 	switch componentName {
-	case gameutils.InputComponent:
+	case utils.InputComponent:
 		c, exists = s.inputComponents.Get(entityId)
-	case gameutils.NetworkComponent:
+	case utils.NetworkComponent:
 		c, exists = s.networkComponents.Get(entityId)
-	case gameutils.PlayerInfoComponent:
+	case utils.PlayerInfoComponent:
 		c, exists = s.playerInfoComponents.Get(entityId)
-	case gameutils.SnakeComponent:
+	case utils.SnakeComponent:
 		c, exists = s.snakeComponents.Get(entityId)
+	case utils.PositionComponent:
+		c, exists = s.positionComponents.Get(entityId)
+	case utils.ExpiryComponent:
+		c, exists = s.expiryComponents.Get(entityId)
 	}
 	if exists {
 		return c
@@ -132,55 +142,73 @@ func (s *SimpleStorage) GetComponentByEntityIdAndName(entityId types.Id, compone
 
 func (s *SimpleStorage) AddComponent(entityId types.Id, componentName string, com any) {
 	switch componentName {
-	case gameutils.InputComponent:
+	case utils.InputComponent:
 		c := com.(*component.Input)
 		s.inputComponents.Add(entityId, c)
-	case gameutils.NetworkComponent:
+	case utils.NetworkComponent:
 		c := com.(*component.Network)
 		s.networkComponents.Add(entityId, c)
-	case gameutils.PlayerInfoComponent:
+	case utils.PlayerInfoComponent:
 		c := com.(*component.PlayerInfo)
 		s.playerInfoComponents.Add(entityId, c)
-	case gameutils.SnakeComponent:
+	case utils.SnakeComponent:
 		c := com.(*component.Snake)
 		s.snakeComponents.Add(entityId, c)
+	case utils.PositionComponent:
+		c := com.(*component.Position)
+		s.positionComponents.Add(entityId, c)
+	case utils.ExpiryComponent:
+		c := com.(*component.Expiry)
+		s.expiryComponents.Add(entityId, c)
 	}
 }
 
 func (s *SimpleStorage) ReplaceComponent(entityId types.Id, componentName string, com any) {
 	switch componentName {
-	case gameutils.InputComponent:
+	case utils.InputComponent:
 		c := com.(*component.Input)
 		s.inputComponents.Replace(entityId, c)
-	case gameutils.NetworkComponent:
+	case utils.NetworkComponent:
 		c := com.(*component.Network)
 		s.networkComponents.Replace(entityId, c)
-	case gameutils.PlayerInfoComponent:
+	case utils.PlayerInfoComponent:
 		c := com.(*component.PlayerInfo)
 		s.playerInfoComponents.Replace(entityId, c)
-	case gameutils.SnakeComponent:
+	case utils.SnakeComponent:
 		c := com.(*component.Snake)
 		s.snakeComponents.Replace(entityId, c)
+	case utils.PositionComponent:
+		c := com.(*component.Position)
+		s.positionComponents.Replace(entityId, c)
+	case utils.ExpiryComponent:
+		c := com.(*component.Expiry)
+		s.expiryComponents.Replace(entityId, c)
 	}
 }
 
 func (s *SimpleStorage) DeleteComponent(entityId types.Id, componentName string) {
 	switch componentName {
-	case gameutils.InputComponent:
+	case utils.InputComponent:
 		s.inputComponents.Remove(entityId)
-	case gameutils.NetworkComponent:
+	case utils.NetworkComponent:
 		s.networkComponents.Remove(entityId)
-	case gameutils.PlayerInfoComponent:
+	case utils.PlayerInfoComponent:
 		s.playerInfoComponents.Remove(entityId)
-	case gameutils.SnakeComponent:
+	case utils.SnakeComponent:
 		s.snakeComponents.Remove(entityId)
+	case utils.PositionComponent:
+		s.positionComponents.Remove(entityId)
+	case utils.ExpiryComponent:
+		s.expiryComponents.Remove(entityId)
 	}
 }
 
 func (s *SimpleStorage) LogState() {
-	gameutils.Logger.Debug().Msgf("EntityGroup: %v", s.entityGroup)
-	gameutils.Logger.Debug().Msgf(s.inputComponents.String(gameutils.InputComponent))
-	gameutils.Logger.Debug().Msgf(s.networkComponents.String(gameutils.NetworkComponent))
-	gameutils.Logger.Debug().Msgf(s.playerInfoComponents.String(gameutils.PlayerInfoComponent))
-	gameutils.Logger.Debug().Msgf(s.snakeComponents.String(gameutils.SnakeComponent))
+	utils.Logger.Debug().Msgf("EntityGroup: %v", s.entityGroup)
+	utils.Logger.Debug().Msgf(s.inputComponents.String(utils.InputComponent))
+	utils.Logger.Debug().Msgf(s.networkComponents.String(utils.NetworkComponent))
+	utils.Logger.Debug().Msgf(s.playerInfoComponents.String(utils.PlayerInfoComponent))
+	utils.Logger.Debug().Msgf(s.snakeComponents.String(utils.SnakeComponent))
+	utils.Logger.Debug().Msgf(s.positionComponents.String(utils.PositionComponent))
+	utils.Logger.Debug().Msgf(s.expiryComponents.String(utils.ExpiryComponent))
 }

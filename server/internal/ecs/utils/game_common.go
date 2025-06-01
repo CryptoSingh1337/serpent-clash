@@ -17,6 +17,7 @@ const (
 	SnakeSegmentDistance      = 20
 	SnakeSegmentDiameter      = 50
 	DefaultFoodSpawnThreshold = 10
+	MaxFoodEntityExpiry       = 10000
 	MaxPlayerAllowed          = 10
 	WorldBoundaryRadius       = 2850
 	WorldHeight               = 3000
@@ -43,6 +44,7 @@ const (
 // Component names
 const (
 	InputComponent      = "input"
+	ExpiryComponent     = "expiry"
 	NetworkComponent    = "network"
 	PlayerInfoComponent = "playerInfo"
 	PositionComponent   = "position"

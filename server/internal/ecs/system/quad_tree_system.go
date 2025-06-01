@@ -29,10 +29,20 @@ func (q *QuadTreeSystem) Update() {
 			continue
 		}
 		head := snakeComponent.Segments[0]
-		qt.Insert(storage.Point{X: head.X, Y: head.Y, EntityId: playerId, PointType: utils.PlayerHeadPointType})
+		qt.Insert(storage.Point{
+			X:         head.X,
+			Y:         head.Y,
+			EntityId:  playerId,
+			PointType: utils.PlayerHeadPointType,
+		})
 		for i := 1; i < len(snakeComponent.Segments); i++ {
 			segment := snakeComponent.Segments[i]
-			qt.Insert(storage.Point{X: segment.X, Y: segment.Y, EntityId: playerId, PointType: utils.PlayerSegmentPointType})
+			qt.Insert(storage.Point{
+				X:         segment.X,
+				Y:         segment.Y,
+				EntityId:  playerId,
+				PointType: utils.PlayerSegmentPointType,
+			})
 		}
 	}
 	foodEntities := q.storage.GetAllEntitiesByType(utils.FoodEntity)
@@ -42,7 +52,12 @@ func (q *QuadTreeSystem) Update() {
 			continue
 		}
 		positionComponent := comp.(*component.Position)
-		qt.Insert(storage.Point{X: positionComponent.X, Y: positionComponent.Y, EntityId: foodId, PointType: utils.FoodPointType})
+		qt.Insert(storage.Point{
+			X:         positionComponent.X,
+			Y:         positionComponent.Y,
+			EntityId:  foodId,
+			PointType: utils.FoodPointType,
+		})
 	}
 	q.storage.AddSharedResource(utils.QuadTreeResource, qt)
 }

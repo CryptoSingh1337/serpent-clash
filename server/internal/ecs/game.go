@@ -4,12 +4,13 @@ import (
 	"errors"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/storage"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/types"
-	gameutils "github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/utils"
+	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/utils"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/lesismal/nbio/nbhttp/websocket"
 	"github.com/shirou/gopsutil/v4/host"
 	"github.com/shirou/gopsutil/v4/net"
+	"math"
 	"strings"
 	"time"
 )
@@ -21,7 +22,7 @@ type Game struct {
 }
 
 func NewGame() *Game {
-	gameutils.NewLogger()
+	utils.NewLogger()
 	return &Game{
 		Done:              make(chan bool),
 		Engine:            NewEngine(),
@@ -30,12 +31,13 @@ func NewGame() *Game {
 }
 
 func (g *Game) Start() {
-	ticker := time.NewTicker(1000 / gameutils.TickRate * time.Millisecond)
+	ticker := time.NewTicker(1000 / utils.TickRate * time.Millisecond)
+	metricsTicker := time.NewTicker(1 * time.Second)
 	g.Engine.Start()
-	r := g.Engine.storage.GetSharedResource(gameutils.SpawnRegions)
+	r := g.Engine.storage.GetSharedResource(utils.SpawnRegions)
 	if r != nil {
-		g.GameServerMetrics.SpawnRegions.Radius = gameutils.SpawnRegionRadius
-		g.GameServerMetrics.SpawnRegions.Regions = r.([]gameutils.Coordinate)
+		g.GameServerMetrics.SpawnRegions.Radius = utils.SpawnRegionRadius
+		g.GameServerMetrics.SpawnRegions.Regions = r.([]utils.Coordinate)
 	}
 	go func() {
 		for {
@@ -45,6 +47,16 @@ func (g *Game) Start() {
 				return
 			case _ = <-ticker.C:
 				g.processTick()
+			}
+		}
+	}()
+	go func() {
+		for {
+			select {
+			case <-g.Done:
+				metricsTicker.Stop()
+				return
+			case _ = <-metricsTicker.C:
 				g.processMetrics()
 			}
 		}
@@ -58,10 +70,10 @@ func (g *Game) Stop() {
 }
 
 func (g *Game) processTick() {
-	//start := time.Now().UnixMilli()
+	start := time.Now().UnixMicro()
 	g.Engine.UpdateSystems()
-	//end := time.Now().UnixMilli()
-	//gameutils.Logger.Debug().Msgf("Time taken to process tick: %d ms", end-start)
+	end := time.Now().UnixMicro()
+	g.GameServerMetrics.GameMetrics.SystemUpdateTimeInLastTick = end - start
 }
 
 func (g *Game) processMetrics() {
@@ -77,9 +89,25 @@ func (g *Game) processMetrics() {
 		g.GameServerMetrics.ServerMetrics.BytesReceived = netStats[0].BytesRecv
 	}
 	g.GameServerMetrics.ServerMetrics.PlayerCount = uint8(len(g.Engine.playerIdToEntityId))
-	r := g.Engine.storage.GetSharedResource(gameutils.QuadTreeResource)
+	r := g.Engine.storage.GetSharedResource(utils.QuadTreeResource)
 	if r != nil {
 		g.GameServerMetrics.QuadTree = r.(*storage.QuadTree)
+	}
+	g.GameServerMetrics.GameMetrics.MaxSystemUpdateTime = int64(math.Max(
+		float64(g.GameServerMetrics.GameMetrics.MaxSystemUpdateTime),
+		float64(g.GameServerMetrics.GameMetrics.SystemUpdateTimeInLastTick),
+	))
+	if len(g.GameServerMetrics.GameMetrics.SystemUpdateTimeInLastTenTicks) < 10 {
+		g.GameServerMetrics.GameMetrics.SystemUpdateTimeInLastTenTicks = append(
+			g.GameServerMetrics.GameMetrics.SystemUpdateTimeInLastTenTicks,
+			g.GameServerMetrics.GameMetrics.SystemUpdateTimeInLastTick)
+	} else {
+		g.GameServerMetrics.GameMetrics.SystemUpdateTimeInLastTenTicks =
+			g.GameServerMetrics.GameMetrics.SystemUpdateTimeInLastTenTicks[1:]
+		g.GameServerMetrics.GameMetrics.SystemUpdateTimeInLastTenTicks = append(
+			g.GameServerMetrics.GameMetrics.SystemUpdateTimeInLastTenTicks,
+			g.GameServerMetrics.GameMetrics.SystemUpdateTimeInLastTick,
+		)
 	}
 }
 

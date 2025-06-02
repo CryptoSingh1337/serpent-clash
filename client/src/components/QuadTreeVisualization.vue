@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, useTemplateRef, watch } from "vue"
+import { onMounted, useTemplateRef } from "vue"
 import type { QuadTree, SpawnRegions } from "@/utils/types"
 import { Constants as constants } from "@/utils/constants.ts"
 
@@ -52,12 +52,17 @@ function renderQuadTree(ctx: CanvasRenderingContext2D): void {
     node.points.forEach((p) => {
       const c = worldToCanvas(p.x, p.y)
       ctx.beginPath()
-      ctx.arc(c.x, c.y, 1, 0, 2 * Math.PI, true)
-      if (p.pointType == "head") {
+      let r = 1
+      if (p.pointType === "head") {
         ctx.fillStyle = "rgba(0, 255, 0, 1)"
+        r = 3
+      } else if (p.pointType === "food") {
+        ctx.fillStyle = "rgb(191,0,255)"
       } else {
+        r = 2
         ctx.fillStyle = "rgba(0, 145, 255, 1)"
       }
+      ctx.arc(c.x, c.y, r, 0, 2 * Math.PI, true)
       ctx.fill()
       ctx.closePath()
     })

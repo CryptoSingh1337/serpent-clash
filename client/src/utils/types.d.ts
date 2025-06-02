@@ -52,3 +52,10 @@ export type ServerMetrics = {
   playerCount: number
   foodCount: number
 }
+
+export type GameMetrics = {
+  systemUpdateTimeInLastTick: number
+  maxSystemUpdateTime: number
+  systemUpdateTimeInLastTenTicks: number[]
+  noOfCollisionsInLastTenTicks: number[]
+}

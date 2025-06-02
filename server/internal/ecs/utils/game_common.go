@@ -7,21 +7,25 @@ import (
 
 // Common constants
 const (
-	TickRate                  = 60
-	PingCooldown              = 30
-	PlayerSpeed               = 6
-	PlayerBoostSpeed          = 3
-	MaxTurnRate               = 0.03
-	DefaultSnakeLength        = 10
-	DefaultGrowthFactor       = 2
-	SnakeSegmentDistance      = 20
-	SnakeSegmentDiameter      = 50
-	DefaultFoodSpawnThreshold = 10
-	MaxPlayerAllowed          = 10
-	WorldBoundaryRadius       = 2850
-	WorldHeight               = 3000
-	WorldWeight               = 3000
-	SpawnRegionRadius         = WorldBoundaryRadius * 0.175
+	TickRate                = 60
+	PingCooldown            = 30
+	PlayerSpeed             = 6
+	PlayerBoostSpeed        = 3
+	MaxTurnRate             = 0.03
+	DefaultSnakeLength      = 10
+	DefaultGrowthFactor     = 2
+	SnakeSegmentDistance    = 20
+	SnakeSegmentDiameter    = 50
+	FoodConsumeDistance     = 30
+	FoodSpawnThreshold      = 1000
+	MinFoodEntityExpiry     = 4000
+	MaxFoodEntityExpiry     = 10000
+	MaxPlayerAllowed        = 10
+	QuadTreeSegmentCapacity = 50
+	WorldBoundaryRadius     = 2850
+	WorldHeight             = 3000
+	WorldWeight             = 3000
+	SpawnRegionRadius       = WorldBoundaryRadius * 0.175
 )
 
 // Message types
@@ -43,6 +47,7 @@ const (
 // Component names
 const (
 	InputComponent      = "input"
+	ExpiryComponent     = "expiry"
 	NetworkComponent    = "network"
 	PlayerInfoComponent = "playerInfo"
 	PositionComponent   = "position"
@@ -58,6 +63,7 @@ const (
 const (
 	PlayerHeadPointType    = "head"
 	PlayerSegmentPointType = "segment"
+	FoodPointType          = "food"
 )
 
 type Coordinate struct {

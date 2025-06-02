@@ -8,7 +8,7 @@ import (
 type Id uint32
 
 type Component interface {
-	component.Input | component.Network | component.PlayerInfo | component.Snake
+	component.Expiry | component.Input | component.Network | component.PlayerInfo | component.Position | component.Snake
 }
 
 type JoinEvent struct {

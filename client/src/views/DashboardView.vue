@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue"
-import type { QuadTree, ServerMetrics, SpawnRegions } from "@/utils/types"
+import type {
+  GameMetrics,
+  QuadTree,
+  ServerMetrics,
+  SpawnRegions
+} from "@/utils/types"
 import ServerMetricsPanel from "@/components/ServerMetricsPanel.vue"
 import QuadTreeVisualization from "@/components/QuadTreeVisualization.vue"
 import TabNavigation from "@/components/TabNavigation.vue"
@@ -15,6 +20,12 @@ const serverMetrics = ref<ServerMetrics>({
   bytesReceived: 0,
   playerCount: 0,
   foodCount: 0
+})
+const gameMetrics = ref<GameMetrics>({
+  systemUpdateTimeInLastTick: 0,
+  maxSystemUpdateTime: 0,
+  systemUpdateTimeInLastTenTicks: [],
+  noOfCollisionsInLastTenTicks: []
 })
 let quadTree = ref<QuadTree | null>(null)
 let spawnRegions = ref<SpawnRegions | null>(null)
@@ -71,6 +82,9 @@ onMounted(() => {
         if (serverMetrics.value && quadTree.value) {
           serverMetrics.value.foodCount = countFoodItems(quadTree.value)
         }
+      }
+      if (body.gameMetrics) {
+        gameMetrics.value = body.gameMetrics
       }
     }
   }, 750)
@@ -133,7 +147,7 @@ onMounted(() => {
           <h4 class="text-2xl font-bold mb-6 text-center text-blue-400">
             <i class="bi bi-speedometer2 mr-2"></i>Performance Monitoring
           </h4>
-          <PerformanceMetricsPanel />
+          <PerformanceMetricsPanel :game-metrics="gameMetrics" />
         </div>
       </div>
     </div>

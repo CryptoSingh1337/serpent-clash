@@ -1,19 +1,27 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue"
+import { ref, onMounted, computed } from "vue"
+import MetricsPanel from "@/components/metrics/Panel.vue"
+import type { GameMetrics } from "@/utils/types"
 
-const fps = ref(60)
-const avgTickProcessingTime = ref(5)
-const networkLatency = ref(50)
+const props = defineProps<{
+  gameMetrics: GameMetrics
+}>()
+
 const memoryTrend = ref([50, 52, 55, 53, 58, 60, 62, 65, 63, 67])
 
 onMounted(() => {
   setInterval(() => {
-    fps.value = Math.floor(55 + Math.random() * 10)
-    avgTickProcessingTime.value = Math.floor(3 + Math.random() * 5)
-    networkLatency.value = Math.floor(40 + Math.random() * 30)
     memoryTrend.value.shift()
     memoryTrend.value.push(Math.floor(50 + Math.random() * 20))
   }, 2000)
+})
+
+const avgProcessingTime = computed(() => {
+  return (
+    props.gameMetrics.systemUpdateTimeInLastTenTicks.reduce(
+      (accumulator, currentValue) => accumulator + currentValue
+    ) / props.gameMetrics.systemUpdateTimeInLastTenTicks.length
+  )
 })
 </script>
 
@@ -25,56 +33,28 @@ onMounted(() => {
       <h4 class="text-xl font-bold mb-4 text-blue-400 flex items-center">
         <i class="bi bi-speedometer2 mr-2"></i>Real-time Performance
       </h4>
-      <div class="grid grid-cols-3 gap-4 sm:grid-cols-1 md:grid-cols-3">
-        <div
-          class="bg-gray-700 rounded-lg p-4 text-center border border-gray-600 shadow-md hover:shadow-lg transition-all duration-300"
-        >
-          <div
-            class="text-sm text-gray-400 mb-1 flex items-center justify-center"
-          >
-            <i class="bi bi-display mr-1"></i>FPS
-          </div>
-          <div
-            class="text-2xl font-bold"
-            :class="fps > 55 ? 'text-green-500' : 'text-yellow-500'"
-          >
-            {{ fps }}
-          </div>
-        </div>
-        <div
-          class="bg-gray-700 rounded-lg p-4 text-center border border-gray-600 shadow-md hover:shadow-lg transition-all duration-300"
-        >
-          <div
-            class="text-sm text-gray-400 mb-1 flex items-center justify-center"
-          >
-            <i class="bi bi-stopwatch mr-1"></i>Average Tick processing time
-          </div>
-          <div
-            class="text-2xl font-bold"
-            :class="
-              avgTickProcessingTime < 16.66
-                ? 'text-green-500'
-                : 'text-yellow-500'
-            "
-          >
-            {{ avgTickProcessingTime }} ms
-          </div>
-        </div>
-        <div
-          class="bg-gray-700 rounded-lg p-4 text-center border border-gray-600 shadow-md hover:shadow-lg transition-all duration-300"
-        >
-          <div
-            class="text-sm text-gray-400 mb-1 flex items-center justify-center"
-          >
-            <i class="bi bi-wifi mr-1"></i>Network Latency
-          </div>
-          <div
-            class="text-2xl font-bold"
-            :class="networkLatency < 60 ? 'text-green-500' : 'text-yellow-500'"
-          >
-            {{ networkLatency }} ms
-          </div>
-        </div>
+      <div class="grid grid-cols-5 gap-4 sm:grid-cols-2 md:grid-cols-5">
+        <MetricsPanel
+          :label="'Average Tick processing time'"
+          :value="avgProcessingTime"
+          :threshold="16660"
+          :suffix="'μs'"
+          :is-threshold-reverse="false"
+        />
+        <MetricsPanel
+          label="Last Tick processing time"
+          :value="gameMetrics.systemUpdateTimeInLastTick"
+          :threshold="16660"
+          :suffix="'μs'"
+          :is-threshold-reverse="false"
+        />
+        <MetricsPanel
+          label="Max Tick processing time"
+          :value="gameMetrics.maxSystemUpdateTime"
+          :threshold="16660"
+          :suffix="'μs'"
+          :is-threshold-reverse="false"
+        />
       </div>
     </div>
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, useTemplateRef, watch } from "vue"
+import { onMounted, useTemplateRef } from "vue"
 import type { QuadTree, SpawnRegions } from "@/utils/types"
 import { Constants as constants } from "@/utils/constants.ts"
 

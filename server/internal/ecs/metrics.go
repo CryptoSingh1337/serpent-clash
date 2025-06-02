@@ -22,6 +22,12 @@ type GameServerMetrics struct {
 		Radius  float64                `json:"radius"`
 		Regions []gameutils.Coordinate `json:"regions"`
 	} `json:"spawnRegions"`
+	GameMetrics struct {
+		SystemUpdateTimeInLastTick     int64    `json:"systemUpdateTimeInLastTick"`
+		MaxSystemUpdateTime            int64    `json:"maxSystemUpdateTime"`
+		SystemUpdateTimeInLastTenTicks []int64  `json:"systemUpdateTimeInLastTenTicks"`
+		NoOfCollisionsInLastTenTicks   []uint64 `json:"noOfCollisionsInLastTenTicks"`
+	} `json:"gameMetrics"`
 }
 
 func NewGameServerMetrics() *GameServerMetrics {
@@ -32,6 +38,7 @@ func NewGameServerMetrics() *GameServerMetrics {
 		panic(err)
 	}
 	metrics := &GameServerMetrics{}
+	metrics.GameMetrics.SystemUpdateTimeInLastTenTicks = make([]int64, 0, 10)
 	metrics.proc = proc
 	return metrics
 }

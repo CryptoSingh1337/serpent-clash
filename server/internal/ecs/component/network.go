@@ -1,7 +1,7 @@
 package component
 
 import (
-	gameutils "github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/utils"
+	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/utils"
 	"github.com/lesismal/nbio/nbhttp/websocket"
 )
 
@@ -19,6 +19,6 @@ func NewNetworkComponent(connection *websocket.Conn) Network {
 	return Network{
 		Connection:   connection,
 		Connected:    true,
-		PingCooldown: gameutils.PingCooldown,
+		PingCooldown: utils.PingCooldown,
 	}
 }

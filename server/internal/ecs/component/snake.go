@@ -1,18 +1,18 @@
 package component
 
 import (
-	gameutils "github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/utils"
+	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/utils"
 )
 
 type Snake struct {
-	Segments []gameutils.Coordinate
-	IsAlive  bool
-	Angle    float64
+	Segments     []utils.Coordinate
+	Angle        float64
+	FoodConsumed uint64
 }
 
 func NewSnakeComponent() Snake {
 	return Snake{
-		IsAlive: true,
-		Angle:   0,
+		Angle:        0,
+		FoodConsumed: 0,
 	}
 }

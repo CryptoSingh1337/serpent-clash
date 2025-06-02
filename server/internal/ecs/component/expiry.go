@@ -1,10 +1,10 @@
 package component
 
 type Expiry struct {
-	TicksRemaining uint
+	TicksRemaining uint32
 }
 
-func NewExpiryComponent(ticks uint) Expiry {
+func NewExpiryComponent(ticks uint32) Expiry {
 	return Expiry{
 		ticks,
 	}

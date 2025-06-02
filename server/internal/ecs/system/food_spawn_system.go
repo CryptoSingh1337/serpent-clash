@@ -12,7 +12,7 @@ import (
 
 const (
 	MinFoodEntityId types.Id = 2048
-	MaxFoodEntityId types.Id = 10240
+	MaxFoodEntityId types.Id = 999999999
 )
 
 type FoodSpawnSystem struct {
@@ -35,16 +35,17 @@ func (f *FoodSpawnSystem) Update() {
 	var foodEntities []storage.Point
 	qt.QueryByPointType(map[string]bool{utils.FoodPointType: true}, &foodEntities)
 	foodCount := len(foodEntities)
-	if foodCount < utils.DefaultFoodSpawnThreshold {
-		utils.Logger.Info().Msgf("Spawning %d food entities", utils.DefaultFoodSpawnThreshold-foodCount)
-		for i := utils.DefaultFoodSpawnThreshold - foodCount; i > 0; i-- {
+	if foodCount < utils.FoodSpawnThreshold {
+		utils.Logger.Info().Msgf("Spawning %d food entities", utils.FoodSpawnThreshold-foodCount)
+		for i := utils.FoodSpawnThreshold - foodCount; i > 0; i-- {
 			entityId := f.newFoodId()
 			f.storage.AddEntity(entityId, utils.FoodEntity)
 			angle := rand.Float64() * 2 * math.Pi
-			radius := utils.SpawnRegionRadius - 200*math.Sqrt(rand.Float64())
+			radius := float64(rand.Uint64N(utils.WorldBoundaryRadius - 200))
 			positionComponent := component.NewPositionComponent(radius*math.Cos(angle), radius*math.Sin(angle))
 			f.storage.AddComponent(entityId, utils.PositionComponent, &positionComponent)
-			expiryComponent := component.NewExpiryComponent(rand.UintN(utils.MaxFoodEntityExpiry))
+			expiryComponent := component.NewExpiryComponent(uint32(utils.MinFoodEntityExpiry +
+				rand.UintN(uint(utils.MaxFoodEntityExpiry-utils.MinFoodEntityExpiry))))
 			f.storage.AddComponent(entityId, utils.ExpiryComponent, &expiryComponent)
 		}
 	}

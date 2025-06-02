@@ -18,7 +18,12 @@ func NewQuadTreeSystem(storage storage.Storage) System {
 
 func (q *QuadTreeSystem) Update() {
 	playerEntities := q.storage.GetAllEntitiesByType(utils.PlayerEntity)
-	qt := storage.NewQuadTree(storage.BBox{X: 0, Y: 0, W: utils.WorldWeight, H: utils.WorldHeight}, 15)
+	qt := storage.NewQuadTree(storage.BBox{
+		X: 0,
+		Y: 0,
+		W: utils.WorldWeight,
+		H: utils.WorldHeight,
+	}, utils.QuadTreeSegmentCapacity)
 	for _, playerId := range playerEntities {
 		comp := q.storage.GetComponentByEntityIdAndName(playerId, utils.SnakeComponent)
 		if comp == nil {

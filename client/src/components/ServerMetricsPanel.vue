@@ -17,7 +17,6 @@ defineProps<{
       <ServerPanel label="Heap objects" :value="serverMetrics.heapObjects" icon="bi bi-circle-fill" color="text-fuchsia-400" />
       <ServerPanel label="Last GC run" :value="serverMetrics.lastGCMs" suffix="ms ago" icon="bi bi-circle-fill" color="text-orange-400" />
       <ServerPanel label="Last GC Pause" :value="serverMetrics.gcPauseMicro" suffix="μs ago" icon="bi bi-circle-fill" color="text-rose-400" />
-
     </div>
   </div>
 </template>

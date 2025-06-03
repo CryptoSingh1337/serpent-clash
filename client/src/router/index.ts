@@ -3,6 +3,7 @@ import HomeView from "@/views/HomeView.vue"
 import MainView from "@/views/MainView.vue"
 import GameView from "@/views/GameView.vue"
 import DashboardView from "@/views/DashboardView.vue"
+import WorldView from "@/views/WorldView.vue"
 import ErrorView from "@/views/ErrorView.vue"
 
 const router = createRouter({
@@ -27,6 +28,11 @@ const router = createRouter({
       path: "/dashboard",
       name: "dashboard",
       component: DashboardView
+    },
+    {
+      path: "/world",
+      name: "world",
+      component: WorldView
     },
     {
       path: "/:pathMatch(.*)*",

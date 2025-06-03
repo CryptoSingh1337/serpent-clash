@@ -45,15 +45,28 @@ export type SpawnRegions = {
 
 export type ServerMetrics = {
   cpuUsage: number
-  memoryUsageInMB: number
+  memoryUsage: number
+  heapAllocated: number
+  heapReserved: number
+  totalHeapAllocated: number
+  heapObjects: number
+  lastGCMs: number
+  gcPauseMicro: number
+  numGoroutines: number
   uptimeInSec: number
   bytesSent: number
   bytesReceived: number
-  playerCount: number
-  foodCount: number
+  packetsSent: number
+  packetsReceived: number
+  errorIn: number
+  errorOut: number
+  dropIn: number
+  dropOut: number
+  activeConnections: number
 }
 
 export type GameMetrics = {
+  playerCount: number
   systemUpdateTimeInLastTick: number
   maxSystemUpdateTime: number
   systemUpdateTimeInLastTenTicks: number[]

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import ServerPanel from "@/components/server/Panel.vue"
+import { bytesToMB } from "@/utils/helper.ts"
 import type { ServerMetrics } from "@/utils/types"
 
 defineProps<{
@@ -9,38 +11,13 @@ defineProps<{
 <template>
   <div class="w-full">
     <div class="flex flex-wrap justify-center gap-4 mb-4">
-      <div
-        class="bg-gray-700 rounded-lg p-4 text-center min-w-[160px] flex-1 max-w-[240px] shadow-md border border-gray-600 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
-      >
-        <div class="text-xl font-bold mb-2 text-gray-200">
-          <i class="bi bi-people-fill mr-2 text-green-400"></i>Players
-        </div>
-        <div class="text-3xl text-green-500 font-bold">
-          {{ serverMetrics.playerCount }}
-        </div>
-      </div>
+      <ServerPanel label="CPU Usage" :value="serverMetrics.cpuUsage" suffix="%" icon="bi bi-pc-horizontal" color="text-green-500" />
+      <ServerPanel label="Memory Usage" :value="bytesToMB(serverMetrics.memoryUsage)" suffix="MB" icon="bi bi-memory" color="text-yellow-400" />
+      <ServerPanel label="No. of Goroutines" :value="serverMetrics.numGoroutines" icon="bi bi-cpu" color="text-indigo-400" />
+      <ServerPanel label="Heap objects" :value="serverMetrics.heapObjects" icon="bi bi-circle-fill" color="text-fuchsia-400" />
+      <ServerPanel label="Last GC run" :value="serverMetrics.lastGCMs" suffix="ms ago" icon="bi bi-circle-fill" color="text-orange-400" />
+      <ServerPanel label="Last GC Pause" :value="serverMetrics.gcPauseMicro" suffix="μs ago" icon="bi bi-circle-fill" color="text-rose-400" />
 
-      <div
-        class="bg-gray-700 rounded-lg p-4 text-center min-w-[160px] flex-1 max-w-[240px] shadow-md border border-gray-600 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
-      >
-        <div class="text-xl font-bold mb-2 text-gray-200">
-          <i class="bi bi-circle-fill mr-2 text-blue-400"></i>Food Items
-        </div>
-        <div class="text-3xl text-blue-500 font-bold">
-          {{ serverMetrics.foodCount }}
-        </div>
-      </div>
-
-      <div
-        class="bg-gray-700 rounded-lg p-4 text-center min-w-[160px] flex-1 max-w-[240px] shadow-md border border-gray-600 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
-      >
-        <div class="text-xl font-bold mb-2 text-gray-200">
-          <i class="bi bi-memory mr-2 text-yellow-400"></i>Memory Usage
-        </div>
-        <div class="text-3xl text-yellow-500 font-bold">
-          {{ serverMetrics.memoryUsageInMB }} MB
-        </div>
-      </div>
     </div>
   </div>
 </template>

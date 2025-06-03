@@ -11,6 +11,7 @@ import (
 	"github.com/shirou/gopsutil/v4/host"
 	"github.com/shirou/gopsutil/v4/net"
 	"math"
+	"runtime"
 	"strings"
 	"time"
 )
@@ -77,22 +78,44 @@ func (g *Game) processTick() {
 }
 
 func (g *Game) processMetrics() {
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+
+	g.GameServerMetrics.ServerMetrics.HeapInUse = m.HeapAlloc
+	g.GameServerMetrics.ServerMetrics.HeapReserved = m.HeapSys
+	g.GameServerMetrics.ServerMetrics.TotalHeapAllocated = m.TotalAlloc
+	g.GameServerMetrics.ServerMetrics.HeapObjects = m.HeapObjects
+	if m.NumGC > 0 {
+		g.GameServerMetrics.ServerMetrics.LastGCMs = uint64(time.Since(time.Unix(0, int64(m.LastGC))).Milliseconds())
+	} else {
+		g.GameServerMetrics.ServerMetrics.LastGCMs = 0
+	}
+	g.GameServerMetrics.ServerMetrics.GCPauseMicro = uint64(time.Duration(m.PauseNs[(m.NumGC+255)%256]).Microseconds())
+	g.GameServerMetrics.ServerMetrics.NumGoroutines = uint64(runtime.NumGoroutine())
+
 	cpuPercent, _ := g.GameServerMetrics.proc.CPUPercent()
 	memInfo, _ := g.GameServerMetrics.proc.MemoryInfo()
 	uptime, _ := host.Uptime()
 	netStats, _ := net.IOCounters(false)
 	g.GameServerMetrics.ServerMetrics.CpuUsage = uint64(cpuPercent)
-	g.GameServerMetrics.ServerMetrics.MemoryUsage = memInfo.RSS / (1024 * 1024)
+	g.GameServerMetrics.ServerMetrics.MemoryUsage = memInfo.RSS
 	g.GameServerMetrics.ServerMetrics.Uptime = uptime
 	if len(netStats) > 0 {
 		g.GameServerMetrics.ServerMetrics.BytesSent = netStats[0].BytesSent
 		g.GameServerMetrics.ServerMetrics.BytesReceived = netStats[0].BytesRecv
+		g.GameServerMetrics.ServerMetrics.PacketsSent = netStats[0].PacketsSent
+		g.GameServerMetrics.ServerMetrics.PacketsReceived = netStats[0].PacketsRecv
+		g.GameServerMetrics.ServerMetrics.ErrorIn = netStats[0].Errin
+		g.GameServerMetrics.ServerMetrics.ErrorOut = netStats[0].Errout
+		g.GameServerMetrics.ServerMetrics.DropIn = netStats[0].Dropin
+		g.GameServerMetrics.ServerMetrics.DropOut = netStats[0].Dropout
 	}
-	g.GameServerMetrics.ServerMetrics.PlayerCount = uint8(len(g.Engine.playerIdToEntityId))
+	g.GameServerMetrics.ServerMetrics.ActiveConnections = uint8(len(g.Engine.playerIdToEntityId))
 	r := g.Engine.storage.GetSharedResource(utils.QuadTreeResource)
 	if r != nil {
 		g.GameServerMetrics.QuadTree = r.(*storage.QuadTree)
 	}
+	g.GameServerMetrics.GameMetrics.PlayerCount = g.GameServerMetrics.ServerMetrics.ActiveConnections
 	g.GameServerMetrics.GameMetrics.MaxSystemUpdateTime = int64(math.Max(
 		float64(g.GameServerMetrics.GameMetrics.MaxSystemUpdateTime),
 		float64(g.GameServerMetrics.GameMetrics.SystemUpdateTimeInLastTick),

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from "vue"
-import MetricsPanel from "@/components/metrics/Panel.vue"
+import GamePanel from "@/components/game/Panel.vue"
 import type { GameMetrics } from "@/utils/types"
 
 const props = defineProps<{
@@ -17,9 +17,16 @@ onMounted(() => {
 })
 
 const avgProcessingTime = computed(() => {
+  if (
+    !props.gameMetrics.systemUpdateTimeInLastTenTicks ||
+    props.gameMetrics.systemUpdateTimeInLastTenTicks.length === 0
+  ) {
+    return 0
+  }
   return (
     props.gameMetrics.systemUpdateTimeInLastTenTicks.reduce(
-      (accumulator, currentValue) => accumulator + currentValue
+      (accumulator, currentValue) => accumulator + currentValue,
+      0
     ) / props.gameMetrics.systemUpdateTimeInLastTenTicks.length
   )
 })
@@ -31,28 +38,31 @@ const avgProcessingTime = computed(() => {
       class="bg-gray-800 rounded-lg p-6 border border-gray-700 shadow-lg mb-6"
     >
       <h4 class="text-xl font-bold mb-4 text-blue-400 flex items-center">
-        <i class="bi bi-speedometer2 mr-2"></i>Real-time Performance
+        <i class="bi bi-speedometer2 mr-2"></i>
+        Real-time metrics
       </h4>
-      <div class="grid grid-cols-5 gap-4 sm:grid-cols-2 md:grid-cols-5">
-        <MetricsPanel
+      <div
+        class="grid grid-cols-5 gap-4 sm:grid-cols-2 md:grid-cols-5 justify-center"
+      >
+        <GamePanel
           :label="'Average Tick processing time'"
           :value="avgProcessingTime"
           :threshold="16660"
-          :suffix="'μs'"
+          suffix="μs"
           :is-threshold-reverse="false"
         />
-        <MetricsPanel
+        <GamePanel
           label="Last Tick processing time"
           :value="gameMetrics.systemUpdateTimeInLastTick"
           :threshold="16660"
-          :suffix="'μs'"
+          suffix="μs"
           :is-threshold-reverse="false"
         />
-        <MetricsPanel
+        <GamePanel
           label="Max Tick processing time"
           :value="gameMetrics.maxSystemUpdateTime"
           :threshold="16660"
-          :suffix="'μs'"
+          suffix="μs"
           :is-threshold-reverse="false"
         />
       </div>
@@ -60,7 +70,8 @@ const avgProcessingTime = computed(() => {
 
     <div class="bg-gray-800 rounded-lg p-6 border border-gray-700 shadow-lg">
       <h4 class="text-xl font-bold mb-4 text-blue-400 flex items-center">
-        <i class="bi bi-graph-up mr-2"></i>Memory Usage Trend
+        <i class="bi bi-graph-up mr-2"></i>
+        Memory Usage Trend
       </h4>
       <div class="h-40 flex items-end justify-between gap-1">
         <div

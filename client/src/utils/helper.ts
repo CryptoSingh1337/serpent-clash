@@ -38,3 +38,7 @@ export function getServerBaseUrl(ws: boolean): string {
     ? `${protocol}//${window.location.hostname}:${Constants.serverPort}`
     : `${protocol}//${window.location.hostname}`
 }
+
+export function bytesToMB(bytes: number): number {
+  return bytes / (1024 * 1024)
+}

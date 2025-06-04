@@ -1,17 +1,16 @@
 package main
 
-import "log"
+import (
+	"log"
+)
 
 func main() {
 	a := NewApp()
-	err := a.Start()
-	if err != nil {
-		log.Fatalf("Error while starting app: %v", err)
-	}
+	a.Start()
 	sig := <-a.shutdown
 	log.Printf("shutdown signal received: %v\n", sig)
-	err = a.Stop()
-	if err != nil {
-		log.Fatalf("Error while shutting down app: %v", err)
+	if err := a.Stop(); err != nil {
+		log.Fatalf("Failed to gracefully shutdown: %v", err)
 	}
+	log.Println("Shutdown complete!")
 }

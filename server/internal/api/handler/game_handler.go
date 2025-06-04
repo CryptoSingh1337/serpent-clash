@@ -5,24 +5,40 @@ import (
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/config"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs"
 	gameutils "github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/utils"
+	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
 	"net/http"
 )
 
 type GameHandler struct {
-	game *ecs.Game
+	game    *ecs.Game
+	handler *apiutils.WSHandler
 }
 
 func NewGameHandler(g *echo.Group, game *ecs.Game) {
 	h := &GameHandler{
 		game,
+		&apiutils.WSHandler{
+			OnOpen: func(conn *websocket.Conn) {
+				gameutils.Logger.Info().Msgf("Connection open")
+			},
+			OnMessage: func(playerId string, messageType int, data []byte) {
+				game.Engine.ProcessEvent(playerId, messageType, data)
+			},
+			OnClose: func(playerId string, err error) {
+				if err != nil {
+					gameutils.Logger.Err(err).Msgf("Error while closing ws connection, player id: %s", playerId)
+				}
+				game.Engine.LeaveQueue <- playerId
+			},
+		},
 	}
 	g.GET("/ws", h.RegisterPlayer)
 	g.POST("/player/:playerId/teleport", h.Teleport)
 }
 
 func (h *GameHandler) RegisterPlayer(c echo.Context) error {
-	return h.game.AddPlayer(c)
+	return h.game.AddPlayer(c, h.handler)
 }
 
 func (h *GameHandler) Teleport(c echo.Context) error {

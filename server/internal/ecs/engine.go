@@ -8,7 +8,7 @@ import (
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/system"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/types"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/utils"
-	"github.com/lesismal/nbio/nbhttp/websocket"
+	"github.com/gorilla/websocket"
 	"sync/atomic"
 	"time"
 )
@@ -154,7 +154,7 @@ func (e *Engine) Stop() {
 	}
 }
 
-func (e *Engine) ProcessEvent(playerId string, messageType websocket.MessageType, data []byte) {
+func (e *Engine) ProcessEvent(playerId string, messageType int, data []byte) {
 	entityId, exists := e.playerIdToEntityId[playerId]
 	if !exists {
 		return

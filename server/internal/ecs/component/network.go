@@ -2,7 +2,7 @@ package component
 
 import (
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/utils"
-	"github.com/lesismal/nbio/nbhttp/websocket"
+	"github.com/gorilla/websocket"
 )
 
 type Network struct {

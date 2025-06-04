@@ -33,19 +33,25 @@ an **authoritative server** model to maintain a fair and synchronized game state
 - `Food`
 
 #### 🧩 Components
+- `Expiry`
 - `Input`
 - `Network`
 - `PlayerInfo`
+- `Position`
 - `Snake`
 
 #### ⚙️ Systems
 - `Collision`
+- `Food despawn`
+- `Food spawn`
 - `Movement`
 - `Network`
-- `Spawn`
+- `Player spawn`
+- `Quad tree`
 
 #### 🔗 Entity-Component Relationships
 - **Player** -> `Input`, `Network`, `PlayerInfo`, `Snake`
+- **Food** -> `Expiry`, `Position`
 
 ### ✅ TODO Tracker
 - [x] Serve Vue files from backend
@@ -75,8 +81,8 @@ an **authoritative server** model to maintain a fair and synchronized game state
 - [x] Create spawn system for snake with world-awareness
 - [x] Migrate from HTML 2D canvas to Pixi.js renderer engine
 - [x] Create dashboard & API for server metrics
-- [ ] Implement food spawning functionality with world-awareness
-- [ ] Randomized food generation
+- [x] Implement food spawning functionality with world-awareness
+- [x] Randomized food generation
 - [ ] Food consumption and snake growth logic
 - [ ] Compensate speed boosts by reducing snake length
 - [ ] Implement leaderboard

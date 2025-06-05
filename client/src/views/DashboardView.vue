@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from "vue"
+import { onMounted, ref } from "vue"
 import type { GameMetrics, ServerMetrics } from "@/utils/types"
 import ServerMetricsPanel from "@/components/ServerMetricsPanel.vue"
 import TabNavigation from "@/components/TabNavigation.vue"
@@ -17,7 +17,7 @@ const serverMetrics = ref<ServerMetrics>({
   totalHeapAllocated: 0,
   heapObjects: 0,
   lastGCMs: 0,
-  gcPauseMs: 0,
+  gcPauseMicro: 0,
   numGoroutines: 0,
   uptimeInSec: 0,
   bytesSent: 0,
@@ -37,43 +37,27 @@ const gameMetrics = ref<GameMetrics>({
   systemUpdateTimeInLastTenTicks: [],
   noOfCollisionsInLastTenTicks: []
 })
-let apiError = ref<boolean>(false)
 
 const activeTab = ref("server-metrics")
 const tabs = [
   { id: "server-metrics", label: "Server Metrics", icon: "bi bi-graph-up" },
   { id: "game-metrics", label: "Game metrics", icon: "bi bi-speedometer2" }
 ]
-let interval: number
 
 function handleTabChange(tabId: string) {
   activeTab.value = tabId
 }
 
 onMounted(() => {
-  interval = setInterval(async () => {
-    if (!apiError.value) {
-      try {
-        const response = await fetch("/metrics/info")
-        if (response.ok) {
-          const body = await response.json()
-          if (body.serverMetrics) {
-            serverMetrics.value = body.serverMetrics
-          }
-          if (body.gameMetrics) {
-            gameMetrics.value = body.gameMetrics
-          }
-        }
-      } catch (e) {
-        apiError.value = true
-        throw e
-      }
+  const source = new EventSource("/metrics/subscribe/info")
+  source.onmessage = function (event: MessageEvent<string>) {
+    const info = JSON.parse(event.data) as {
+      serverMetrics: ServerMetrics
+      gameMetrics: GameMetrics
     }
-  }, 750)
-})
-
-onBeforeUnmount(() => {
-  clearInterval(interval)
+    serverMetrics.value = info.serverMetrics
+    gameMetrics.value = info.gameMetrics
+  }
 })
 </script>
 

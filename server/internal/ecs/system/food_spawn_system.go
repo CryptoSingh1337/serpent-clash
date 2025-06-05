@@ -41,7 +41,7 @@ func (f *FoodSpawnSystem) Update() {
 			entityId := f.newFoodId()
 			f.storage.AddEntity(entityId, utils.FoodEntity)
 			angle := rand.Float64() * 2 * math.Pi
-			radius := float64(rand.Uint64N(utils.WorldBoundaryRadius - 200))
+			radius := 100 + float64(rand.Uint64N(utils.WorldBoundaryRadius-100))
 			positionComponent := component.NewPositionComponent(radius*math.Cos(angle), radius*math.Sin(angle))
 			f.storage.AddComponent(entityId, utils.PositionComponent, &positionComponent)
 			expiryComponent := component.NewExpiryComponent(uint32(utils.MinFoodEntityExpiry +

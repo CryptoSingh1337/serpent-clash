@@ -1,37 +1,21 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from "vue"
+import { onMounted, ref } from "vue"
 import QuadTreeVisualization from "@/components/QuadTreeVisualization.vue"
 import type { QuadTree, SpawnRegions } from "@/utils/types"
 
 const quadTree = ref<QuadTree | null>(null)
 const spawnRegions = ref<SpawnRegions | null>(null)
-const apiError = ref<boolean>(false)
-let interval: number
 
 onMounted(() => {
-  interval = setInterval(async () => {
-    if (!apiError.value) {
-      try {
-        const response = await fetch("/metrics/quad-tree")
-        if (response.ok) {
-          const body = await response.json()
-          if (body.quadTree) {
-            quadTree.value = body.quadTree as QuadTree
-          }
-          if (body.spawnRegions) {
-            spawnRegions.value = body.spawnRegions as SpawnRegions
-          }
-        }
-      } catch (e) {
-        apiError.value = true
-        throw e
-      }
+  const source = new EventSource("/metrics/subscribe/quad-tree")
+  source.onmessage = function (event: MessageEvent<string>) {
+    const info = JSON.parse(event.data) as {
+      quadTree: QuadTree
+      spawnRegions: SpawnRegions
     }
-  }, 750)
-})
-
-onBeforeUnmount(() => {
-  clearInterval(interval)
+    quadTree.value = info.quadTree
+    spawnRegions.value = info.spawnRegions
+  }
 })
 </script>
 

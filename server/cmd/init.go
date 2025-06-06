@@ -2,9 +2,12 @@ package main
 
 import (
 	"context"
+	"errors"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/api"
+	apiutils "github.com/CryptoSingh1337/serpent-clash/server/internal/api/utils"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/config"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -31,9 +34,13 @@ func NewApp() *App {
 	return app
 }
 
-func (app *App) Start() error {
-	app.Game.Start()
-	return app.Api.Server.Start()
+func (app *App) Start() {
+	go func() {
+		app.Game.Start()
+		if err := app.Api.Server.Start(":" + config.AppConfig.Port); err != nil && errors.Is(err, http.ErrServerClosed) {
+			apiutils.Logger.Fatal().Msgf("shutting down the server, err: %v", err)
+		}
+	}()
 }
 
 func (app *App) Stop() error {

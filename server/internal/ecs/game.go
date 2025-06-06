@@ -2,15 +2,17 @@ package ecs
 
 import (
 	"errors"
+	apiutils "github.com/CryptoSingh1337/serpent-clash/server/internal/api/utils"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/storage"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/types"
-	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/utils"
+	gameutils "github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/utils"
 	"github.com/google/uuid"
+	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
-	"github.com/lesismal/nbio/nbhttp/websocket"
 	"github.com/shirou/gopsutil/v4/host"
 	"github.com/shirou/gopsutil/v4/net"
 	"math"
+	"net/http"
 	"runtime"
 	"strings"
 	"time"
@@ -23,7 +25,7 @@ type Game struct {
 }
 
 func NewGame() *Game {
-	utils.NewLogger()
+	gameutils.NewLogger()
 	return &Game{
 		Done:              make(chan bool),
 		Engine:            NewEngine(),
@@ -32,13 +34,13 @@ func NewGame() *Game {
 }
 
 func (g *Game) Start() {
-	ticker := time.NewTicker(1000 / utils.TickRate * time.Millisecond)
+	ticker := time.NewTicker(1000 / gameutils.TickRate * time.Millisecond)
 	metricsTicker := time.NewTicker(1 * time.Second)
 	g.Engine.Start()
-	r := g.Engine.storage.GetSharedResource(utils.SpawnRegions)
+	r := g.Engine.storage.GetSharedResource(gameutils.SpawnRegions)
 	if r != nil {
-		g.GameServerMetrics.SpawnRegions.Radius = utils.SpawnRegionRadius
-		g.GameServerMetrics.SpawnRegions.Regions = r.([]utils.Coordinate)
+		g.GameServerMetrics.SpawnRegions.Radius = gameutils.SpawnRegionRadius
+		g.GameServerMetrics.SpawnRegions.Regions = r.([]gameutils.Coordinate)
 	}
 	go func() {
 		for {
@@ -111,7 +113,7 @@ func (g *Game) processMetrics() {
 		g.GameServerMetrics.ServerMetrics.DropOut = netStats[0].Dropout
 	}
 	g.GameServerMetrics.ServerMetrics.ActiveConnections = uint8(len(g.Engine.playerIdToEntityId))
-	r := g.Engine.storage.GetSharedResource(utils.QuadTreeResource)
+	r := g.Engine.storage.GetSharedResource(gameutils.QuadTreeResource)
 	if r != nil {
 		g.GameServerMetrics.QuadTree = r.(*storage.QuadTree)
 	}
@@ -134,7 +136,7 @@ func (g *Game) processMetrics() {
 	}
 }
 
-func (g *Game) AddPlayer(c echo.Context) error {
+func (g *Game) AddPlayer(c echo.Context, h *apiutils.WSHandler) error {
 	username := c.QueryParam("username")
 	username = strings.TrimSpace(username)
 	if username == "" {
@@ -142,23 +144,40 @@ func (g *Game) AddPlayer(c echo.Context) error {
 	}
 	w := c.Response()
 	r := c.Request()
-	upgrader := websocket.NewUpgrader()
-	upgrader.EnableCompression(false)
+	upgrader := websocket.Upgrader{
+		CheckOrigin:       func(r *http.Request) bool { return true },
+		EnableCompression: true,
+	}
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		return err
 	}
+	if h.OnOpen != nil {
+		h.OnOpen(conn)
+	}
 	playerId := uuid.NewString()
-	conn.OnMessage(func(c *websocket.Conn, messageType websocket.MessageType, data []byte) {
-		g.Engine.ProcessEvent(playerId, messageType, data)
-	})
+	defer func() {
+		if h.OnClose != nil {
+			h.OnClose(playerId, nil)
+		}
+		_ = conn.Close()
+	}()
 	g.Engine.JoinQueue <- &types.JoinEvent{
 		Connection: conn,
 		PlayerId:   playerId,
 		Username:   username,
 	}
-	conn.OnClose(func(c *websocket.Conn, err error) {
-		g.Engine.LeaveQueue <- playerId
-	})
+	for {
+		messageType, message, err := conn.ReadMessage()
+		if err != nil {
+			if h.OnClose != nil {
+				h.OnClose(playerId, err)
+			}
+			break
+		}
+		if h.OnMessage != nil {
+			h.OnMessage(playerId, messageType, message)
+		}
+	}
 	return nil
 }

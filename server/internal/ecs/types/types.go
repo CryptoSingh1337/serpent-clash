@@ -2,7 +2,7 @@ package types
 
 import (
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/component"
-	"github.com/lesismal/nbio/nbhttp/websocket"
+	"github.com/gorilla/websocket"
 )
 
 type Id uint32

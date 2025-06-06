@@ -7,21 +7,20 @@ import (
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/lesismal/nbio/nbhttp"
 	"net/http"
 )
 
 type Api struct {
-	Server *nbhttp.Engine
+	Server *echo.Echo
 }
 
 func NewApi(game *ecs.Game) *Api {
 	api := &Api{}
 	apiutils.NewLogger()
-	engine, e := initHttpServer()
+	e := initHttpServer()
 	e.HideBanner = true
 	e.HidePort = true
-	api.Server = engine
+	api.Server = e
 
 	g := e.Group("/metrics")
 	handler.NewMetricsHandler(g, game)
@@ -42,13 +41,9 @@ func NewApi(game *ecs.Game) *Api {
 	return api
 }
 
-func initHttpServer() (*nbhttp.Engine, *echo.Echo) {
+func initHttpServer() *echo.Echo {
 	e := echo.New()
 	e.Use(middleware.Recover())
 	e.Use(apiutils.LoggingMiddleware)
-	return nbhttp.NewEngine(nbhttp.Config{
-		Network: "tcp",
-		Addrs:   []string{config.AppConfig.Addr + ":" + config.AppConfig.Port},
-		Handler: e,
-	}), e
+	return e
 }

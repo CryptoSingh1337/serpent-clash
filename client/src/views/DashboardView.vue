@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue"
+import { onBeforeUnmount, onMounted, ref } from "vue"
 import type { GameMetrics, ServerMetrics } from "@/utils/types"
 import ServerMetricsPanel from "@/components/ServerMetricsPanel.vue"
 import TabNavigation from "@/components/TabNavigation.vue"
@@ -38,6 +38,7 @@ const gameMetrics = ref<GameMetrics>({
   noOfCollisionsInLastTenTicks: []
 })
 
+let sse: EventSource | null = null
 const activeTab = ref("server-metrics")
 const tabs = [
   { id: "server-metrics", label: "Server Metrics", icon: "bi bi-graph-up" },
@@ -49,14 +50,20 @@ function handleTabChange(tabId: string) {
 }
 
 onMounted(() => {
-  const source = new EventSource("/metrics/subscribe/info")
-  source.onmessage = function (event: MessageEvent<string>) {
+  sse = new EventSource("/metrics/subscribe/info")
+  sse.onmessage = function (event: MessageEvent<string>) {
     const info = JSON.parse(event.data) as {
       serverMetrics: ServerMetrics
       gameMetrics: GameMetrics
     }
     serverMetrics.value = info.serverMetrics
     gameMetrics.value = info.gameMetrics
+  }
+})
+
+onBeforeUnmount(() => {
+  if (sse) {
+    sse.close()
   }
 })
 </script>

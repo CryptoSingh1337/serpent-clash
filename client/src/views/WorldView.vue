@@ -1,20 +1,27 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue"
+import { onBeforeUnmount, onMounted, ref } from "vue"
 import QuadTreeVisualization from "@/components/QuadTreeVisualization.vue"
 import type { QuadTree, SpawnRegions } from "@/utils/types"
 
 const quadTree = ref<QuadTree | null>(null)
 const spawnRegions = ref<SpawnRegions | null>(null)
+let sse: EventSource | null = null
 
 onMounted(() => {
-  const source = new EventSource("/metrics/subscribe/quad-tree")
-  source.onmessage = function (event: MessageEvent<string>) {
+  sse = new EventSource("/metrics/subscribe/quad-tree")
+  sse.onmessage = function (event: MessageEvent<string>) {
     const info = JSON.parse(event.data) as {
       quadTree: QuadTree
       spawnRegions: SpawnRegions
     }
     quadTree.value = info.quadTree
     spawnRegions.value = info.spawnRegions
+  }
+})
+
+onBeforeUnmount(() => {
+  if (sse) {
+    sse.close()
   }
 })
 </script>

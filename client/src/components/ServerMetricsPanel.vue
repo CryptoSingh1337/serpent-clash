@@ -47,7 +47,7 @@ defineProps<{
       <ServerPanel
         label="Last GC Pause"
         :value="serverMetrics.gcPauseMicro"
-        suffix="μs ago"
+        suffix="μs"
         icon="bi bi-circle-fill"
         color="text-rose-400"
       />

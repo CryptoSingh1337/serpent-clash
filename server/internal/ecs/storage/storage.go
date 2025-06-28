@@ -4,6 +4,7 @@ import (
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/component"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/types"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/utils"
+	"sync"
 )
 
 type Storage interface {
@@ -29,6 +30,7 @@ type SimpleStorage struct {
 	playerInfoComponents *Pool[component.PlayerInfo]
 	positionComponents   *Pool[component.Position]
 	snakeComponents      *Pool[component.Snake]
+	mu                   sync.RWMutex
 }
 
 func NewSimpleStorage() Storage {
@@ -76,10 +78,14 @@ func (s *SimpleStorage) RemoveEntity(entityId types.Id, entityType string) {
 }
 
 func (s *SimpleStorage) AddSharedResource(resourceName string, resource any) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	s.sharedResources[resourceName] = resource
 }
 
 func (s *SimpleStorage) GetSharedResource(resourceName string) any {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	if resource, exists := s.sharedResources[resourceName]; exists {
 		return resource
 	}
@@ -87,6 +93,8 @@ func (s *SimpleStorage) GetSharedResource(resourceName string) any {
 }
 
 func (s *SimpleStorage) DeleteSharedResource(resourceName string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	if _, exists := s.sharedResources[resourceName]; exists {
 		delete(s.sharedResources, resourceName)
 	}

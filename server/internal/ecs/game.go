@@ -15,6 +15,7 @@ import (
 	"net/http"
 	"runtime"
 	"strings"
+	"sync/atomic"
 	"time"
 )
 
@@ -76,7 +77,7 @@ func (g *Game) processTick() {
 	start := time.Now().UnixMicro()
 	g.Engine.UpdateSystems()
 	end := time.Now().UnixMicro()
-	g.GameServerMetrics.GameMetrics.SystemUpdateTimeInLastTick = end - start
+	atomic.StoreInt64(&g.GameServerMetrics.GameMetrics.SystemUpdateTimeInLastTick, end-start)
 }
 
 func (g *Game) processMetrics() {
@@ -117,21 +118,23 @@ func (g *Game) processMetrics() {
 	if r != nil {
 		g.GameServerMetrics.QuadTree = r.(*storage.QuadTree)
 	}
+	current := atomic.LoadInt64(&g.GameServerMetrics.GameMetrics.SystemUpdateTimeInLastTick)
 	g.GameServerMetrics.GameMetrics.PlayerCount = g.GameServerMetrics.ServerMetrics.ActiveConnections
-	g.GameServerMetrics.GameMetrics.MaxSystemUpdateTime = int64(math.Max(
-		float64(g.GameServerMetrics.GameMetrics.MaxSystemUpdateTime),
-		float64(g.GameServerMetrics.GameMetrics.SystemUpdateTimeInLastTick),
-	))
+	atomic.StoreInt64(&g.GameServerMetrics.GameMetrics.MaxSystemUpdateTime,
+		int64(math.Max(
+			float64(atomic.LoadInt64(&g.GameServerMetrics.GameMetrics.MaxSystemUpdateTime)),
+			float64(current),
+		)))
 	if len(g.GameServerMetrics.GameMetrics.SystemUpdateTimeInLastTenTicks) < 10 {
 		g.GameServerMetrics.GameMetrics.SystemUpdateTimeInLastTenTicks = append(
 			g.GameServerMetrics.GameMetrics.SystemUpdateTimeInLastTenTicks,
-			g.GameServerMetrics.GameMetrics.SystemUpdateTimeInLastTick)
+			current)
 	} else {
 		g.GameServerMetrics.GameMetrics.SystemUpdateTimeInLastTenTicks =
 			g.GameServerMetrics.GameMetrics.SystemUpdateTimeInLastTenTicks[1:]
 		g.GameServerMetrics.GameMetrics.SystemUpdateTimeInLastTenTicks = append(
 			g.GameServerMetrics.GameMetrics.SystemUpdateTimeInLastTenTicks,
-			g.GameServerMetrics.GameMetrics.SystemUpdateTimeInLastTick,
+			current,
 		)
 	}
 }

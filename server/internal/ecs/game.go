@@ -173,9 +173,6 @@ func (g *Game) AddPlayer(c echo.Context, h *apiutils.WSHandler) error {
 	for {
 		messageType, message, err := conn.ReadMessage()
 		if err != nil {
-			if h.OnClose != nil {
-				h.OnClose(playerId, err)
-			}
 			break
 		}
 		if h.OnMessage != nil {

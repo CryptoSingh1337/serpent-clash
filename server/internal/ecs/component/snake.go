@@ -5,14 +5,16 @@ import (
 )
 
 type Snake struct {
-	Segments     []utils.Coordinate
-	Angle        float64
-	FoodConsumed uint64
+	Segments        []utils.Coordinate
+	Angle           float64
+	FoodConsumed    uint64
+	GrowthThreshold uint
 }
 
 func NewSnakeComponent() Snake {
 	return Snake{
-		Angle:        0,
-		FoodConsumed: 0,
+		Angle:           0,
+		FoodConsumed:    0,
+		GrowthThreshold: utils.DefaultGrowthFactor,
 	}
 }

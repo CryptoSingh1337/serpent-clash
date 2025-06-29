@@ -5,6 +5,7 @@ import (
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/storage"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/types"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/utils"
+	"math"
 )
 
 type CollisionSystem struct {
@@ -113,6 +114,26 @@ func (c *CollisionSystem) handlePlayerToFoodCollision(playerId types.Id, snakeCo
 	if distance <= utils.FoodConsumeDistance {
 		utils.Logger.Debug().Msgf("Head to food collision :: player id: %v, player head: %v, point: %v",
 			playerId, head, point)
-		snakeComponent.FoodConsumed++
+		consumeFood(playerId, snakeComponent)
+	}
+}
+
+func consumeFood(playerId types.Id, snakeComponent *component.Snake) {
+	snakeComponent.FoodConsumed++
+	snakeComponent.GrowthThreshold--
+	if snakeComponent.GrowthThreshold < 0 {
+		snakeComponent.GrowthThreshold = 0
+	}
+	if snakeComponent.GrowthThreshold == 0 {
+		lastSegmentIdx := len(snakeComponent.Segments) - 1
+		lastSegment := snakeComponent.Segments[lastSegmentIdx]
+		theta := math.Atan2(lastSegment.Y, lastSegment.X)
+		segment := utils.Coordinate{
+			X: lastSegment.X - float64(lastSegmentIdx)*math.Cos(theta),
+			Y: lastSegment.Y - float64(lastSegmentIdx)*math.Sin(theta),
+		}
+		snakeComponent.Segments = append(snakeComponent.Segments, segment)
+		snakeComponent.GrowthThreshold = utils.DefaultGrowthFactor
+		utils.Logger.Debug().Msgf("Added snake segment, player id: %v", playerId)
 	}
 }

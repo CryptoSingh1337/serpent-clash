@@ -12,25 +12,25 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
-    "bootstrap-icons": "^1.11.3",
-    "pixi.js": "^8.9.1",
+    "bootstrap-icons": "^1.13.1",
+    "pixi.js": "^8.11.0",
     "stats.js": "^0.17.0",
-    "vue": "^3.5.13",
-    "vue-router": "^4.3.3"
+    "vue": "^3.5.17",
+    "vue-router": "^4.5.1"
   },
   "devDependencies": {
-    "@tailwindcss/vite": "4.0.17",
-    "@tsconfig/node20": "20.1.4",
-    "@types/node": "22.10.2",
-    "@types/pixi.js": "^4.8.9",
-    "@types/stats.js": "0.17.3",
-    "@vitejs/plugin-vue": "5.2.3",
+    "@tailwindcss/vite": "4.1.11",
+    "@tsconfig/node20": "20.1.6",
+    "@types/node": "24.0.10",
+    "@types/pixi.js": "^5.0.0",
+    "@types/stats.js": "0.17.4",
+    "@vitejs/plugin-vue": "6.0.0",
     "@vue/tsconfig": "0.7.0",
-    "npm-run-all2": "7.0.1",
-    "prettier": "3.2.5",
-    "tailwindcss": "4.0.17",
-    "typescript": "5.7.2",
-    "vite": "6.2.2",
-    "vue-tsc": "2.1.10"
+    "npm-run-all2": "8.0.4",
+    "prettier": "3.6.2",
+    "tailwindcss": "4.1.11",
+    "typescript": "5.8.3",
+    "vite": "7.0.2",
+    "vue-tsc": "3.0.1"
   }
 }

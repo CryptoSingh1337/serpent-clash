@@ -63,7 +63,9 @@ export class NetworkManager {
           for (const id in backendPlayerEntities) {
             const backendPlayer = backendPlayerEntities[id]
             if (!this.game.playerEntities[id]) {
+              // entity does not exists
               if (this.game.player && this.game.player.id === id) {
+                // current player
                 this.game.player.snake.segments = backendPlayer.positions
                 this.game.player.createSprite()
                 this.game.displayDriver.renderer.addEntity(
@@ -71,6 +73,7 @@ export class NetworkManager {
                 )
                 this.game.playerEntities[id] = this.game.player
               } else {
+                // different player
                 this.game.playerEntities[id] = new Player(
                   this.game,
                   id,
@@ -82,6 +85,7 @@ export class NetworkManager {
                 )
               }
             } else {
+              // already existing entity
               const playerEntity = this.game.playerEntities[id]
               playerEntity.moveWithInterpolation(backendPlayer.positions)
               if (this.game.player && this.game.player.id === id) {

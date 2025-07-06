@@ -1,5 +1,5 @@
 # Stage 1: Build Vue Application
-FROM node:20-alpine AS frontend-builder
+FROM node:22-alpine AS frontend-builder
 
 WORKDIR /app
 

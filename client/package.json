@@ -22,7 +22,6 @@
     "@tailwindcss/vite": "4.1.11",
     "@tsconfig/node20": "20.1.6",
     "@types/node": "24.0.10",
-    "@types/pixi.js": "^5.0.0",
     "@types/stats.js": "0.17.4",
     "@vitejs/plugin-vue": "6.0.0",
     "@vue/tsconfig": "0.7.0",

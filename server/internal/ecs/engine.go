@@ -81,23 +81,50 @@ func (e *Engine) AddPlayer(joinEvent *types.JoinEvent) error {
 	c := e.storage.GetComponentByEntityIdAndName(entityId, utils.InputComponent)
 	if c == nil {
 		utils.Logger.Error().Msgf("Input component is nil")
+		return errors.New("input component is nil")
 	}
 	c = e.storage.GetComponentByEntityIdAndName(entityId, utils.NetworkComponent)
 	if c == nil {
 		utils.Logger.Error().Msgf("Network component is nil")
+		return errors.New("network component is nil")
 	}
 	c = e.storage.GetComponentByEntityIdAndName(entityId, utils.PlayerInfoComponent)
 	if c == nil {
 		utils.Logger.Error().Msgf("Player info component is nil")
+		return errors.New("player info component is nil")
 	}
 	c = e.storage.GetComponentByEntityIdAndName(entityId, utils.SnakeComponent)
 	if c == nil {
 		utils.Logger.Error().Msgf("Snake component is nil")
+		return errors.New("snake component is nil")
 	}
 	if networkComponent.Connection == nil {
 		utils.Logger.Error().Msgf("connection is nil")
+		return errors.New("connection is nil")
 	}
-	body := fmt.Sprintf(`{"id":%q}`, joinEvent.PlayerId)
+	c = e.storage.GetAllComponentByName(utils.PlayerInfoComponent)
+	if c == nil {
+		utils.Logger.Error().Msgf("player info components are nil")
+		return errors.New("player info components are nil")
+	}
+	playerInfoComponents := c.([]*component.PlayerInfo)
+	playerDetails := map[string]any{
+		"id":      joinEvent.PlayerId,
+		"players": make([]map[string]any, 0, len(playerInfoComponents)),
+	}
+	for _, playerInfo := range playerInfoComponents {
+		if playerInfo.ID == joinEvent.PlayerId {
+			continue // Skip the joining player
+		}
+		playerDetails["players"] = append(playerDetails["players"].([]map[string]any), map[string]any{
+			playerInfo.ID: playerInfo.Username,
+		})
+	}
+	p, err := utils.ToJsonS(playerDetails["players"])
+	if err != nil {
+		return err
+	}
+	body := fmt.Sprintf(`{"id": "%s", "players": %s}`, joinEvent.PlayerId, p)
 	payload, err := utils.ToJsonB(utils.Payload{Type: utils.HelloMessageType, Body: []byte(body)})
 	if err != nil {
 		return err

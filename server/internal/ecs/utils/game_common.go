@@ -13,7 +13,7 @@ const (
 	PlayerBoostSpeed        = 3
 	MaxTurnRate             = 0.03
 	DefaultSnakeLength      = 10
-	DefaultGrowthFactor     = 2
+	DefaultGrowthFactor     = 10
 	SnakeSegmentDistance    = 20
 	SnakeSegmentDiameter    = 50
 	FoodConsumeDistance     = 30
@@ -58,6 +58,8 @@ const (
 const (
 	QuadTreeResource = "quad_tree"
 	SpawnRegions     = "spawn_regions"
+	JoinEvents       = "join_events"
+	LeaveEvents      = "leave_events"
 )
 
 const (
@@ -98,5 +100,5 @@ type PlayerStateMessage struct {
 }
 
 type GameStateMessage struct {
-	PlayerStates map[string]PlayerStateMessage `json:"playerStates"`
+	Players map[string]PlayerStateMessage `json:"players"`
 }

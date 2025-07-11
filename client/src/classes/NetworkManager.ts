@@ -57,7 +57,8 @@ export class NetworkManager {
           break
         }
         case WsMessageType.GameState: {
-          const backendPlayerEntities = body.playerStates as {
+          const gameState = body.gameState
+          const backendPlayerEntities = gameState.players as {
             [id: string]: BackendPlayer
           }
           for (const id in backendPlayerEntities) {

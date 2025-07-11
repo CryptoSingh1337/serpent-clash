@@ -25,7 +25,8 @@ type Engine struct {
 	playerIdToEntityId map[string]types.Id
 	JoinQueue          chan *types.JoinEvent
 	LeaveQueue         chan string
-	SpawnQueue         chan types.Id
+	SpawnQueue         chan *types.JoinEvent
+	DespawnQueue       chan *types.LeaveEvent
 }
 
 func NewEngine() *Engine {
@@ -36,17 +37,19 @@ func NewEngine() *Engine {
 		playerIdToEntityId: make(map[string]types.Id),
 		JoinQueue:          make(chan *types.JoinEvent, utils.MaxPlayerAllowed),
 		LeaveQueue:         make(chan string, utils.MaxPlayerAllowed),
-		SpawnQueue:         make(chan types.Id, utils.MaxPlayerAllowed),
+		SpawnQueue:         make(chan *types.JoinEvent, utils.MaxPlayerAllowed),
+		DespawnQueue:       make(chan *types.LeaveEvent, utils.MaxPlayerAllowed),
 	}
-	quadTreeSystem := system.NewQuadTreeSystem(simpleStorage)
+	loadResourcesSystem := system.NewLoadResourcesSystem(simpleStorage)
 	movementSystem := system.NewMovementSystem(simpleStorage)
 	playerSpawnSystem := system.NewSpawnSystem(simpleStorage, engine.SpawnQueue)
+	playerDespawnSystem := system.NewPlayerDespawnSystem(simpleStorage, engine.DespawnQueue)
 	collisionSystem := system.NewCollisionSystem(simpleStorage)
 	foodSpawnSystem := system.NewFoodSpawnSystem(simpleStorage)
 	foodDespawnSystem := system.NewFoodDespawnSystem(simpleStorage)
 	networkSystem := system.NewNetworkSystem(simpleStorage)
-	engine.systems = append(engine.systems, quadTreeSystem, movementSystem, playerSpawnSystem, collisionSystem,
-		foodSpawnSystem, foodDespawnSystem, networkSystem)
+	engine.systems = append(engine.systems, loadResourcesSystem, movementSystem, playerSpawnSystem, playerDespawnSystem,
+		collisionSystem, foodSpawnSystem, foodDespawnSystem, networkSystem)
 	return engine
 }
 
@@ -73,7 +76,7 @@ func (e *Engine) AddPlayer(joinEvent *types.JoinEvent) error {
 	networkComponent := component.NewNetworkComponent(joinEvent.Connection)
 	playerInfoComponent := component.NewPlayerInfoComponent(joinEvent.PlayerId, joinEvent.Username)
 	snakeComponent := component.NewSnakeComponent()
-	e.SpawnQueue <- entityId
+	e.SpawnQueue <- joinEvent
 	e.storage.AddComponent(entityId, utils.InputComponent, &inputComponent)
 	e.storage.AddComponent(entityId, utils.NetworkComponent, &networkComponent)
 	e.storage.AddComponent(entityId, utils.PlayerInfoComponent, &playerInfoComponent)
@@ -138,9 +141,10 @@ func (e *Engine) RemovePlayer(playerId string) error {
 	if !exists {
 		return errors.New("player does not exists")
 	}
-	networkComponent := e.storage.GetComponentByEntityIdAndName(entityId, utils.NetworkComponent).(*component.Network)
-	networkComponent.Connected = false
-	e.storage.RemoveEntity(entityId, utils.PlayerEntity)
+	e.DespawnQueue <- &types.LeaveEvent{
+		EntityId: entityId,
+		PlayerId: playerId,
+	}
 	delete(e.playerIdToEntityId, playerId)
 	return nil
 }

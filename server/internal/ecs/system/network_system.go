@@ -8,6 +8,10 @@ import (
 	"time"
 )
 
+type Payload struct {
+	GameState utils.GameStateMessage `json:"gameState"`
+}
+
 type NetworkSystem struct {
 	storage storage.Storage
 }
@@ -20,7 +24,7 @@ func NewNetworkSystem(storage storage.Storage) System {
 
 func (n *NetworkSystem) Update() {
 	gameState := n.createGameState()
-	body, _ := utils.ToJsonB(gameState)
+	body, _ := utils.ToJsonB(Payload{GameState: gameState})
 	payload, _ := utils.ToJsonB(utils.Payload{Type: utils.GameStateMessageType, Body: body})
 	networkComponents := n.storage.GetAllComponentByName(utils.NetworkComponent).([]*component.Network)
 	pongMessage := utils.PongMessage{}
@@ -60,7 +64,7 @@ func (n *NetworkSystem) Stop() {
 func (n *NetworkSystem) createGameState() utils.GameStateMessage {
 	playerEntityIds := n.storage.GetAllEntitiesByType(utils.PlayerEntity)
 	gameState := utils.GameStateMessage{
-		PlayerStates: make(map[string]utils.PlayerStateMessage),
+		Players: make(map[string]utils.PlayerStateMessage),
 	}
 	for _, entityId := range playerEntityIds {
 		c := n.storage.GetComponentByEntityIdAndName(entityId, utils.PlayerInfoComponent)
@@ -82,7 +86,7 @@ func (n *NetworkSystem) createGameState() utils.GameStateMessage {
 			Segments: snakeComponent.Segments,
 			Seq:      networkComponent.MessageSequence,
 		}
-		gameState.PlayerStates[playerInfoComponent.ID] = playerState
+		gameState.Players[playerInfoComponent.ID] = playerState
 	}
 	return gameState
 }

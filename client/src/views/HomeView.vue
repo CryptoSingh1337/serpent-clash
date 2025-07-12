@@ -563,8 +563,8 @@ onUnmounted(() => {
           ></div>
           <iframe
             class="mx-auto aspect-video w-full relative z-10"
-            src="https://www.youtube.com/embed/hHJq1ubGmuw?si=MgK2ZgROprw6APTQ"
-            title="Serpent Clash Gameplay"
+            src="https://www.youtube.com/embed/qjxnNrzlXaQ?si=b0WaEwt6iWnkQL0z"
+            title="Serpent Clash - Demo"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             referrerpolicy="strict-origin-when-cross-origin"
             :allowfullscreen="false"

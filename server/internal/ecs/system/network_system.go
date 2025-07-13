@@ -3,6 +3,7 @@ package system
 import (
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/component"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/storage"
+	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/types"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/utils"
 	"github.com/gorilla/websocket"
 	"time"
@@ -15,6 +16,14 @@ type PlayerState struct {
 
 type PlayerStatePayload struct {
 	Players map[string]PlayerState `json:"players"`
+}
+
+type FoodState struct {
+	Coordinate utils.Coordinate `json:"coordinate"`
+}
+
+type FoodStatePayload struct {
+	Foods map[types.Id]FoodState `json:"foods"`
 }
 
 type NetworkSystem struct {
@@ -33,9 +42,11 @@ func (n *NetworkSystem) Name() string {
 
 func (n *NetworkSystem) Update() {
 	playerState := n.createPlayerState()
+	foodState := n.createFoodState()
 
 	// Broadcast game state to all players
 	n.broadcast(utils.PlayerStateMessageType, playerState)
+	n.broadcast(utils.FoodStateMessageType, foodState)
 
 	// Send ping message to all players
 	networkComponents := n.storage.GetAllComponentByName(utils.NetworkComponent).([]*component.Network)
@@ -111,4 +122,25 @@ func (n *NetworkSystem) createPlayerState() PlayerStatePayload {
 		playerStatePayload.Players[playerInfoComponent.ID] = playerState
 	}
 	return playerStatePayload
+}
+
+func (n *NetworkSystem) createFoodState() FoodStatePayload {
+	foodState := FoodStatePayload{
+		Foods: make(map[types.Id]FoodState),
+	}
+	foodEntityIds := n.storage.GetAllEntitiesByType(utils.FoodEntity)
+	for _, entityId := range foodEntityIds {
+		c := n.storage.GetComponentByEntityIdAndName(entityId, utils.PositionComponent)
+		if c == nil {
+			continue
+		}
+		positionComponent := c.(*component.Position)
+		foodState.Foods[entityId] = FoodState{
+			Coordinate: utils.Coordinate{
+				X: positionComponent.X,
+				Y: positionComponent.Y,
+			},
+		}
+	}
+	return foodState
 }

@@ -119,6 +119,7 @@ func (c *CollisionSystem) handlePlayerToFoodCollision(playerId types.Id, snakeCo
 		utils.Logger.Debug().Msgf("Head to food collision :: player id: %v, player head: %v, point: %v",
 			playerId, head, point)
 		consumeFood(playerId, snakeComponent)
+		c.storage.RemoveEntity(point.EntityId, utils.FoodEntity)
 	}
 }
 

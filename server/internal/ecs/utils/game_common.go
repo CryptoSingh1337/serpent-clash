@@ -17,7 +17,7 @@ const (
 	SnakeSegmentDistance    = 20
 	SnakeSegmentDiameter    = 50
 	FoodConsumeDistance     = 30
-	FoodSpawnThreshold      = 1000
+	FoodSpawnThreshold      = 50
 	MinFoodEntityExpiry     = 4000
 	MaxFoodEntityExpiry     = 10000
 	MaxPlayerAllowed        = 10
@@ -33,8 +33,9 @@ const (
 	HelloMessageType       = "hello"
 	PingMessageType        = "ping"
 	PongMessageType        = "pong"
-	PlayerStateMessageType = "player_state"
 	MovementMessageType    = "movement"
+	PlayerStateMessageType = "player_state"
+	FoodStateMessageType   = "food_state"
 )
 
 // Entity types
@@ -55,8 +56,10 @@ const (
 
 // QuadTreeResource Shared resources names
 const (
-	QuadTreeResource = "quad_tree"
-	SpawnRegions     = "spawn_regions"
+	QuadTreeResource      = "quad_tree"
+	SpawnRegions          = "spawn_regions"
+	FoodSpawnEventQueue   = "food_spawn_event_queue"
+	FoodDespawnEventQueue = "food_despawn_event_queue"
 )
 
 const (

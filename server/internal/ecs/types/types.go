@@ -2,6 +2,7 @@ package types
 
 import (
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/component"
+	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/utils"
 	"github.com/gorilla/websocket"
 )
 
@@ -29,8 +30,8 @@ type PingEvent struct {
 }
 
 type FoodSpawnEvent struct {
-	EntityId Id
-	Position *component.Position
+	EntityId   Id
+	Coordinate utils.Coordinate
 }
 
 type FoodDespawnEvent struct {

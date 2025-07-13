@@ -73,6 +73,42 @@ func NewEngine() *Engine {
 func (e *Engine) Start() {
 }
 
+func (e *Engine) UpdateSystems() {
+	for {
+		select {
+		case joinEvent := <-e.JoinQueue:
+			entityId := e.newPlayerId()
+			joinEvent.EntityId = entityId
+			if err := e.AddPlayer(joinEvent); err != nil {
+				utils.Logger.Error().Msgf("Error adding player %s: %v", joinEvent.PlayerId, err)
+			}
+		default:
+			goto ProcessLeaveQueue
+		}
+	}
+ProcessLeaveQueue:
+	for {
+		select {
+		case playerId := <-e.LeaveQueue:
+			if err := e.RemovePlayer(playerId); err != nil {
+				utils.Logger.Error().Msgf("Error removing player %s: %v", playerId, err)
+			}
+		default:
+			goto ProcessSystemUpdates
+		}
+	}
+ProcessSystemUpdates:
+	for _, s := range e.systemUpdateOrder {
+		e.systems[s].Update()
+	}
+}
+
+func (e *Engine) Stop() {
+	for _, s := range e.systems {
+		s.Stop()
+	}
+}
+
 func (e *Engine) AddPlayer(joinEvent *types.JoinEvent) error {
 	utils.Logger.Info().Msgf("Inside Engine.AddPlayer :: joinEvent: %v", joinEvent)
 	// TODO: add max player validation
@@ -164,42 +200,6 @@ func (e *Engine) RemovePlayer(playerId string) error {
 	}
 	delete(e.playerIdToEntityId, playerId)
 	return nil
-}
-
-func (e *Engine) UpdateSystems() {
-	for {
-		select {
-		case joinEvent := <-e.JoinQueue:
-			entityId := e.newPlayerId()
-			joinEvent.EntityId = entityId
-			if err := e.AddPlayer(joinEvent); err != nil {
-				utils.Logger.Error().Msgf("Error adding player %s: %v", joinEvent.PlayerId, err)
-			}
-		default:
-			goto ProcessLeaveQueue
-		}
-	}
-ProcessLeaveQueue:
-	for {
-		select {
-		case playerId := <-e.LeaveQueue:
-			if err := e.RemovePlayer(playerId); err != nil {
-				utils.Logger.Error().Msgf("Error removing player %s: %v", playerId, err)
-			}
-		default:
-			goto ProcessSystemUpdates
-		}
-	}
-ProcessSystemUpdates:
-	for _, s := range e.systemUpdateOrder {
-		e.systems[s].Update()
-	}
-}
-
-func (e *Engine) Stop() {
-	for _, s := range e.systems {
-		s.Stop()
-	}
 }
 
 func (e *Engine) ProcessEvent(playerId string, messageType int, data []byte) {

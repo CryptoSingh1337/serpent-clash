@@ -1,4 +1,4 @@
-import { Application, Container, type Sprite } from "pixi.js"
+import {Application, Container, type Particle, ParticleContainer, type Sprite} from "pixi.js"
 import type { Game } from "@/classes/Game.ts"
 import { Background } from "@/classes/Background.ts"
 
@@ -7,14 +7,16 @@ export class GameRenderer {
   game: Game
   worldContainer: Container
   background: Background
-  entityLayer: Container
+  playerEntityLayer: Container
+  foodEntityLayer: ParticleContainer
 
   constructor(game: Game) {
     this.app = new Application()
     this.game = game
     this.worldContainer = new Container()
     this.background = new Background(this.game)
-    this.entityLayer = new Container()
+    this.playerEntityLayer = new Container()
+    this.foodEntityLayer = new ParticleContainer()
   }
 
   async init(): Promise<void> {
@@ -29,7 +31,8 @@ export class GameRenderer {
     })
     this.background.init()
     this.worldContainer.addChild(this.background.container)
-    this.worldContainer.addChild(this.entityLayer)
+    this.worldContainer.addChild(this.playerEntityLayer)
+    this.worldContainer.addChild(this.foodEntityLayer)
     this.app.stage.addChild(this.worldContainer)
     this.game.div.appendChild(this.app.canvas)
   }
@@ -39,14 +42,21 @@ export class GameRenderer {
       const player = this.game.playerEntities[id]
       player.updateSprite()
     }
+    this.foodEntityLayer.update()
   }
 
-  addEntity(sprites: Sprite[]) {
-    sprites.forEach((sprite) => this.entityLayer.addChild(sprite))
+  addSpriteEntity(entityType: string, sprites: Sprite[]) {
+    if (entityType === "player") {
+      this.playerEntityLayer.addChild(...sprites)
+    }
+  }
+
+  addParticleEntity(particle: Particle) {
+    this.foodEntityLayer.addParticle(particle)
   }
 
   removeEntity() {
-    this.entityLayer.children.forEach((object) => object.destroy())
+    this.playerEntityLayer.children.forEach((object) => object.destroy())
   }
 
   stop(): void {

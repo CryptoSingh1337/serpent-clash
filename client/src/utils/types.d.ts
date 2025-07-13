@@ -1,4 +1,5 @@
 import type { Player } from "@/classes/Player.ts"
+import type { Food } from "@/classes/Food.ts"
 
 export type ReconcileEvent = {
   seq: number
@@ -17,8 +18,16 @@ export type BackendPlayer = {
   seq: number
 }
 
+export type BackendFood = {
+  coordinate: Coordinate
+}
+
 export type Players = {
   [id: string]: Player
+}
+
+export type Foods = {
+  [id: number]: Food
 }
 
 export type CameraCoordinates = {

@@ -57,8 +57,12 @@ func (f *FoodSpawnSystem) Update() {
 			f.storage.AddComponent(entityId, utils.ExpiryComponent, &expiryComponent)
 			f.FoodSpawnEventQueue = append(f.FoodSpawnEventQueue, &types.FoodSpawnEvent{
 				EntityId: entityId,
-				Position: &positionComponent,
+				Coordinate: utils.Coordinate{
+					X: positionComponent.X,
+					Y: positionComponent.Y,
+				},
 			})
+			f.storage.AddSharedResource(utils.FoodSpawnEventQueue, f.FoodSpawnEventQueue)
 		}
 	}
 }

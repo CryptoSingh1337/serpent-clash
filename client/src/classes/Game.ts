@@ -5,7 +5,7 @@ import { InputManager } from "@/classes/InputManager.ts"
 import { NetworkManager } from "@/classes/NetworkManager.ts"
 import { StatsManager } from "@/classes/StatsManager.ts"
 import { Player } from "@/classes/Player.ts"
-import type { Players } from "@/utils/types"
+import type { Foods, Players } from "@/utils/types"
 
 const debugMode: boolean = import.meta.env.VITE_DEBUG_MODE === "true"
 
@@ -22,6 +22,7 @@ export class Game {
   username: string
   player: Player | null = null
   playerEntities: Players = {}
+  foodEntities: Foods = {}
 
   constructor(
     div: HTMLDivElement | null,

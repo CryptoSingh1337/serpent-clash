@@ -49,6 +49,7 @@ func (f *FoodDespawnSystem) Update() {
 			EntityId: entityId,
 		})
 	}
+	f.storage.AddSharedResource(utils.FoodDespawnEventQueue, f.FoodDespawnQueue)
 }
 
 func (f *FoodDespawnSystem) Stop() {

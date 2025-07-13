@@ -56,9 +56,8 @@ export class NetworkManager {
           this.game.statsManager.updatePing(ping)
           break
         }
-        case WsMessageType.GameState: {
-          const gameState = body.gameState
-          const backendPlayerEntities = gameState.players as {
+        case WsMessageType.PlayerState: {
+          const backendPlayerEntities = body.players as {
             [id: string]: BackendPlayer
           }
           for (const id in backendPlayerEntities) {

@@ -8,8 +8,13 @@ import (
 	"time"
 )
 
-type Payload struct {
-	GameState utils.GameStateMessage `json:"gameState"`
+type PlayerState struct {
+	Segments []utils.Coordinate `json:"positions"`
+	Seq      uint64             `json:"seq"`
+}
+
+type PlayerStatePayload struct {
+	Players map[string]PlayerState `json:"players"`
 }
 
 type NetworkSystem struct {
@@ -27,10 +32,10 @@ func (n *NetworkSystem) Name() string {
 }
 
 func (n *NetworkSystem) Update() {
-	gameState := n.createGameState()
+	playerState := n.createPlayerState()
 
 	// Broadcast game state to all players
-	n.broadcast(utils.GameStateMessageType, Payload{GameState: gameState})
+	n.broadcast(utils.PlayerStateMessageType, playerState)
 
 	// Send ping message to all players
 	networkComponents := n.storage.GetAllComponentByName(utils.NetworkComponent).([]*component.Network)
@@ -78,10 +83,10 @@ func (n *NetworkSystem) broadcast(msgType string, data any) {
 	}
 }
 
-func (n *NetworkSystem) createGameState() utils.GameStateMessage {
+func (n *NetworkSystem) createPlayerState() PlayerStatePayload {
 	playerEntityIds := n.storage.GetAllEntitiesByType(utils.PlayerEntity)
-	gameState := utils.GameStateMessage{
-		Players: make(map[string]utils.PlayerStateMessage),
+	playerStatePayload := PlayerStatePayload{
+		Players: make(map[string]PlayerState),
 	}
 	for _, entityId := range playerEntityIds {
 		c := n.storage.GetComponentByEntityIdAndName(entityId, utils.PlayerInfoComponent)
@@ -99,11 +104,11 @@ func (n *NetworkSystem) createGameState() utils.GameStateMessage {
 			continue
 		}
 		networkComponent := c.(*component.Network)
-		playerState := utils.PlayerStateMessage{
+		playerState := PlayerState{
 			Segments: snakeComponent.Segments,
 			Seq:      networkComponent.MessageSequence,
 		}
-		gameState.Players[playerInfoComponent.ID] = playerState
+		playerStatePayload.Players[playerInfoComponent.ID] = playerState
 	}
-	return gameState
+	return playerStatePayload
 }

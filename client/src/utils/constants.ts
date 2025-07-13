@@ -19,7 +19,7 @@ export const Constants = {
 }
 
 export enum WsMessageType {
-  GameState = "game_state",
+  PlayerState = "player_state",
   Ping = "ping",
   Pong = "pong",
   hello = "hello",

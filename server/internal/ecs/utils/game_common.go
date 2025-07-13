@@ -30,11 +30,11 @@ const (
 
 // Message types
 const (
-	HelloMessageType     = "hello"
-	PingMessageType      = "ping"
-	PongMessageType      = "pong"
-	GameStateMessageType = "game_state"
-	MovementMessageType  = "movement"
+	HelloMessageType       = "hello"
+	PingMessageType        = "ping"
+	PongMessageType        = "pong"
+	PlayerStateMessageType = "player_state"
+	MovementMessageType    = "movement"
 )
 
 // Entity types
@@ -101,13 +101,4 @@ type PongMessage struct {
 	RequestInitiateTimestamp  uint64 `json:"reqInit"`
 	RequestAckTimestamp       uint64 `json:"reqAck"`
 	ResponseInitiateTimestamp uint64 `json:"resInit"`
-}
-
-type PlayerStateMessage struct {
-	Segments []Coordinate `json:"positions"`
-	Seq      uint64       `json:"seq"`
-}
-
-type GameStateMessage struct {
-	Players map[string]PlayerStateMessage `json:"players"`
 }

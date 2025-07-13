@@ -35,7 +35,6 @@ const (
 	PongMessageType      = "pong"
 	GameStateMessageType = "game_state"
 	MovementMessageType  = "movement"
-	KillMessageType      = "kill"
 )
 
 // Entity types
@@ -58,14 +57,24 @@ const (
 const (
 	QuadTreeResource = "quad_tree"
 	SpawnRegions     = "spawn_regions"
-	JoinEvents       = "join_events"
-	LeaveEvents      = "leave_events"
 )
 
 const (
 	PlayerHeadPointType    = "head"
 	PlayerSegmentPointType = "segment"
 	FoodPointType          = "food"
+)
+
+// System names
+const (
+	CollisionSystemName     = "CollisionSystem"
+	FoodDespawnSystemName   = "FoodDespawnSystem"
+	FoodSpawnSystemName     = "FoodSpawnSystem"
+	MovementSystemName      = "MovementSystem"
+	NetworkSystemName       = "NetworkSystem"
+	PlayerDespawnSystemName = "PlayerDespawnSystem"
+	PlayerSpawnSystemName   = "PlayerSpawnSystem"
+	QuadTreeSystemName      = "QuadTreeSystem"
 )
 
 type Coordinate struct {

@@ -8,16 +8,24 @@ import (
 )
 
 type FoodDespawnSystem struct {
-	storage storage.Storage
+	storage          storage.Storage
+	FoodDespawnQueue []*types.FoodDespawnEvent
 }
 
 func NewFoodDespawnSystem(storage storage.Storage) System {
 	return &FoodDespawnSystem{
-		storage,
+		storage: storage,
 	}
 }
 
+func (f *FoodDespawnSystem) Name() string {
+	return utils.FoodDespawnSystemName
+}
+
 func (f *FoodDespawnSystem) Update() {
+	if len(f.FoodDespawnQueue) > 0 {
+		f.FoodDespawnQueue = nil
+	}
 	foodEntities := f.storage.GetAllEntitiesByType(utils.FoodEntity)
 	var expiredFoodEntityIds []types.Id
 	for _, entityId := range foodEntities {
@@ -37,6 +45,9 @@ func (f *FoodDespawnSystem) Update() {
 	utils.Logger.Info().Msgf("De-spawning %d food entities", len(expiredFoodEntityIds))
 	for _, entityId := range expiredFoodEntityIds {
 		f.storage.RemoveEntity(entityId, utils.FoodEntity)
+		f.FoodDespawnQueue = append(f.FoodDespawnQueue, &types.FoodDespawnEvent{
+			EntityId: entityId,
+		})
 	}
 }
 

@@ -22,6 +22,10 @@ func NewNetworkSystem(storage storage.Storage) System {
 	}
 }
 
+func (n *NetworkSystem) Name() string {
+	return utils.NetworkSystemName
+}
+
 func (n *NetworkSystem) Update() {
 	gameState := n.createGameState()
 	body, _ := utils.ToJsonB(Payload{GameState: gameState})

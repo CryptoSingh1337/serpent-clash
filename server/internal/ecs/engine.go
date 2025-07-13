@@ -21,7 +21,8 @@ const (
 type Engine struct {
 	playerIdCounter    atomic.Uint32
 	storage            storage.Storage
-	systems            []system.System
+	systems            map[string]system.System
+	systemUpdateOrder  []string
 	playerIdToEntityId map[string]types.Id
 	JoinQueue          chan *types.JoinEvent
 	LeaveQueue         chan string
@@ -33,14 +34,14 @@ func NewEngine() *Engine {
 	simpleStorage := storage.NewSimpleStorage()
 	engine := &Engine{
 		storage:            simpleStorage,
-		systems:            make([]system.System, 0),
+		systems:            make(map[string]system.System),
 		playerIdToEntityId: make(map[string]types.Id),
 		JoinQueue:          make(chan *types.JoinEvent, utils.MaxPlayerAllowed),
 		LeaveQueue:         make(chan string, utils.MaxPlayerAllowed),
 		SpawnQueue:         make(chan *types.JoinEvent, utils.MaxPlayerAllowed),
 		DespawnQueue:       make(chan *types.LeaveEvent, utils.MaxPlayerAllowed),
 	}
-	loadResourcesSystem := system.NewLoadResourcesSystem(simpleStorage)
+	quadTreeSystem := system.NewQuadTreeSystem(simpleStorage)
 	movementSystem := system.NewMovementSystem(simpleStorage)
 	playerSpawnSystem := system.NewSpawnSystem(simpleStorage, engine.SpawnQueue)
 	playerDespawnSystem := system.NewPlayerDespawnSystem(simpleStorage, engine.DespawnQueue)
@@ -48,8 +49,24 @@ func NewEngine() *Engine {
 	foodSpawnSystem := system.NewFoodSpawnSystem(simpleStorage)
 	foodDespawnSystem := system.NewFoodDespawnSystem(simpleStorage)
 	networkSystem := system.NewNetworkSystem(simpleStorage)
-	engine.systems = append(engine.systems, loadResourcesSystem, movementSystem, playerSpawnSystem, playerDespawnSystem,
-		collisionSystem, foodSpawnSystem, foodDespawnSystem, networkSystem)
+	engine.systems[quadTreeSystem.Name()] = quadTreeSystem
+	engine.systems[movementSystem.Name()] = movementSystem
+	engine.systems[playerSpawnSystem.Name()] = playerSpawnSystem
+	engine.systems[playerDespawnSystem.Name()] = playerDespawnSystem
+	engine.systems[collisionSystem.Name()] = collisionSystem
+	engine.systems[foodSpawnSystem.Name()] = foodSpawnSystem
+	engine.systems[foodDespawnSystem.Name()] = foodDespawnSystem
+	engine.systems[networkSystem.Name()] = networkSystem
+	engine.systemUpdateOrder = []string{
+		quadTreeSystem.Name(),
+		movementSystem.Name(),
+		playerSpawnSystem.Name(),
+		playerDespawnSystem.Name(),
+		collisionSystem.Name(),
+		foodSpawnSystem.Name(),
+		foodDespawnSystem.Name(),
+		networkSystem.Name(),
+	}
 	return engine
 }
 
@@ -174,8 +191,8 @@ ProcessLeaveQueue:
 		}
 	}
 ProcessSystemUpdates:
-	for _, s := range e.systems {
-		s.Update()
+	for _, s := range e.systemUpdateOrder {
+		e.systems[s].Update()
 	}
 }
 

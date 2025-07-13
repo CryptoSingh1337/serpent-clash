@@ -17,6 +17,10 @@ func NewMovementSystem(storage storage.Storage) System {
 	}
 }
 
+func (m *MovementSystem) Name() string {
+	return utils.MovementSystemName
+}
+
 func (m *MovementSystem) Update() {
 	playerEntityIds := m.storage.GetAllEntitiesByType(utils.PlayerEntity)
 	for _, playerEntityId := range playerEntityIds {

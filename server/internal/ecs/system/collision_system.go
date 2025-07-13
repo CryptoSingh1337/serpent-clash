@@ -18,6 +18,10 @@ func NewCollisionSystem(storage storage.Storage) System {
 	}
 }
 
+func (c *CollisionSystem) Name() string {
+	return utils.CollisionSystemName
+}
+
 func (c *CollisionSystem) Update() {
 	playerEntities := c.storage.GetAllEntitiesByType(utils.PlayerEntity)
 	for _, playerId := range playerEntities {

@@ -16,8 +16,9 @@ const (
 )
 
 type FoodSpawnSystem struct {
-	storage       storage.Storage
-	foodIdCounter atomic.Uint32
+	storage             storage.Storage
+	foodIdCounter       atomic.Uint32
+	FoodSpawnEventQueue []*types.FoodSpawnEvent
 }
 
 func NewFoodSpawnSystem(storage storage.Storage) System {
@@ -26,7 +27,14 @@ func NewFoodSpawnSystem(storage storage.Storage) System {
 	}
 }
 
+func (f *FoodSpawnSystem) Name() string {
+	return utils.FoodSpawnSystemName
+}
+
 func (f *FoodSpawnSystem) Update() {
+	if len(f.FoodSpawnEventQueue) > 0 {
+		f.FoodSpawnEventQueue = nil
+	}
 	r := f.storage.GetSharedResource(utils.QuadTreeResource)
 	if r == nil {
 		return
@@ -47,6 +55,10 @@ func (f *FoodSpawnSystem) Update() {
 			expiryComponent := component.NewExpiryComponent(uint32(utils.MinFoodEntityExpiry +
 				rand.UintN(uint(utils.MaxFoodEntityExpiry-utils.MinFoodEntityExpiry))))
 			f.storage.AddComponent(entityId, utils.ExpiryComponent, &expiryComponent)
+			f.FoodSpawnEventQueue = append(f.FoodSpawnEventQueue, &types.FoodSpawnEvent{
+				EntityId: entityId,
+				Position: &positionComponent,
+			})
 		}
 	}
 }

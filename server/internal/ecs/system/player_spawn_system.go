@@ -22,6 +22,7 @@ type PlayerSpawnSystem struct {
 	storage            storage.Storage
 	spawnQueue         <-chan *types.JoinEvent
 	lastSpawnRegionIdx int
+	JoinEventQueue     []*types.JoinEvent
 }
 
 func NewSpawnSystem(storage storage.Storage, spawnQueue <-chan *types.JoinEvent) System {
@@ -34,13 +35,19 @@ func NewSpawnSystem(storage storage.Storage, spawnQueue <-chan *types.JoinEvent)
 	}
 }
 
+func (s *PlayerSpawnSystem) Name() string {
+	return utils.PlayerSpawnSystemName
+}
+
 func (s *PlayerSpawnSystem) Update() {
+	if len(s.JoinEventQueue) > 0 {
+		s.JoinEventQueue = nil
+	}
 	r := s.storage.GetSharedResource(utils.QuadTreeResource)
 	if r == nil {
 		return
 	}
 	qt := r.(*storage.QuadTree)
-	joinEvents := s.storage.GetSharedResource(utils.JoinEvents).([]*types.JoinEvent)
 	for {
 		select {
 		case joinEvent := <-s.spawnQueue:
@@ -96,8 +103,7 @@ func (s *PlayerSpawnSystem) Update() {
 			}
 			snakeComponent := c.(*component.Snake)
 			snakeComponent.Segments = segments
-			joinEvents = append(joinEvents, joinEvent)
-			s.storage.AddSharedResource(utils.JoinEvents, joinEvents)
+			s.JoinEventQueue = append(s.JoinEventQueue, joinEvent)
 		default:
 			goto escape
 		}

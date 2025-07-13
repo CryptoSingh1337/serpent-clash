@@ -3,21 +3,24 @@ package system
 import (
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/component"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/storage"
-	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/types"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/utils"
 )
 
-type LoadResourcesSystem struct {
+type QuadTreeSystem struct {
 	storage storage.Storage
 }
 
-func NewLoadResourcesSystem(storage storage.Storage) System {
-	return &LoadResourcesSystem{
+func NewQuadTreeSystem(storage storage.Storage) System {
+	return &QuadTreeSystem{
 		storage,
 	}
 }
 
-func (q *LoadResourcesSystem) Update() {
+func (q *QuadTreeSystem) Name() string {
+	return utils.QuadTreeSystemName
+}
+
+func (q *QuadTreeSystem) Update() {
 	playerEntities := q.storage.GetAllEntitiesByType(utils.PlayerEntity)
 	qt := storage.NewQuadTree(storage.BBox{
 		X: 0,
@@ -66,15 +69,7 @@ func (q *LoadResourcesSystem) Update() {
 		})
 	}
 	q.storage.AddSharedResource(utils.QuadTreeResource, qt)
-	joinedEvents := q.storage.GetSharedResource(utils.JoinEvents)
-	if joinedEvents == nil {
-		q.storage.AddSharedResource(utils.JoinEvents, make([]*types.JoinEvent, 0, utils.MaxPlayerAllowed))
-	}
-	leaveEvents := q.storage.GetSharedResource(utils.LeaveEvents)
-	if leaveEvents == nil {
-		q.storage.AddSharedResource(utils.LeaveEvents, make([]*types.LeaveEvent, 0, utils.MaxPlayerAllowed))
-	}
 }
 
-func (q *LoadResourcesSystem) Stop() {
+func (q *QuadTreeSystem) Stop() {
 }

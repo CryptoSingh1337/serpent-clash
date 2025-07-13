@@ -27,3 +27,12 @@ type PingEvent struct {
 	PlayerId                 string
 	RequestInitiateTimestamp uint64 `json:"reqInit"`
 }
+
+type FoodSpawnEvent struct {
+	EntityId Id
+	Position *component.Position
+}
+
+type FoodDespawnEvent struct {
+	EntityId Id
+}

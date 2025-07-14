@@ -1,6 +1,6 @@
 import { Graphics, Particle, Texture } from "pixi.js"
 import type { Game } from "@/classes/Game.ts"
-import {Constants} from "@/utils/constants.ts"
+import { Constants } from "@/utils/constants.ts"
 
 export class Food {
   game: Game
@@ -8,7 +8,6 @@ export class Food {
   coordinate: { x: number; y: number }
   color: number
   particle: Particle | null
-
   static sharedTexture: Texture | null = null
 
   constructor(

@@ -6,7 +6,8 @@ export const Constants = {
   playerSpeedBoost: 3,
   maxTurnRate: 0.03,
   snakeSegmentDistance: 20,
-  snakeSegmentDiameter: 50,
+  snakeSegmentRadius: 25,
+  foodRadius: 5,
   pingCooldown: 75,
   worldBoundary: {
     radius: 2850,

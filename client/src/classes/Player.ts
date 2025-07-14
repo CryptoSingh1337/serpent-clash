@@ -26,7 +26,7 @@ export class Player {
     const texture =
       this.game.displayDriver.renderer.app.renderer.generateTexture(
         new Graphics()
-          .circle(0, 0, Constants.snakeSegmentDiameter / 2)
+          .circle(0, 0, Constants.snakeSegmentRadius)
           .fill({ color: this.snake.color })
           .stroke({ color: 0x000000, width: 1 })
       )

@@ -32,7 +32,7 @@ func (c *CollisionSystem) Update() {
 		snakeComponent := comp.(*component.Snake)
 		head := snakeComponent.Segments[0]
 		distanceFromOrigin := utils.EuclideanDistance(0, 0, head.X, head.Y)
-		if distanceFromOrigin+utils.SnakeSegmentDiameter/2 >= utils.WorldBoundaryRadius {
+		if distanceFromOrigin+utils.SnakeSegmentRadius >= utils.WorldBoundaryRadius {
 			comp = c.storage.GetComponentByEntityIdAndName(playerId, utils.NetworkComponent)
 			if comp == nil {
 				continue
@@ -56,7 +56,7 @@ func (c *CollisionSystem) Update() {
 		snakeComponent := comp.(*component.Snake)
 		head := snakeComponent.Segments[0]
 		var points []storage.Point
-		qt.QueryBCircle(storage.BCircle{X: head.X, Y: head.Y, R: utils.SnakeSegmentDiameter}, &points)
+		qt.QueryBCircle(storage.BCircle{X: head.X, Y: head.Y, R: utils.SnakeSegmentRadius * 2}, &points)
 		for _, point := range points {
 			switch point.PointType {
 			case utils.FoodPointType:
@@ -76,7 +76,7 @@ func (c *CollisionSystem) handlePlayerToPlayerCollision(playerId types.Id, head 
 		return
 	}
 	distance := utils.EuclideanDistance(point.X, point.Y, head.X, head.Y)
-	if distance <= utils.SnakeSegmentDiameter {
+	if distance <= utils.SnakeSegmentRadius*2 {
 		switch point.PointType {
 		case utils.PlayerHeadPointType:
 			utils.Logger.Debug().Msgf("Head to Head collision :: player id: %v, player head: %v, point: %v",
@@ -115,7 +115,7 @@ func (c *CollisionSystem) handlePlayerToPlayerCollision(playerId types.Id, head 
 func (c *CollisionSystem) handlePlayerToFoodCollision(playerId types.Id, snakeComponent *component.Snake,
 	head utils.Coordinate, point storage.Point) {
 	distance := utils.EuclideanDistance(point.X, point.Y, head.X, head.Y)
-	if distance <= utils.FoodConsumeDistance {
+	if distance <= utils.FoodConsumeDistance+utils.FoodRadius {
 		utils.Logger.Debug().Msgf("Head to food collision :: player id: %v, player head: %v, point: %v",
 			playerId, head, point)
 		consumeFood(playerId, snakeComponent)

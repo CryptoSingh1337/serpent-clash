@@ -1,5 +1,6 @@
 import { Graphics, Particle, Texture } from "pixi.js"
 import type { Game } from "@/classes/Game.ts"
+import {Constants} from "@/utils/constants.ts"
 
 export class Food {
   game: Game
@@ -26,7 +27,7 @@ export class Food {
   create(): void {
     if (!Food.sharedTexture) {
       const graphics = new Graphics()
-        .circle(0, 0, 3)
+        .circle(0, 0, Constants.foodRadius)
         .fill({ color: this.color })
       Food.sharedTexture =
         this.game.displayDriver.renderer.app.renderer.generateTexture(graphics)

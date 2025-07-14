@@ -15,7 +15,8 @@ const (
 	DefaultSnakeLength      = 10
 	DefaultGrowthFactor     = 10
 	SnakeSegmentDistance    = 20
-	SnakeSegmentDiameter    = 50
+	SnakeSegmentRadius      = 25
+	FoodRadius              = 5
 	FoodConsumeDistance     = 30
 	FoodSpawnThreshold      = 200
 	MinFoodEntityExpiry     = 4000

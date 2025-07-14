@@ -20,11 +20,12 @@ var (
 
 type PlayerSpawnSystem struct {
 	storage            storage.Storage
-	spawnQueue         <-chan types.Id
+	spawnQueue         <-chan *types.JoinEvent
 	lastSpawnRegionIdx int
+	JoinEventQueue     []*types.JoinEvent
 }
 
-func NewSpawnSystem(storage storage.Storage, spawnQueue <-chan types.Id) System {
+func NewSpawnSystem(storage storage.Storage, spawnQueue <-chan *types.JoinEvent) System {
 	spawnRegions = GenerateSpawnPoints(spawnRegionCount)
 	storage.AddSharedResource(utils.SpawnRegions, spawnRegions)
 	return &PlayerSpawnSystem{
@@ -34,7 +35,14 @@ func NewSpawnSystem(storage storage.Storage, spawnQueue <-chan types.Id) System 
 	}
 }
 
+func (s *PlayerSpawnSystem) Name() string {
+	return utils.PlayerSpawnSystemName
+}
+
 func (s *PlayerSpawnSystem) Update() {
+	if len(s.JoinEventQueue) > 0 {
+		s.JoinEventQueue = nil
+	}
 	r := s.storage.GetSharedResource(utils.QuadTreeResource)
 	if r == nil {
 		return
@@ -42,7 +50,8 @@ func (s *PlayerSpawnSystem) Update() {
 	qt := r.(*storage.QuadTree)
 	for {
 		select {
-		case playerId := <-s.spawnQueue:
+		case joinEvent := <-s.spawnQueue:
+			playerId := joinEvent.EntityId
 			utils.Logger.Info().Msgf("Spawning %v player id", playerId)
 			var minDensityRegion utils.Coordinate
 			previousRegionDensity := math.MaxInt
@@ -94,6 +103,7 @@ func (s *PlayerSpawnSystem) Update() {
 			}
 			snakeComponent := c.(*component.Snake)
 			snakeComponent.Segments = segments
+			s.JoinEventQueue = append(s.JoinEventQueue, joinEvent)
 		default:
 			goto escape
 		}

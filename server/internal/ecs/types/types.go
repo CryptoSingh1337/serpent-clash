@@ -2,6 +2,7 @@ package types
 
 import (
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/component"
+	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/utils"
 	"github.com/gorilla/websocket"
 )
 
@@ -18,7 +19,21 @@ type JoinEvent struct {
 	Username   string
 }
 
+type LeaveEvent struct {
+	EntityId Id
+	PlayerId string
+}
+
 type PingEvent struct {
 	PlayerId                 string
 	RequestInitiateTimestamp uint64 `json:"reqInit"`
+}
+
+type FoodSpawnEvent struct {
+	EntityId   Id
+	Coordinate utils.Coordinate
+}
+
+type FoodDespawnEvent struct {
+	EntityId Id
 }

@@ -13,11 +13,12 @@ const (
 	PlayerBoostSpeed        = 3
 	MaxTurnRate             = 0.03
 	DefaultSnakeLength      = 10
-	DefaultGrowthFactor     = 2
+	DefaultGrowthFactor     = 10
 	SnakeSegmentDistance    = 20
-	SnakeSegmentDiameter    = 50
+	SnakeSegmentRadius      = 25
+	FoodRadius              = 5
 	FoodConsumeDistance     = 30
-	FoodSpawnThreshold      = 1000
+	FoodSpawnThreshold      = 200
 	MinFoodEntityExpiry     = 4000
 	MaxFoodEntityExpiry     = 10000
 	MaxPlayerAllowed        = 10
@@ -30,12 +31,12 @@ const (
 
 // Message types
 const (
-	HelloMessageType     = "hello"
-	PingMessageType      = "ping"
-	PongMessageType      = "pong"
-	GameStateMessageType = "game_state"
-	MovementMessageType  = "movement"
-	KillMessageType      = "kill"
+	HelloMessageType       = "hello"
+	PingMessageType        = "ping"
+	PongMessageType        = "pong"
+	MovementMessageType    = "movement"
+	PlayerStateMessageType = "player_state"
+	FoodStateMessageType   = "food_state"
 )
 
 // Entity types
@@ -56,14 +57,28 @@ const (
 
 // QuadTreeResource Shared resources names
 const (
-	QuadTreeResource = "quad_tree"
-	SpawnRegions     = "spawn_regions"
+	QuadTreeResource      = "quad_tree"
+	SpawnRegions          = "spawn_regions"
+	FoodSpawnEventQueue   = "food_spawn_event_queue"
+	FoodDespawnEventQueue = "food_despawn_event_queue"
 )
 
 const (
 	PlayerHeadPointType    = "head"
 	PlayerSegmentPointType = "segment"
 	FoodPointType          = "food"
+)
+
+// System names
+const (
+	CollisionSystemName     = "CollisionSystem"
+	FoodDespawnSystemName   = "FoodDespawnSystem"
+	FoodSpawnSystemName     = "FoodSpawnSystem"
+	MovementSystemName      = "MovementSystem"
+	NetworkSystemName       = "NetworkSystem"
+	PlayerDespawnSystemName = "PlayerDespawnSystem"
+	PlayerSpawnSystemName   = "PlayerSpawnSystem"
+	QuadTreeSystemName      = "QuadTreeSystem"
 )
 
 type Coordinate struct {
@@ -90,13 +105,4 @@ type PongMessage struct {
 	RequestInitiateTimestamp  uint64 `json:"reqInit"`
 	RequestAckTimestamp       uint64 `json:"reqAck"`
 	ResponseInitiateTimestamp uint64 `json:"resInit"`
-}
-
-type PlayerStateMessage struct {
-	Segments []Coordinate `json:"positions"`
-	Seq      uint64       `json:"seq"`
-}
-
-type GameStateMessage struct {
-	PlayerStates map[string]PlayerStateMessage `json:"playerStates"`
 }

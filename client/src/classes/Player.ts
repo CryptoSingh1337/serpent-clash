@@ -1,4 +1,9 @@
-import { Graphics, Sprite } from "pixi.js"
+import {
+  Graphics,
+  Sprite,
+  Texture,
+  Text
+} from "pixi.js"
 import type { Snake } from "@/classes/Snake.ts"
 import type { Game } from "@/classes/Game.ts"
 import { Constants } from "@/utils/constants.ts"
@@ -12,6 +17,7 @@ export class Player {
   sprite: Sprite[]
   lastUpdatedTime: number
   animationCounter: number
+  static sharedTexture: Texture | null = null
 
   constructor(game: Game, id: string, snake: Snake) {
     this.id = id
@@ -23,22 +29,32 @@ export class Player {
   }
 
   createSprite(): void {
-    const texture =
-      this.game.displayDriver.renderer.app.renderer.generateTexture(
-        new Graphics()
-          .circle(0, 0, Constants.snakeSegmentDiameter / 2)
-          .fill({ color: this.snake.color })
-          .stroke({ color: 0x000000, width: 1 })
-      )
+    if (!Player.sharedTexture) {
+      Player.sharedTexture =
+        this.game.displayDriver.renderer.app.renderer.generateTexture(
+          new Graphics()
+            .circle(0, 0, Constants.snakeSegmentRadius)
+            .fill({ color: this.snake.color })
+            .stroke({ color: 0x000000, width: 1 })
+        )
+    }
 
     for (let i = 0; i < this.snake.segments.length; i++) {
       const segment = this.snake.segments[i]
-      const sprite = new Sprite(texture)
+      const sprite = new Sprite(Player.sharedTexture)
       sprite.anchor.set(0.5, 0.5)
-      sprite.zIndex = i === 0 ? 999 : 998 - i
+      sprite.zIndex = 999 - i
       sprite.position.set(segment.x, segment.y)
       this.sprite.push(sprite)
     }
+    const head = this.sprite[0]
+    const username = new Text({
+      text: this.game.username,
+      anchor: 0.5,
+      style: { fontSize: 20, fill: 0x0000ff }
+    })
+    username.position.set(0.1 * head.width, 0.1 * head.height)
+    head.addChild(username)
   }
 
   move(x: number, y: number): void {
@@ -113,5 +129,6 @@ export class Player {
 
   destroy(): void {
     this.sprite.forEach((sprite) => sprite.destroy(true))
+    this.sprite = []
   }
 }

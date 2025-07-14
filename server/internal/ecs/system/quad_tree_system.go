@@ -16,6 +16,10 @@ func NewQuadTreeSystem(storage storage.Storage) System {
 	}
 }
 
+func (q *QuadTreeSystem) Name() string {
+	return utils.QuadTreeSystemName
+}
+
 func (q *QuadTreeSystem) Update() {
 	playerEntities := q.storage.GetAllEntitiesByType(utils.PlayerEntity)
 	qt := storage.NewQuadTree(storage.BBox{

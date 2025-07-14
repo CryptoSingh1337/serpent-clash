@@ -1,9 +1,10 @@
 import type { Game } from "@/classes/Game.ts"
 import { Player } from "@/classes/Player.ts"
-import type { BackendPlayer, ReconcileEvent } from "@/utils/types"
+import type { BackendFood, BackendPlayer, ReconcileEvent } from "@/utils/types"
 import { getServerBaseUrl } from "@/utils/helper.ts"
 import { WsMessageType } from "@/utils/constants.ts"
 import { Snake } from "@/classes/Snake.ts"
+import { Food } from "@/classes/Food.ts"
 
 export class NetworkManager {
   game: Game
@@ -56,8 +57,8 @@ export class NetworkManager {
           this.game.statsManager.updatePing(ping)
           break
         }
-        case WsMessageType.GameState: {
-          const backendPlayerEntities = body.playerStates as {
+        case WsMessageType.PlayerState: {
+          const backendPlayerEntities = body.players as {
             [id: string]: BackendPlayer
           }
           for (const id in backendPlayerEntities) {
@@ -68,7 +69,8 @@ export class NetworkManager {
                 // current player
                 this.game.player.snake.segments = backendPlayer.positions
                 this.game.player.createSprite()
-                this.game.displayDriver.renderer.addEntity(
+                this.game.displayDriver.renderer.addSpriteEntity(
+                  "player",
                   this.game.player.sprite
                 )
                 this.game.playerEntities[id] = this.game.player
@@ -80,7 +82,8 @@ export class NetworkManager {
                   new Snake(backendPlayer.positions, 0xffffff)
                 )
                 this.game.playerEntities[id].createSprite()
-                this.game.displayDriver.renderer.addEntity(
+                this.game.displayDriver.renderer.addSpriteEntity(
+                  "player",
                   this.game.playerEntities[id].sprite
                 )
               }
@@ -114,6 +117,40 @@ export class NetworkManager {
             if (!backendPlayerEntities[id]) {
               this.game.playerEntities[id].destroy()
               delete this.game.playerEntities[id]
+            }
+          }
+          break
+        }
+        case WsMessageType.FoodState: {
+          const backendFoodEntities = body.foods as {
+            [id: number]: BackendFood
+          }
+          for (const id in backendFoodEntities) {
+            const backendFood = backendFoodEntities[id]
+            if (!this.game.foodEntities[id]) {
+              // food does not exist
+              this.game.foodEntities[id] = new Food(
+                this.game,
+                id,
+                backendFood.coordinate
+              )
+              this.game.foodEntities[id].create()
+              if (this.game.foodEntities[id].particle) {
+                this.game.displayDriver.renderer.addParticleEntity(
+                  this.game.foodEntities[id].particle
+                )
+              }
+            } else {
+              // already existing food
+              // const foodEntity = this.game.foodEntities[id]
+              // foodEntity.coordinate = backendFood.coordinate
+            }
+            for (const id in this.game.foodEntities) {
+              // remove food entities that are not in the backend state
+              if (!backendFoodEntities[id]) {
+                this.game.foodEntities[id].destroy()
+                delete this.game.foodEntities[id]
+              }
             }
           }
           break

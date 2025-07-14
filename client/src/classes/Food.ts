@@ -1,4 +1,4 @@
-import {Graphics, Particle, Sprite, Texture} from "pixi.js"
+import { Graphics, Particle, Texture } from "pixi.js"
 import type { Game } from "@/classes/Game.ts"
 
 export class Food {
@@ -25,10 +25,11 @@ export class Food {
 
   create(): void {
     if (!Food.sharedTexture) {
-      const graphics = new Graphics().circle(0, 0, 3).fill({ color: this.color })
-      Food.sharedTexture = this.game.displayDriver.renderer.app.renderer.generateTexture(
-        graphics
-      )
+      const graphics = new Graphics()
+        .circle(0, 0, 3)
+        .fill({ color: this.color })
+      Food.sharedTexture =
+        this.game.displayDriver.renderer.app.renderer.generateTexture(graphics)
     }
     this.particle = new Particle({
       texture: Food.sharedTexture,

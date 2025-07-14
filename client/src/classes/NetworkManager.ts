@@ -69,7 +69,8 @@ export class NetworkManager {
                 // current player
                 this.game.player.snake.segments = backendPlayer.positions
                 this.game.player.createSprite()
-                this.game.displayDriver.renderer.addSpriteEntity("player",
+                this.game.displayDriver.renderer.addSpriteEntity(
+                  "player",
                   this.game.player.sprite
                 )
                 this.game.playerEntities[id] = this.game.player
@@ -81,7 +82,8 @@ export class NetworkManager {
                   new Snake(backendPlayer.positions, 0xffffff)
                 )
                 this.game.playerEntities[id].createSprite()
-                this.game.displayDriver.renderer.addSpriteEntity("player",
+                this.game.displayDriver.renderer.addSpriteEntity(
+                  "player",
                   this.game.playerEntities[id].sprite
                 )
               }

@@ -17,7 +17,7 @@ const (
 	SnakeSegmentDistance    = 20
 	SnakeSegmentDiameter    = 50
 	FoodConsumeDistance     = 30
-	FoodSpawnThreshold      = 50
+	FoodSpawnThreshold      = 200
 	MinFoodEntityExpiry     = 4000
 	MaxFoodEntityExpiry     = 10000
 	MaxPlayerAllowed        = 10

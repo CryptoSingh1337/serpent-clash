@@ -67,6 +67,7 @@ export class NetworkManager {
               // entity does not exists
               if (this.game.player && this.game.player.id === id) {
                 // current player
+                this.game.player.username = backendPlayer.username
                 this.game.player.updateSegments(backendPlayer.positions, true)
                 this.game.displayDriver.renderer.addSpriteEntity(
                   "player",
@@ -80,6 +81,7 @@ export class NetworkManager {
                   id,
                   new Snake([], 0xffffff)
                 )
+                this.game.playerEntities[id].username = backendPlayer.username
                 this.game.playerEntities[id].updateSegments(
                   backendPlayer.positions,
                   true

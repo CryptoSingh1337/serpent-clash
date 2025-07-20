@@ -14,6 +14,7 @@ export type Coordinate = {
 export type BackendPlayer = {
   id: string
   color: string
+  username: string
   positions: Coordinate[]
   seq: number
 }

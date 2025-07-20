@@ -8,6 +8,7 @@ import type { Coordinate } from "@/utils/types"
 export class Player {
   game: Game
   id: string
+  username: string = ""
   snake: Snake
   sprite: Sprite[]
   lastUpdatedTime: number
@@ -131,9 +132,9 @@ export class Player {
     if (initial) {
       const head = this.sprite[0]
       const username = new Text({
-        text: this.game.username,
+        text: this.username,
         anchor: 0.5,
-        style: { fontSize: 20, fill: 0x0000ff }
+        style: { fontSize: 17, fill: 0x02cff7 }
       })
       username.position.set(0.1 * head.width, 0.1 * head.height)
       head.addChild(username)

@@ -10,6 +10,7 @@ import (
 )
 
 type PlayerState struct {
+	Username string             `json:"username"`
 	Segments []utils.Coordinate `json:"positions"`
 	Seq      uint64             `json:"seq"`
 }
@@ -116,6 +117,7 @@ func (n *NetworkSystem) createPlayerState() PlayerStatePayload {
 		}
 		networkComponent := c.(*component.Network)
 		playerState := PlayerState{
+			Username: playerInfoComponent.Username,
 			Segments: snakeComponent.Segments,
 			Seq:      networkComponent.MessageSequence,
 		}

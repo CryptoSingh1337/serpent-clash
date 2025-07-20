@@ -75,12 +75,16 @@ export class InputManager {
     this.mousePosition.y = e.clientY - rect.top
   }
 
-  onMouseUp() {
-    this.boost = false
+  onMouseUp(e: MouseEvent) {
+    if (e.button === 0) {
+      this.boost = false
+    }
   }
 
-  onMouseDown() {
-    this.boost = true
+  onMouseDown(e: MouseEvent) {
+    if (e.button === 0) {
+      this.boost = true
+    }
   }
 
   onMouseLeave() {

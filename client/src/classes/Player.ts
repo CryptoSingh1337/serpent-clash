@@ -28,35 +28,6 @@ export class Player {
     this.animationCounter = 0
   }
 
-  createSprite(): void {
-    if (!Player.sharedTexture) {
-      Player.sharedTexture =
-        this.game.displayDriver.renderer.app.renderer.generateTexture(
-          new Graphics()
-            .circle(0, 0, Constants.snakeSegmentRadius)
-            .fill({ color: this.snake.color })
-            .stroke({ color: 0x000000, width: 1 })
-        )
-    }
-
-    for (let i = 0; i < this.snake.segments.length; i++) {
-      const segment = this.snake.segments[i]
-      const sprite = new Sprite(Player.sharedTexture)
-      sprite.anchor.set(0.5, 0.5)
-      sprite.zIndex = 999 - i
-      sprite.position.set(segment.x, segment.y)
-      this.sprite.push(sprite)
-    }
-    const head = this.sprite[0]
-    const username = new Text({
-      text: this.game.username,
-      anchor: 0.5,
-      style: { fontSize: 20, fill: 0x0000ff }
-    })
-    username.position.set(0.1 * head.width, 0.1 * head.height)
-    head.addChild(username)
-  }
-
   move(x: number, y: number): void {
     const currentTime = performance.now()
     const deltaTime = currentTime - this.lastUpdatedTime
@@ -117,6 +88,59 @@ export class Player {
       )
     }
     this.lastUpdatedTime = currentTime
+  }
+
+  updateSegments(positions: Coordinate[], initial = false): {
+    oldSnakeLength: number
+    newSnakeLength: number
+    lengthIncrease: number
+  } {
+    if (!Player.sharedTexture) {
+      Player.sharedTexture =
+        this.game.displayDriver.renderer.app.renderer.generateTexture(
+          new Graphics()
+            .circle(0, 0, Constants.snakeSegmentRadius)
+            .fill({ color: this.snake.color })
+            .stroke({ color: 0x000000, width: 1 })
+        )
+    }
+    const lengthIncrease = positions.length - this.snake.segments.length
+    const oldSnakeLength = this.snake.segments.length
+    this.snake.segments = positions
+    if (lengthIncrease === 0) {
+      this.updateSprite()
+    } else if (lengthIncrease > 0) {
+      for (let i = 0; i < lengthIncrease; i++) {
+        const sprite = new Sprite(Player.sharedTexture)
+        sprite.anchor.set(0.5, 0.5)
+        sprite.zIndex = 999 - oldSnakeLength - i
+        this.sprite.push(sprite)
+      }
+      this.updateSprite()
+    } else {
+      for (let i = 0; i < -lengthIncrease; i++) {
+        const sprite = this.sprite.pop()
+        if (sprite) {
+          sprite.destroy(true)
+        }
+      }
+      this.updateSprite()
+    }
+    if (initial) {
+      const head = this.sprite[0]
+      const username = new Text({
+        text: this.game.username,
+        anchor: 0.5,
+        style: { fontSize: 20, fill: 0x0000ff }
+      })
+      username.position.set(0.1 * head.width, 0.1 * head.height)
+      head.addChild(username)
+    }
+    return {
+      oldSnakeLength,
+      newSnakeLength: this.snake.segments.length,
+      lengthIncrease
+    }
   }
 
   updateSprite(): void {

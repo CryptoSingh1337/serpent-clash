@@ -67,8 +67,7 @@ export class NetworkManager {
               // entity does not exists
               if (this.game.player && this.game.player.id === id) {
                 // current player
-                this.game.player.snake.segments = backendPlayer.positions
-                this.game.player.createSprite()
+                this.game.player.updateSegments(backendPlayer.positions, true)
                 this.game.displayDriver.renderer.addSpriteEntity(
                   "player",
                   this.game.player.sprite
@@ -79,9 +78,9 @@ export class NetworkManager {
                 this.game.playerEntities[id] = new Player(
                   this.game,
                   id,
-                  new Snake(backendPlayer.positions, 0xffffff)
+                  new Snake([], 0xffffff)
                 )
-                this.game.playerEntities[id].createSprite()
+                this.game.playerEntities[id].updateSegments(backendPlayer.positions, true)
                 this.game.displayDriver.renderer.addSpriteEntity(
                   "player",
                   this.game.playerEntities[id].sprite
@@ -90,6 +89,13 @@ export class NetworkManager {
             } else {
               // already existing entity
               const playerEntity = this.game.playerEntities[id]
+              const delta = playerEntity.updateSegments(backendPlayer.positions, false)
+              if (delta.oldSnakeLength !== delta.newSnakeLength) {
+                this.game.displayDriver.renderer.addSpriteEntity(
+                  "player",
+                  playerEntity.sprite.slice(delta.oldSnakeLength, delta.newSnakeLength)
+                )
+              }
               playerEntity.moveWithInterpolation(backendPlayer.positions)
               if (this.game.player && this.game.player.id === id) {
                 const lastProcessedInput =
@@ -115,8 +121,10 @@ export class NetworkManager {
           }
           for (const id in this.game.playerEntities) {
             if (!backendPlayerEntities[id]) {
-              this.game.playerEntities[id].destroy()
-              delete this.game.playerEntities[id]
+              if (this.game.playerEntities[id]) {
+                this.game.playerEntities[id].destroy()
+                delete this.game.playerEntities[id]
+              }
             }
           }
           break

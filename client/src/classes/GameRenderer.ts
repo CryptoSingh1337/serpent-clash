@@ -79,11 +79,13 @@ export class GameRenderer {
     this.foodEntityLayer.addParticle(particle)
   }
 
-  removeEntity() {
-    this.playerEntityLayer.children.forEach((object) => object.destroy())
-  }
-
   stop(): void {
-    this.app.destroy(true, true)
+    this.app.destroy({ removeView: true }, {
+      children: true,
+      texture: true,
+      textureSource: true,
+      style: true,
+      context: true
+    })
   }
 }

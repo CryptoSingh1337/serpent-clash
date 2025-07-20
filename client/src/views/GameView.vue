@@ -33,7 +33,7 @@ function connectOrDisconnect(): void {
     game.networkManager.socketState() === WebSocket.CLOSED
   ) {
     console.debug("Connecting socket connection...")
-    game.connect()
+    location.reload()
   } else if (
     game &&
     game.networkManager &&

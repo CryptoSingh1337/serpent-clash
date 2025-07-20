@@ -77,7 +77,6 @@ export class Game {
   stop(): void {
     this.player = null
     this.displayDriver.camera.target = null
-    this.displayDriver.renderer.removeEntity()
     this.displayDriver.stop()
     if (this.networkManager) {
       this.networkManager.close()

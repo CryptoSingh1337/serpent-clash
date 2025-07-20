@@ -80,12 +80,15 @@ export class GameRenderer {
   }
 
   stop(): void {
-    this.app.destroy({ removeView: true }, {
-      children: true,
-      texture: true,
-      textureSource: true,
-      style: true,
-      context: true
-    })
+    this.app.destroy(
+      { removeView: true },
+      {
+        children: true,
+        texture: true,
+        textureSource: true,
+        style: true,
+        context: true
+      }
+    )
   }
 }

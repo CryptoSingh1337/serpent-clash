@@ -80,7 +80,10 @@ export class NetworkManager {
                   id,
                   new Snake([], 0xffffff)
                 )
-                this.game.playerEntities[id].updateSegments(backendPlayer.positions, true)
+                this.game.playerEntities[id].updateSegments(
+                  backendPlayer.positions,
+                  true
+                )
                 this.game.displayDriver.renderer.addSpriteEntity(
                   "player",
                   this.game.playerEntities[id].sprite
@@ -89,11 +92,17 @@ export class NetworkManager {
             } else {
               // already existing entity
               const playerEntity = this.game.playerEntities[id]
-              const delta = playerEntity.updateSegments(backendPlayer.positions, false)
+              const delta = playerEntity.updateSegments(
+                backendPlayer.positions,
+                false
+              )
               if (delta.oldSnakeLength !== delta.newSnakeLength) {
                 this.game.displayDriver.renderer.addSpriteEntity(
                   "player",
-                  playerEntity.sprite.slice(delta.oldSnakeLength, delta.newSnakeLength)
+                  playerEntity.sprite.slice(
+                    delta.oldSnakeLength,
+                    delta.newSnakeLength
+                  )
                 )
               }
               playerEntity.moveWithInterpolation(backendPlayer.positions)

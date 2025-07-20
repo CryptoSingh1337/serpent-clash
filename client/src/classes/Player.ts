@@ -1,9 +1,4 @@
-import {
-  Graphics,
-  Sprite,
-  Texture,
-  Text
-} from "pixi.js"
+import { Graphics, Sprite, Texture, Text } from "pixi.js"
 import type { Snake } from "@/classes/Snake.ts"
 import type { Game } from "@/classes/Game.ts"
 import { Constants } from "@/utils/constants.ts"
@@ -90,7 +85,10 @@ export class Player {
     this.lastUpdatedTime = currentTime
   }
 
-  updateSegments(positions: Coordinate[], initial = false): {
+  updateSegments(
+    positions: Coordinate[],
+    initial = false
+  ): {
     oldSnakeLength: number
     newSnakeLength: number
     lengthIncrease: number
@@ -152,7 +150,9 @@ export class Player {
   }
 
   destroy(): void {
-    this.sprite.forEach((sprite) => sprite.destroy({ children: true, texture: false, textureSource: false }))
+    this.sprite.forEach((sprite) =>
+      sprite.destroy({ children: true, texture: false, textureSource: false })
+    )
     this.sprite = []
   }
 }

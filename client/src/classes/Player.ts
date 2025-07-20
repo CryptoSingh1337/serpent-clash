@@ -152,7 +152,7 @@ export class Player {
   }
 
   destroy(): void {
-    this.sprite.forEach((sprite) => sprite.destroy(true))
+    this.sprite.forEach((sprite) => sprite.destroy({ children: true, texture: false, textureSource: false }))
     this.sprite = []
   }
 }

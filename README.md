@@ -46,6 +46,7 @@ an **authoritative server** model to maintain a fair and synchronized game state
 - `Food spawn`
 - `Movement`
 - `Network`
+- `Player despawn`
 - `Player spawn`
 - `Quad tree`
 

@@ -14,6 +14,7 @@ import (
 	"math"
 	"net/http"
 	"runtime"
+	"runtime/debug"
 	"strings"
 	"sync/atomic"
 	"time"
@@ -23,6 +24,7 @@ type Game struct {
 	Done              chan bool
 	Engine            *Engine
 	GameServerMetrics *GameServerMetrics
+	gcThreshold       int64
 }
 
 func NewGame() *Game {
@@ -31,10 +33,14 @@ func NewGame() *Game {
 		Done:              make(chan bool),
 		Engine:            NewEngine(),
 		GameServerMetrics: NewGameServerMetrics(),
+		gcThreshold:       20000,
 	}
 }
 
 func (g *Game) Start() {
+	old := debug.SetGCPercent(-1) // Disable GC
+	debug.SetMemoryLimit(364904448)
+	gameutils.Logger.Info().Msgf("Old GC Percent: %v", old)
 	ticker := time.NewTicker(1000 / gameutils.TickRate * time.Millisecond)
 	metricsTicker := time.NewTicker(1 * time.Second)
 	g.Engine.Start()
@@ -78,6 +84,10 @@ func (g *Game) processTick() {
 	g.Engine.UpdateSystems()
 	end := time.Now().UnixMicro()
 	atomic.StoreInt64(&g.GameServerMetrics.GameMetrics.SystemUpdateTimeInLastTick, end-start)
+	if g.gcThreshold == 0 {
+		runtime.GC()
+		g.gcThreshold = 10000 // Reset to default if it was set to 0
+	}
 }
 
 func (g *Game) processMetrics() {

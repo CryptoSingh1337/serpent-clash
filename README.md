@@ -83,7 +83,7 @@ an **authoritative server** model to maintain a fair and synchronized game state
 - [x] Create dashboard & API for server metrics
 - [x] Implement food spawning functionality with world-awareness
 - [x] Randomized food generation
-- [ ] Food consumption and snake growth logic
+- [x] Food consumption and snake growth logic
 - [ ] Compensate speed boosts by reducing snake length
 - [ ] Implement leaderboard
 - [ ] Chat system using SSE and channels

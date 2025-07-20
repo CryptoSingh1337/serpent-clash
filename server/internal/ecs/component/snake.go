@@ -9,6 +9,7 @@ type Snake struct {
 	Angle           float64
 	FoodConsumed    uint64
 	GrowthThreshold uint
+	Stamina         uint8
 }
 
 func NewSnakeComponent() Snake {
@@ -16,5 +17,6 @@ func NewSnakeComponent() Snake {
 		Angle:           0,
 		FoodConsumed:    0,
 		GrowthThreshold: utils.DefaultGrowthFactor,
+		Stamina:         utils.DefaultSnakeStamina,
 	}
 }

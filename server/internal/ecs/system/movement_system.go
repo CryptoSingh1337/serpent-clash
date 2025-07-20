@@ -44,9 +44,21 @@ func (m *MovementSystem) Update() {
 		angle = utils.LerpAngle(angle, targetAngle, utils.MaxTurnRate)
 
 		// Move the head towards the mouse coordinate
-		speed := float64(utils.PlayerSpeed)
+		speed := float64(utils.DefaultPlayerSpeed)
 		if inputComponent.Boost {
-			speed += utils.PlayerBoostSpeed
+			if snakeComponent.Stamina > 0 {
+				snakeComponent.Stamina--
+			} else {
+				if len(snakeComponent.Segments) > 5 {
+					snakeComponent.Segments = snakeComponent.Segments[:len(snakeComponent.Segments)-1]
+					snakeComponent.Stamina = utils.DefaultSnakeStamina
+				} else {
+					inputComponent.Boost = false
+				}
+			}
+		}
+		if inputComponent.Boost {
+			speed += utils.DefaultSpeedBoost
 		}
 		head.X += math.Cos(angle) * speed
 		head.Y += math.Sin(angle) * speed

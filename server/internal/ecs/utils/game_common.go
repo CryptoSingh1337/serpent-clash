@@ -9,11 +9,12 @@ import (
 const (
 	TickRate                = 60
 	PingCooldown            = 30
-	PlayerSpeed             = 6
-	PlayerBoostSpeed        = 3
+	DefaultPlayerSpeed      = 6
+	DefaultSpeedBoost       = 3
 	MaxTurnRate             = 0.03
 	DefaultSnakeLength      = 10
 	DefaultGrowthFactor     = 10
+	DefaultSnakeStamina     = 150
 	SnakeSegmentDistance    = 20
 	SnakeSegmentRadius      = 25
 	FoodRadius              = 5

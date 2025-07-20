@@ -119,7 +119,11 @@ export class Player {
       for (let i = 0; i < -lengthIncrease; i++) {
         const sprite = this.sprite.pop()
         if (sprite) {
-          sprite.destroy(true)
+          sprite.destroy({
+            children: true,
+            texture: false,
+            textureSource: false
+          })
         }
       }
       this.updateSprite()

@@ -50,9 +50,7 @@ export class GameRenderer {
       preference: "webgpu",
       resizeTo: window,
       background: 0x191825,
-      antialias: true,
-      textureGCActive: true,
-      textureGCCheckCountMax: 82500
+      antialias: true
     })
     this.background.init()
     this.worldContainer.addChild(this.background.container)

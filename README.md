@@ -7,7 +7,7 @@ The game is built using Vue.js on the frontend and Golang on the backend, utiliz
 an **authoritative server** model to maintain a fair and synchronized game state. With **server reconciliation** and 
 **interpolation**, players experience smooth gameplay and accurate movement.
 
-🎥 **Demo** - [https://youtu.be/hHJq1ubGmuw](https://youtu.be/hHJq1ubGmuw)
+🎥 **Demo** - [https://www.youtube.com/watch?v=qjxnNrzlXaQ](https://www.youtube.com/watch?v=qjxnNrzlXaQ?utm_source=github)
 
 [![wakatime](https://wakatime.com/badge/github/CryptoSingh1337/serpent-clash.svg)](https://wakatime.com/badge/github/CryptoSingh1337/serpent-clash)
 

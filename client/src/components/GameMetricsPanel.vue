@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from "vue"
 import GamePanel from "@/components/game/Panel.vue"
+import GameSystemPanel from "@/components/game/SystemPanel.vue"
 import type { GameMetrics } from "@/utils/types"
 
 const props = defineProps<{
@@ -39,11 +40,9 @@ const avgProcessingTime = computed(() => {
     >
       <h4 class="text-xl font-bold mb-4 text-blue-400 flex items-center">
         <i class="bi bi-speedometer2 mr-2"></i>
-        Real-time metrics
+        Tick metrics
       </h4>
-      <div
-        class="grid grid-cols-5 gap-4 sm:grid-cols-2 md:grid-cols-5 justify-center"
-      >
+      <div class="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
         <GamePanel
           :label="'Average Tick processing time'"
           :value="avgProcessingTime"
@@ -71,17 +70,15 @@ const avgProcessingTime = computed(() => {
     <div class="bg-gray-800 rounded-lg p-6 border border-gray-700 shadow-lg">
       <h4 class="text-xl font-bold mb-4 text-blue-400 flex items-center">
         <i class="bi bi-graph-up mr-2"></i>
-        Memory Usage Trend
+        System Metrics
       </h4>
-      <div class="h-40 flex items-end justify-between gap-1">
-        <div
-          v-for="(value, index) in memoryTrend"
-          :key="index"
-          class="bg-blue-500 rounded-t flex-1 min-w-5 max-w-10 transition-all duration-500"
-          :style="{ height: `${value}%` }"
-        ></div>
+      <div class="grid grid-cols-4 gap-4 sm:grid-cols-2 md:grid-cols-4">
+        <GameSystemPanel
+          :key="idx"
+          v-for="(system, idx) in gameMetrics.systemMetrics"
+          :system="system"
+        />
       </div>
-      <div class="text-xs text-gray-400 mt-2 text-center">Last 10 minutes</div>
     </div>
   </div>
 </template>

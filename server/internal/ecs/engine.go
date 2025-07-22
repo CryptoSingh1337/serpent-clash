@@ -73,7 +73,7 @@ func NewEngine() *Engine {
 func (e *Engine) Start() {
 }
 
-func (e *Engine) UpdateSystems() {
+func (e *Engine) UpdateSystems(systemMetrics []*SystemMetrics) {
 	for {
 		select {
 		case joinEvent := <-e.JoinQueue:
@@ -98,8 +98,11 @@ ProcessLeaveQueue:
 		}
 	}
 ProcessSystemUpdates:
-	for _, s := range e.systemUpdateOrder {
+	for idx, s := range e.systemUpdateOrder {
+		start := time.Now().UnixMicro()
 		e.systems[s].Update()
+		end := time.Now().UnixMicro()
+		atomic.StoreInt64(&systemMetrics[idx].UpdateTimeInLastTick, end-start)
 	}
 }
 

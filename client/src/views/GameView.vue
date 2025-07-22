@@ -54,6 +54,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  game.disconnect()
   game.stop()
 })
 </script>

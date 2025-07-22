@@ -83,9 +83,7 @@ export class GameRenderer {
       {
         children: true,
         texture: true,
-        textureSource: true,
-        style: true,
-        context: true
+        textureSource: true
       }
     )
   }

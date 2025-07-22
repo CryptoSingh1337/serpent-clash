@@ -29,12 +29,20 @@ type ServerMetrics struct {
 	ActiveConnections  uint8  `json:"activeConnections"`
 }
 
+type SystemMetrics struct {
+	Name                     string  `json:"name"`
+	UpdateTimeInLastTick     int64   `json:"systemUpdateTimeInLastTick"`
+	MaxUpdateTime            int64   `json:"maxSystemUpdateTime"`
+	UpdateTimeInLastTenTicks []int64 `json:"systemUpdateTimeInLastTenTicks"`
+}
+
 type GameMetrics struct {
-	PlayerCount                    uint8    `json:"playerCount"`
-	SystemUpdateTimeInLastTick     int64    `json:"systemUpdateTimeInLastTick"`
-	MaxSystemUpdateTime            int64    `json:"maxSystemUpdateTime"`
-	SystemUpdateTimeInLastTenTicks []int64  `json:"systemUpdateTimeInLastTenTicks"`
-	NoOfCollisionsInLastTenTicks   []uint64 `json:"noOfCollisionsInLastTenTicks"`
+	PlayerCount                    uint8            `json:"playerCount"`
+	SystemUpdateTimeInLastTick     int64            `json:"systemUpdateTimeInLastTick"`
+	MaxSystemUpdateTime            int64            `json:"maxSystemUpdateTime"`
+	SystemUpdateTimeInLastTenTicks []int64          `json:"systemUpdateTimeInLastTenTicks"`
+	NoOfCollisionsInLastTenTicks   []uint64         `json:"noOfCollisionsInLastTenTicks"`
+	SystemMetrics                  []*SystemMetrics `json:"systemMetrics"`
 }
 
 type SpawnRegions struct {
@@ -59,6 +67,16 @@ func NewGameServerMetrics() *GameServerMetrics {
 	}
 	metrics := &GameServerMetrics{}
 	metrics.GameMetrics.SystemUpdateTimeInLastTenTicks = make([]int64, 0, 10)
+	metrics.GameMetrics.SystemMetrics = []*SystemMetrics{
+		{Name: "Quad Tree", UpdateTimeInLastTenTicks: make([]int64, 0, 10)},
+		{Name: "Movement", UpdateTimeInLastTenTicks: make([]int64, 0, 10)},
+		{Name: "Player spawn", UpdateTimeInLastTenTicks: make([]int64, 0, 10)},
+		{Name: "Player despawn", UpdateTimeInLastTenTicks: make([]int64, 0, 10)},
+		{Name: "Collision", UpdateTimeInLastTenTicks: make([]int64, 0, 10)},
+		{Name: "Food spawn", UpdateTimeInLastTenTicks: make([]int64, 0, 10)},
+		{Name: "Food despawn", UpdateTimeInLastTenTicks: make([]int64, 0, 10)},
+		{Name: "Network", UpdateTimeInLastTenTicks: make([]int64, 0, 10)},
+	}
 	metrics.proc = proc
 	return metrics
 }

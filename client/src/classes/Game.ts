@@ -78,9 +78,6 @@ export class Game {
     this.player = null
     this.displayDriver.camera.target = null
     this.displayDriver.stop()
-    if (this.networkManager) {
-      this.networkManager.close()
-    }
   }
 
   connect(): void {

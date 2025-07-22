@@ -81,7 +81,7 @@ func (g *Game) Stop() {
 
 func (g *Game) processTick() {
 	start := time.Now().UnixMicro()
-	g.Engine.UpdateSystems()
+	g.Engine.UpdateSystems(g.GameServerMetrics.GameMetrics.SystemMetrics)
 	end := time.Now().UnixMicro()
 	atomic.StoreInt64(&g.GameServerMetrics.GameMetrics.SystemUpdateTimeInLastTick, end-start)
 	if g.gcThreshold == 0 {
@@ -146,6 +146,16 @@ func (g *Game) processMetrics() {
 			g.GameServerMetrics.GameMetrics.SystemUpdateTimeInLastTenTicks,
 			current,
 		)
+	}
+	for _, s := range g.GameServerMetrics.GameMetrics.SystemMetrics {
+		current = atomic.LoadInt64(&s.UpdateTimeInLastTick)
+		atomic.StoreInt64(&s.MaxUpdateTime, int64(math.Max(float64(atomic.LoadInt64(&s.MaxUpdateTime)), float64(current))))
+		if len(s.UpdateTimeInLastTenTicks) < 10 {
+			s.UpdateTimeInLastTenTicks = append(s.UpdateTimeInLastTenTicks, current)
+		} else {
+			s.UpdateTimeInLastTenTicks = s.UpdateTimeInLastTenTicks[1:]
+			s.UpdateTimeInLastTenTicks = append(s.UpdateTimeInLastTenTicks, current)
+		}
 	}
 }
 

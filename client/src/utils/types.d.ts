@@ -75,10 +75,18 @@ export type ServerMetrics = {
   activeConnections: number
 }
 
+export type SystemMetrics = {
+  name: string
+  systemUpdateTimeInLastTick: number
+  maxSystemUpdateTime: number
+  systemUpdateTimeInLastTenTicks: number[]
+}
+
 export type GameMetrics = {
   playerCount: number
   systemUpdateTimeInLastTick: number
   maxSystemUpdateTime: number
   systemUpdateTimeInLastTenTicks: number[]
   noOfCollisionsInLastTenTicks: number[]
+  systemMetrics: SystemMetrics[]
 }

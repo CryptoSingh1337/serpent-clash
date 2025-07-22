@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from "vue"
 import type { GameMetrics, ServerMetrics } from "@/utils/types"
-import ServerMetricsPanel from "@/components/ServerMetricsPanel.vue"
+import ServerMetricsTopPanel from "@/components/ServerMetricsTopPanel.vue"
 import TabNavigation from "@/components/TabNavigation.vue"
-import SystemMetricsPanel from "@/components/SystemMetricsPanel.vue"
+import ServerMetricsBottomPanel from "@/components/ServerMetricsBottomPanel.vue"
 import GameMetricsPanel from "@/components/GameMetricsPanel.vue"
 import { useRouter } from "vue-router"
 
@@ -35,7 +35,8 @@ const gameMetrics = ref<GameMetrics>({
   systemUpdateTimeInLastTick: 0,
   maxSystemUpdateTime: 0,
   systemUpdateTimeInLastTenTicks: [],
-  noOfCollisionsInLastTenTicks: []
+  noOfCollisionsInLastTenTicks: [],
+  systemMetrics: []
 })
 
 let sse: EventSource | null = null
@@ -108,8 +109,8 @@ onBeforeUnmount(() => {
             <i class="bi bi-graph-up mr-2"></i>
             Server Metrics
           </h4>
-          <ServerMetricsPanel :server-metrics="serverMetrics" />
-          <SystemMetricsPanel :server-metrics="serverMetrics" />
+          <ServerMetricsTopPanel :server-metrics="serverMetrics" />
+          <ServerMetricsBottomPanel :server-metrics="serverMetrics" />
         </div>
       </div>
       <div

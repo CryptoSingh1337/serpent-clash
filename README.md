@@ -17,14 +17,29 @@ an **authoritative server** model to maintain a fair and synchronized game state
 - 🔄 **Server Reconciliation** for accurate game state even under lag
 - ✨ **Player Movement Interpolation** for smooth rendering of remote players
 - 🐍 **Dynamic Snake Rendering** using multiple coordinates and mouse input
+- 🍔 **Growth and stamina mechanics** where snakes can consume food to grow longer and use stamina for speed boosts
 - 🌐 **Efficient Collision Detection** powered by Quad Tree structures
 - 🧩 **Entity Component System (ECS)** Architecture for efficient resource management and maintainability
 
 ### 🚀 Future Enhancements
-- 🍎 **Food Generation & Snake Growth**
-<br>Introduce dynamic elements where snakes grow by consuming food, adding a new layer of strategy and progression.
 - 🏆 **Leaderboard & UI Enhancements**
 <br>Improve the overall player experience with a more interactive UI and detailed leaderboard statistics to showcase top players.
+
+### Motivation & Journey
+The goal of this project is to get hands-on experience with backend game development, focusing on low latency communication,
+architecture design, and multiplayer game simulation. During the development, I also learned Golang and its ecosystem,
+which has been a great experience. Initially, I was not familiar with the language and how to structure a game server, but I
+managed to create a working prototype in a short time. Later, I got to know about the Entity Component System (ECS) architecture,
+which I found to be a great fit for this project. It allows for better organization of game entities and their behaviors, 
+making the codebase more maintainable and scalable.
+
+While working on collision detection, I learned about the Quad Tree data structure, which significantly improved the 
+performance of collision checks in the game. For rendering, I used the HTML 2D canvas, but as the complexity of the game increased,
+it became unmanageable. Therefore, I switched to Pixi.js, which provided a more efficient rendering engine and better performance, 
+basically I offloaded the rendering logic to Pixi.js, allowing me to focus on the game mechanics and logic.
+
+Overall, this project has been a great learning experience and has helped me understand the complexities of game development
+and real-time systems.
 
 ### 🧱 Backend ECS Architecture
 
@@ -41,18 +56,43 @@ an **authoritative server** model to maintain a fair and synchronized game state
 - `Snake`
 
 #### ⚙️ Systems
-- `Collision`
-- `Food despawn`
-- `Food spawn`
-- `Movement`
-- `Network`
-- `Player despawn`
-- `Player spawn`
-- `Quad tree`
+- `Collision` - Detect and handle collisions:
+  - Between players (e.g., head-to-head, head-to-body)
+  - With world boundaries
+  - With food entities
+- `Food despawn` - Remove food entities either when consumed or after a predefined number of ticks.
+- `Food spawn` - Spawn food entities at random valid positions within the game world.
+- `Movement` - Update player movement based on the last recorded mouse direction. If speed boost is active, decrease both snake length and stamina accordingly.
+- `Network` - Broadcast the current game state to all clients. Send pong responses to clients for ping calculation.
+- `Player despawn` - Handle player leave events by removing the player entity and all its associated components.
+- `Player spawn` - Handle player join events by creating a player entity and initializing its associated components.
+- `Quad tree` - Rebuild the quad tree each tick using all food entities and snake segments for optimized spatial queries (e.g., collision detection).
 
 #### 🔗 Entity-Component Relationships
 - **Player** -> `Input`, `Network`, `PlayerInfo`, `Snake`
 - **Food** -> `Expiry`, `Position`
+
+### Screenshots
+
+##### Landing page
+![Landing page](/assets/landing-page.png)
+
+##### Game menu
+![Game menu](/assets/game-menu.png)
+
+##### Hud & Gameplay
+![Hud and Gameplay](/assets/hud-plus-gameplay.png)
+
+#### Dashboard
+
+##### Server metrics
+![Server metrics](/assets/server-metrics.png)
+
+##### Game metrics
+![Game metrics](/assets/game-metrics.png)
+
+##### Quad Tree visualization
+![Quad Tree visualization](/assets/quad-tree.png)
 
 ### ✅ TODO Tracker
 - [x] Serve Vue files from backend
@@ -85,12 +125,13 @@ an **authoritative server** model to maintain a fair and synchronized game state
 - [x] Implement food spawning functionality with world-awareness
 - [x] Randomized food generation
 - [x] Food consumption and snake growth logic
-- [ ] Compensate speed boosts by reducing snake length
+- [x] Compensate speed boosts by reducing snake length
 - [ ] Implement leaderboard
 - [ ] Chat system using SSE and channels
 - [ ] Client UI design improvements
 
 ### ⚡ Optimizations
+- [ ] Store delta state in each system and send only the delta to the client
 - [ ] Switch to binary data formats instead of JSON for faster network communication
 - [x] Switch to gorilla websocket
 - [x] Explore Pixi.js to improve performance

@@ -25,7 +25,7 @@ an **authoritative server** model to maintain a fair and synchronized game state
 - 🏆 **Leaderboard & UI Enhancements**
 <br>Improve the overall player experience with a more interactive UI and detailed leaderboard statistics to showcase top players.
 
-### Motivation & Journey
+### 💪 Motivation & Journey
 The goal of this project is to get hands-on experience with backend game development, focusing on low latency communication,
 architecture design, and multiplayer game simulation. During the development, I also learned Golang and its ecosystem,
 which has been a great experience. Initially, I was not familiar with the language and how to structure a game server, but I
@@ -72,7 +72,7 @@ and real-time systems.
 - **Player** -> `Input`, `Network`, `PlayerInfo`, `Snake`
 - **Food** -> `Expiry`, `Position`
 
-### Screenshots
+### 📸 Screenshots
 
 ##### Landing page
 ![Landing page](/assets/landing-page.png)

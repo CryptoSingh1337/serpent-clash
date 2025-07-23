@@ -140,7 +140,7 @@ and real-time systems.
 - [https://www.gabrielgambetta.com/client-server-game-architecture.html](https://www.gabrielgambetta.com/client-server-game-architecture.html)
 
 ### 🔌 Dependencies
-~~- **Websocket** - [https://github.com/lesismal/nbio](https://github.com/lesismal/nbio)~~
+- ~~**Websocket** - [https://github.com/lesismal/nbio](https://github.com/lesismal/nbio)~~
 - **Websocket** - [https://github.com/gorilla/websocket](https://github.com/gorilla/websocket)
 - **Pixijs** - [https://pixijs.com/](https://pixijs.com/)
 - **Echo** - [https://echo.labstack.com/](https://echo.labstack.com/)

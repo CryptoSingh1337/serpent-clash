@@ -142,3 +142,5 @@ and real-time systems.
 ### 🔌 Dependencies
 ~~- **Websocket** - [https://github.com/lesismal/nbio](https://github.com/lesismal/nbio)~~
 - **Websocket** - [https://github.com/gorilla/websocket](https://github.com/gorilla/websocket)
+- **Pixijs** - [https://pixijs.com/](https://pixijs.com/)
+- **Echo** - [https://echo.labstack.com/](https://echo.labstack.com/)

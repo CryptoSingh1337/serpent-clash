@@ -3,8 +3,9 @@ package utils
 import (
 	"bytes"
 	"fmt"
-	"github.com/gorilla/websocket"
 	"io"
+
+	"github.com/gorilla/websocket"
 )
 
 type WSHandler struct {

@@ -1,13 +1,14 @@
 package handler
 
 import (
+	"net/http"
+
 	apiutils "github.com/CryptoSingh1337/serpent-clash/server/internal/api/utils"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/config"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs"
 	gameutils "github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/utils"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
-	"net/http"
 )
 
 type GameHandler struct {

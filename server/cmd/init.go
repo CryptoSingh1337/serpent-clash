@@ -3,15 +3,16 @@ package main
 import (
 	"context"
 	"errors"
-	"github.com/CryptoSingh1337/serpent-clash/server/internal/api"
-	apiutils "github.com/CryptoSingh1337/serpent-clash/server/internal/api/utils"
-	"github.com/CryptoSingh1337/serpent-clash/server/internal/config"
-	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/CryptoSingh1337/serpent-clash/server/internal/api"
+	apiutils "github.com/CryptoSingh1337/serpent-clash/server/internal/api/utils"
+	"github.com/CryptoSingh1337/serpent-clash/server/internal/config"
+	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs"
 )
 
 type App struct {

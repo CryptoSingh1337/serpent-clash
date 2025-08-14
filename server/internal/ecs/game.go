@@ -2,6 +2,14 @@ package ecs
 
 import (
 	"errors"
+	"math"
+	"net/http"
+	"runtime"
+	"runtime/debug"
+	"strings"
+	"sync/atomic"
+	"time"
+
 	apiutils "github.com/CryptoSingh1337/serpent-clash/server/internal/api/utils"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/storage"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/types"
@@ -11,13 +19,6 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/shirou/gopsutil/v4/host"
 	"github.com/shirou/gopsutil/v4/net"
-	"math"
-	"net/http"
-	"runtime"
-	"runtime/debug"
-	"strings"
-	"sync/atomic"
-	"time"
 )
 
 type Game struct {
@@ -39,7 +40,7 @@ func NewGame() *Game {
 
 func (g *Game) Start() {
 	old := debug.SetGCPercent(-1) // Disable GC
-	debug.SetMemoryLimit(364904448)
+	debug.SetMemoryLimit(62914560)
 	gameutils.Logger.Info().Msgf("Old GC Percent: %v", old)
 	ticker := time.NewTicker(1000 / gameutils.TickRate * time.Millisecond)
 	metricsTicker := time.NewTicker(1 * time.Second)

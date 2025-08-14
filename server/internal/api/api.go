@@ -1,13 +1,14 @@
 package api
 
 import (
+	"net/http"
+
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/api/handler"
 	apiutils "github.com/CryptoSingh1337/serpent-clash/server/internal/api/utils"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/config"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"net/http"
 )
 
 type Api struct {

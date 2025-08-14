@@ -1,10 +1,11 @@
 package storage
 
 import (
+	"sync"
+
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/component"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/types"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/utils"
-	"sync"
 )
 
 type Storage interface {

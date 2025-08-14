@@ -72,6 +72,54 @@ and real-time systems.
 - **Player** -> `Input`, `Network`, `PlayerInfo`, `Snake`
 - **Food** -> `Expiry`, `Position`
 
+#### 🐍 Snake movement logic
+
+**1. Definitions**
+- **Head position**: $\mathbf{H} = (H_x, H_y)$
+- **Mouse position**: $\mathbf{M} = (M_x, M_y)$
+- **Current head angle**: $\theta$
+- **Target angle**: $\theta_t$
+- **Maximum turn rate**: $\Delta_{\max}$
+- **Default speed**: $v_0$
+- **Speed boost**: $v_b$
+- **Segment distance**: $d_s $
+- **Snake segments**: $\mathbf{S}_0, \mathbf{S}_1, \dots, \mathbf{S}_n$ where $\mathbf{S}_0 = \mathbf{H}$
+
+**2. Determine Target Angle**
+
+$\theta_t = \arctan2(M_y - H_y, M_x - H_x)$
+
+**3. Smoothly Rotate Towards Target**
+
+LerpAngle (linear interpolation for angles) is:
+$\theta \gets \theta + \mathrm{clamp}(\theta_t - \theta, -\Delta_{\max}, \Delta_{\max})$
+
+**4. Determine Speed**
+
+Boost logic:
+$v = v_0$ $\text{if boosting:} \quad v \gets v + v_b$
+
+**5. Move Head**
+
+$H_x \gets H_x + \cos(\theta) \cdot v$
+
+$H_y \gets H_y + \sin(\theta) \cdot v$
+
+**6. Move Following Segments**
+
+For each segment $i = 1 \dots n$:
+1. Previous segment: $\mathbf{P} = \mathbf{S}_{i-1}$
+2. Current segment: $\mathbf{C} = \mathbf{S}_i$
+3. Angle from current to previous: $\theta_p = \arctan2(P_y - C_y, P_x - C_x)$
+4. Position update to maintain fixed distance $d_s$:
+   - $C_x \gets P_x - \cos(\theta_p) \cdot d_s$
+   - $C_y \gets P_y - \sin(\theta_p) \cdot d_s$
+
+**7. Summary**
+- Head rotates towards mouse by at most $\Delta_{\max}$ per frame.
+- Head moves forward by $v$ units per frame.
+- Each following segment stays exactly $d_s$ behind its predecessor, aligned along the connecting vector.
+
 ### 📸 Screenshots
 
 ##### Landing page

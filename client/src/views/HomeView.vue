@@ -679,7 +679,7 @@ onUnmounted(() => {
             </svg>
           </div>
           <h3 class="text-2xl font-semibold text-[#ffc107] mb-4 font-cherry">
-            🍎 Food Generation & Growth
+            🍎 Food Generation & Growth (Implemented)
           </h3>
           <p class="text-white leading-relaxed">
             Dynamic elements where snakes grow by consuming food, adding a new

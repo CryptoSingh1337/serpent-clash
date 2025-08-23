@@ -5,8 +5,9 @@ import (
 )
 
 type Input struct {
-	Coordinates utils.Coordinate
-	Boost       bool
+	PrevCoordinates utils.Coordinate
+	Coordinates     utils.Coordinate
+	Boost           bool
 }
 
 func NewInputComponent() Input {

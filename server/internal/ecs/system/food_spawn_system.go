@@ -1,13 +1,14 @@
 package system
 
 import (
+	"math"
+	"math/rand/v2"
+	"sync/atomic"
+
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/component"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/storage"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/types"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/utils"
-	"math"
-	"math/rand/v2"
-	"sync/atomic"
 )
 
 const (

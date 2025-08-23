@@ -1,10 +1,11 @@
 package system
 
 import (
+	"math"
+
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/component"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/storage"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/utils"
-	"math"
 )
 
 type MovementSystem struct {
@@ -37,11 +38,14 @@ func (m *MovementSystem) Update() {
 		if len(snakeComponent.Segments) == 0 {
 			continue
 		}
+		previousCoordinate := inputComponent.PrevCoordinates
 		mouseCoordinate := inputComponent.Coordinates
 		head := snakeComponent.Segments[0]
 		angle := snakeComponent.Angle
-		targetAngle := math.Atan2(mouseCoordinate.Y-head.Y, mouseCoordinate.X-head.X)
-		angle = utils.LerpAngle(angle, targetAngle, utils.MaxTurnRate)
+		if previousCoordinate.X != mouseCoordinate.X || previousCoordinate.Y != mouseCoordinate.Y {
+			targetAngle := math.Atan2(mouseCoordinate.Y-head.Y, mouseCoordinate.X-head.X)
+			angle = utils.LerpAngle(angle, targetAngle, utils.MaxTurnRate)
+		}
 
 		// Move the head towards the mouse coordinate
 		speed := float64(utils.DefaultPlayerSpeed)

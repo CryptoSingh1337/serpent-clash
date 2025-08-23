@@ -3,14 +3,15 @@ package ecs
 import (
 	"errors"
 	"fmt"
+	"sync/atomic"
+	"time"
+
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/component"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/storage"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/system"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/types"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/utils"
 	"github.com/gorilla/websocket"
-	"sync/atomic"
-	"time"
 )
 
 const (
@@ -225,15 +226,16 @@ func (e *Engine) ProcessEvent(playerId string, messageType int, data []byte) {
 			inputComponent := e.storage.GetComponentByEntityIdAndName(entityId, utils.InputComponent).(*component.Input)
 			networkComponent := e.storage.GetComponentByEntityIdAndName(entityId, utils.NetworkComponent).(*component.Network)
 			networkComponent.MessageSequence = inputEvent.Seq
+			inputComponent.PrevCoordinates = inputComponent.Coordinates
 			inputComponent.Coordinates.X = inputEvent.Coordinate.X
 			inputComponent.Coordinates.Y = inputEvent.Coordinate.Y
 			inputComponent.Boost = inputEvent.Boost
 		case utils.PingMessageType:
 			pingEvent, err := utils.FromJsonB[types.PingEvent](payload.Body)
-			pingEvent.PlayerId = playerId
 			if err != nil {
 				return
 			}
+			pingEvent.PlayerId = playerId
 			networkComponent := e.storage.GetComponentByEntityIdAndName(entityId, utils.NetworkComponent).(*component.Network)
 			networkComponent.RequestInitiateTimestamp = pingEvent.RequestInitiateTimestamp
 			networkComponent.RequestAckTimestamp = uint64(time.Now().UnixMilli())

@@ -77,6 +77,7 @@ and real-time systems.
 **1. Definitions**
 - **Head position**: $\mathbf{H} = (H_x, H_y)$
 - **Mouse position**: $\mathbf{M} = (M_x, M_y)$
+- **Previous mouse position**: $\mathbf{M}_{prev} = (M_{x_p}, M_{y_p})$
 - **Current head angle**: $\theta$
 - **Target angle**: $\theta_t$
 - **Maximum turn rate**: $\Delta_{\max}$
@@ -87,12 +88,12 @@ and real-time systems.
 
 **2. Determine Target Angle**
 
-$\theta_t = \arctan2(M_y - H_y, M_x - H_x)$
+$\theta_t = \arctan2(M_y - H_y, M_x - H_x)$ $\text{if } M_{x_p} \neq M_x \text{ or }  M_{y_p} \neq M_y $
 
 **3. Smoothly Rotate Towards Target**
 
 LerpAngle (linear interpolation for angles) is:
-$\theta \gets \theta + \mathrm{clamp}(\theta_t - \theta, -\Delta_{\max}, \Delta_{\max})$
+$\theta \gets \theta + \mathrm{clamp}(\theta_t - \theta, -\Delta_{\max}, \Delta_{\max})$ $\text{if } M_{x_p} \neq M_x \text{ or }  M_{y_p} \neq M_y $
 
 **4. Determine Speed**
 

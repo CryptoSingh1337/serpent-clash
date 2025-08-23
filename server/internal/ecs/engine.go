@@ -115,7 +115,9 @@ func (e *Engine) Stop() {
 
 func (e *Engine) AddPlayer(joinEvent *types.JoinEvent) error {
 	utils.Logger.Info().Msgf("Inside Engine.AddPlayer :: joinEvent: %v", joinEvent)
-	// TODO: add max player validation
+	if len(e.playerIdToEntityId) > utils.MaxPlayerAllowed {
+		return errors.New("max player limit reached")
+	}
 	if joinEvent.PlayerId == "" {
 		return errors.New("invalid player id")
 	}

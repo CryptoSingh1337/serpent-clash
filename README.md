@@ -18,7 +18,7 @@ an **authoritative server** model to maintain a fair and synchronized game state
 - ✨ **Player Movement Interpolation** for smooth rendering of remote players
 - 🐍 **Dynamic Snake Rendering** using multiple coordinates and mouse input
 - 🍔 **Growth and stamina mechanics** where snakes can consume food to grow longer and use stamina for speed boosts
-- 🌐 **Efficient Collision Detection** powered by Quad Tree structures
+- 🌐 **Efficient Collision Detection** powered by Quad Tree data structure
 - 🧩 **Entity Component System (ECS)** Architecture for efficient resource management and maintainability
 
 ### 🚀 Future Enhancements

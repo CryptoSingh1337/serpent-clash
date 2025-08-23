@@ -77,7 +77,7 @@ and real-time systems.
 **1. Definitions**
 - **Head position**: $\mathbf{H} = (H_x, H_y)$
 - **Mouse position**: $\mathbf{M} = (M_x, M_y)$
-- **Previous mouse position**: $\mathbf{M}_{prev} = (M_{x_p}, M_{y_p})$
+- **Previous mouse position**: $\mathbf{M_prev} = (M_{x_p}, M_{y_p})$
 - **Current head angle**: $\theta$
 - **Target angle**: $\theta_t$
 - **Maximum turn rate**: $\Delta_{\max}$

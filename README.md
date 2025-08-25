@@ -15,7 +15,7 @@ an **authoritative server** model to maintain a fair and synchronized game state
 - ⚔️ **Multiplayer** with low-latency WebSocket communication
 - 🛡️ **Authoritative Server Model** to ensure fairness and consistency
 - 🔄 **Server Reconciliation** for accurate game state even under lag
-- ✨ **Player Movement Interpolation** for smooth rendering of remote players
+- ✨ **Player Movement Interpolation** for smooth rendering of players
 - 🐍 **Dynamic Snake Rendering** using multiple coordinates and mouse input
 - 🍔 **Growth and stamina mechanics** where snakes can consume food to grow longer and use stamina for speed boosts
 - 🌐 **Efficient Collision Detection** powered by Quad Tree data structure

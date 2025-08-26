@@ -2,7 +2,7 @@ import { Graphics, Sprite, Texture, Text } from "pixi.js"
 import type { Snake } from "@/classes/Snake.ts"
 import type { Game } from "@/classes/Game.ts"
 import { Constants } from "@/utils/constants.ts"
-import { lerp, lerpAngle } from "@/utils/helper.ts"
+import { lerp, lerpAngle, euclideanDistance } from "@/utils/helper.ts"
 import type { Coordinate } from "@/utils/types"
 
 export class Player {
@@ -13,6 +13,7 @@ export class Player {
   sprite: Sprite[]
   lastUpdatedTime: number
   animationCounter: number
+  lastCoordinate: Coordinate = { x: 0, y: 0 }
   static sharedTexture: Texture | null = null
 
   constructor(game: Game, id: string, snake: Snake) {
@@ -33,10 +34,21 @@ export class Player {
     }
 
     const head = this.snake.segments[0]
+    const screenHeadCoordinate = this.game.displayDriver.camera.worldToScreen(
+      head.x, head.y
+    )
     let angle = this.snake.angle
-    const targetAngle = Math.atan2(y - head.y, x - head.x)
-    angle = lerpAngle(angle, targetAngle, Constants.maxTurnRate)
+    if (this.lastCoordinate.x != x || this.lastCoordinate.y != y) {
+      const headToInputDistance = euclideanDistance(screenHeadCoordinate.x, screenHeadCoordinate.y,
+        x, y)
+      if (headToInputDistance > Constants.snakeSegmentRadius * 1.25) {
+        const targetAngle = Math.atan2(y - head.y, x - head.x)
+        angle = lerpAngle(angle, targetAngle, Constants.maxTurnRate)
+      }
+    }
     this.snake.angle = angle
+    this.lastCoordinate.x = x
+    this.lastCoordinate.y = y
 
     // Move target head
     let speed = Constants.playerSpeed

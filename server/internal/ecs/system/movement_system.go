@@ -42,7 +42,9 @@ func (m *MovementSystem) Update() {
 		mouseCoordinate := inputComponent.Coordinates
 		head := snakeComponent.Segments[0]
 		angle := snakeComponent.Angle
-		if previousCoordinate.X != mouseCoordinate.X || previousCoordinate.Y != mouseCoordinate.Y {
+		headToInputDistance := utils.EuclideanDistance(head.X, head.Y, mouseCoordinate.X, mouseCoordinate.Y)
+		if previousCoordinate.X != mouseCoordinate.X || previousCoordinate.Y != mouseCoordinate.Y ||
+			headToInputDistance > utils.SnakeSegmentRadius {
 			targetAngle := math.Atan2(mouseCoordinate.Y-head.Y, mouseCoordinate.X-head.X)
 			angle = utils.LerpAngle(angle, targetAngle, utils.MaxTurnRate)
 		}

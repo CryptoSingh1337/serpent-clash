@@ -2,9 +2,11 @@ package storage
 
 import (
 	"fmt"
+	"math"
+	"sync"
+
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/types"
 	gameutils "github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/utils"
-	"math"
 )
 
 const (
@@ -71,8 +73,23 @@ type QuadTree struct {
 	SE       *QuadTree `json:"se,omitempty"`
 }
 
+var quadTreePool = sync.Pool{
+	New: func() any {
+		return &QuadTree{
+			Points: make([]Point, 0, gameutils.QuadTreeSegmentCapacity), // default capacity
+		}
+	},
+}
+
 func NewQuadTree(boundary BBox, capacity int) *QuadTree {
-	return &QuadTree{Boundary: boundary, Capacity: capacity, Points: make([]Point, 0, capacity)}
+	qt := quadTreePool.Get().(*QuadTree)
+	qt.Boundary = boundary
+	qt.Capacity = capacity
+	qt.Points = qt.Points[:0]
+	qt.Divided = false
+	qt.Depth = 0
+	qt.NW, qt.NE, qt.SW, qt.SE = nil, nil, nil, nil
+	return qt
 }
 
 func (qt *QuadTree) Insert(p Point) bool {
@@ -170,6 +187,22 @@ func (qt *QuadTree) subDivide() {
 	qt.SW.Depth = qt.Depth + 1
 	qt.SE.Depth = qt.Depth + 1
 	qt.Divided = true
+}
+
+func (qt *QuadTree) Reset() {
+	qt.Points = qt.Points[:0]
+	if qt.Divided {
+		qt.NW.Reset()
+		quadTreePool.Put(qt.NW)
+		qt.NE.Reset()
+		quadTreePool.Put(qt.NE)
+		qt.SW.Reset()
+		quadTreePool.Put(qt.SW)
+		qt.SE.Reset()
+		quadTreePool.Put(qt.SE)
+		qt.NW, qt.NE, qt.SW, qt.SE = nil, nil, nil, nil
+	}
+	qt.Divided = false
 }
 
 func (qt *QuadTree) Print(test bool) {

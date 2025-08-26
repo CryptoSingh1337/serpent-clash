@@ -3,7 +3,6 @@ package system
 import (
 	"math"
 	"math/rand/v2"
-	"sync/atomic"
 
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/component"
 	"github.com/CryptoSingh1337/serpent-clash/server/internal/ecs/storage"
@@ -18,7 +17,7 @@ const (
 
 type FoodSpawnSystem struct {
 	storage             storage.Storage
-	foodIdCounter       atomic.Uint32
+	foodId              uint32
 	FoodSpawnEventQueue []*types.FoodSpawnEvent
 }
 
@@ -34,7 +33,7 @@ func (f *FoodSpawnSystem) Name() string {
 
 func (f *FoodSpawnSystem) Update() {
 	if len(f.FoodSpawnEventQueue) > 0 {
-		f.FoodSpawnEventQueue = nil
+		f.FoodSpawnEventQueue = f.FoodSpawnEventQueue[:0]
 	}
 	r := f.storage.GetSharedResource(utils.QuadTreeResource)
 	if r == nil {
@@ -47,7 +46,8 @@ func (f *FoodSpawnSystem) Update() {
 	if foodCount < utils.FoodSpawnThreshold {
 		utils.Logger.Info().Msgf("Spawning %d food entities", utils.FoodSpawnThreshold-foodCount)
 		for i := utils.FoodSpawnThreshold - foodCount; i > 0; i-- {
-			entityId := f.newFoodId()
+			entityId := (types.Id(f.foodId) % MaxFoodEntityId) + MinFoodEntityId
+			f.foodId++
 			f.storage.AddEntity(entityId, utils.FoodEntity)
 			angle := rand.Float64() * 2 * math.Pi
 			radius := 100 + float64(rand.Uint64N(utils.WorldBoundaryRadius-100))
@@ -69,13 +69,4 @@ func (f *FoodSpawnSystem) Update() {
 }
 
 func (f *FoodSpawnSystem) Stop() {
-}
-
-func (f *FoodSpawnSystem) newFoodId() types.Id {
-	for {
-		val := f.foodIdCounter.Load()
-		if f.foodIdCounter.CompareAndSwap(val, val+1) {
-			return (types.Id(val) % (MaxFoodEntityId - MinFoodEntityId)) + MinFoodEntityId
-		}
-	}
 }

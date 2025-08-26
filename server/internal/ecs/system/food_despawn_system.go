@@ -14,7 +14,8 @@ type FoodDespawnSystem struct {
 
 func NewFoodDespawnSystem(storage storage.Storage) System {
 	return &FoodDespawnSystem{
-		storage: storage,
+		storage:          storage,
+		FoodDespawnQueue: make([]*types.FoodDespawnEvent, 0, utils.FoodSpawnThreshold),
 	}
 }
 
@@ -24,7 +25,7 @@ func (f *FoodDespawnSystem) Name() string {
 
 func (f *FoodDespawnSystem) Update() {
 	if len(f.FoodDespawnQueue) > 0 {
-		f.FoodDespawnQueue = nil
+		f.FoodDespawnQueue = f.FoodDespawnQueue[:0]
 	}
 	foodEntities := f.storage.GetAllEntitiesByType(utils.FoodEntity)
 	var expiredFoodEntityIds []types.Id

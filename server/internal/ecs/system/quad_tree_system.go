@@ -21,13 +21,20 @@ func (q *QuadTreeSystem) Name() string {
 }
 
 func (q *QuadTreeSystem) Update() {
+	var qt *storage.QuadTree
+	r := q.storage.GetSharedResource(utils.QuadTreeResource)
+	if r != nil {
+		qt = r.(*storage.QuadTree)
+		qt.Reset()
+	} else {
+		qt = storage.NewQuadTree(storage.BBox{
+			X: 0,
+			Y: 0,
+			W: utils.WorldWeight,
+			H: utils.WorldHeight,
+		}, utils.QuadTreeSegmentCapacity)
+	}
 	playerEntities := q.storage.GetAllEntitiesByType(utils.PlayerEntity)
-	qt := storage.NewQuadTree(storage.BBox{
-		X: 0,
-		Y: 0,
-		W: utils.WorldWeight,
-		H: utils.WorldHeight,
-	}, utils.QuadTreeSegmentCapacity)
 	for _, playerId := range playerEntities {
 		comp := q.storage.GetComponentByEntityIdAndName(playerId, utils.SnakeComponent)
 		if comp == nil {

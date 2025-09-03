@@ -117,8 +117,8 @@ For each segment $i = 1 \dots n$:
    - $C_y \gets P_y - \sin(\theta_p) \cdot d_s$
 
 **7. Summary**
-- Head rotates towards mouse by at most $\Delta_{\max}$ per frame.
-- Head moves forward by $v$ units per frame.
+- Head rotates towards mouse by at most $\Delta_{\max}$ per tick.
+- Head moves forward by $v$ units per tick.
 - Each following segment stays exactly $d_s$ behind its predecessor, aligned along the connecting vector.
 
 ### 📸 Screenshots
